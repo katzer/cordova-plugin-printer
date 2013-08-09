@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+        id="de.appplant.maintcall.cordova.plugin.printer"
+        version="0.0.1">
+
+    <name>Printer</name>
+
+    <engines>
+        <engine name="cordova" version=">=3.0.0" />
+    </engines>
+
+    <!-- ios -->
+    <platform name="ios">
+
+        <config-file target="config.xml" parent="/*">
+		<feature name="Printer">
+			<param name="ios-package" value="CDVPlugin"/>
+		</feature>
+        </config-file>
+
+        <js-module src="www/printer.js" name="printer">
+            <clobbers target="plugin.printer" />
+        </js-module>
+
+	<header-file src="src/ios/CDVPrinter.h" />
+	<source-file src="src/ios/CDVPrinter.m" />
+
+    </platform>
+
+</plugin>
