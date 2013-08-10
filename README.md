@@ -1,4 +1,8 @@
-cordova-plugin-printer
+Cordova Printer-Plugin
 ======================
 
-A bunch of printing plugins for cordova 3.x
+by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
+A bunch of printing plugins for Cordova 3.x.x
+
+## Platforms
+- iOS *(Print from iOS devices to AirPrint compatible printers)*
