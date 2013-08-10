@@ -1,5 +1,5 @@
 /**
- *  CDVPrinter.m
+ *  APPPrinter.m
  *  Cordova Printer Plugin
  *
  *  Created by Sebastian Katzer (github.com/katzer) on 10/08/2013.
@@ -7,10 +7,10 @@
  *  GPL v2 licensed
  */
 
-#import "CDVPrinter.h"
+#import "APPPrinter.h"
 
 
-@implementation CDVPrinter
+@implementation APPPrinter
 
 /*
  * Is printing available.

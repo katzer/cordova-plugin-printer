@@ -1,5 +1,5 @@
 /**
- *  CDVPrinter.h
+ *  APPPrinter.h
  *  Cordova Printer Plugin
  *
  *  Created by Sebastian Katzer (github.com/katzer) on 10/08/2013.
@@ -11,7 +11,7 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface CDVPrinter : CDVPlugin {
+@interface APPPrinter : CDVPlugin {
 
 }
 
@@ -23,7 +23,7 @@
 @end
 
 
-@interface CDVPrinter (Private)
+@interface APPPrinter (Private)
 
 // Bereitet den Drucker-Kontroller vor
 - (UIPrintInteractionController *) prepareController:(NSString*)content;
