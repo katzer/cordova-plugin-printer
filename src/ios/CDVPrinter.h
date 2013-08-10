@@ -1,5 +1,5 @@
 /**
- *  Printer.m
+ *  CDVPrinter.h
  *  Cordova Printer Plugin
  *
  *  Created by Sebastian Katzer (github.com/katzer) on 10/08/2013.
