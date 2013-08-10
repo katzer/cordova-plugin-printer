@@ -15,7 +15,7 @@
 
         <config-file target="config.xml" parent="/*">
 		<feature name="Printer">
-			<param name="ios-package" value="CDVPlugin"/>
+			<param name="ios-package" value="CDVPrinter"/>
 		</feature>
         </config-file>
 

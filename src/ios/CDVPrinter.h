@@ -1,38 +1,33 @@
-//
-//  PrintPlugin.h
-//  Print Plugin
-//
-//  Created by Ian Tipton (github.com/itip) on 02/07/2011.
-//  Copyright 2011 Ian Tipton. All rights reserved.
-//  MIT licensed
-//
+/**
+ *  Printer.m
+ *  Cordova Printer Plugin
+ *
+ *  Created by Sebastian Katzer (github.com/katzer) on 10/08/2013.
+ *  Copyright 2013 Sebastian Katzer. All rights reserved.
+ *  GPL v2 licensed
+ */
 
 #import <Foundation/Foundation.h>
 #import <Cordova/CDVPlugin.h>
 
 
 @interface CDVPrinter : CDVPlugin {
-    NSString* successCallback;
-    NSString* failCallback;
-    NSString* printHTML;
-    
-    //Options
-    NSInteger dialogLeftPos;
-    NSInteger dialogTopPos;
+
 }
 
-@property (nonatomic, copy) NSString* successCallback;
-@property (nonatomic, copy) NSString* failCallback;
-@property (nonatomic, copy) NSString* printHTML;
+// Prints the content
+- (void) print:(CDVInvokedUrlCommand*)command;
+// Find out whether printing is supported on this platform
+- (void) isServiceAvailable:(CDVInvokedUrlCommand*)command;
 
-//Print Settings
-@property NSInteger dialogLeftPos;
-@property NSInteger dialogTopPos;
+@end
 
-//Print HTML
-- (void) print:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 
-//Find out whether printing is supported on this platform.
-- (void) isPrintingAvailable:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+@interface CDVPrinter (Private)
+
+// Bereitet den Drucker-Kontroller vor
+- (UIPrintInteractionController *) prepareController:(NSString*)content;
+// Überprüft, ob der Drucker-Dienst verfügbar ist
+- (BOOL) isPrintServiceAvailable;
 
 @end
