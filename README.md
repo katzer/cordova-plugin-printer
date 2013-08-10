@@ -5,21 +5,21 @@ A bunch of printing plugins for Cordova 3.x.x
 
 by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
 
-## Supported Platforms
+## Supported Platforms ##
 - **iOS** *(Print from iOS devices to AirPrint compatible printers)*
 
-## Adding the Plugin to your project
+## Adding the Plugin to your project ##
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 
 ```bash
 cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 ```
 
-## Release Notes
-#### Version 0.0.1 (10.08.2013)
+## Release Notes ##
+#### Version 0.0.1 (10.08.2013) ####
 - Added iOS support
 
-## Using the plugin
+## Using the plugin ##
 The plugin creates the object ```window.plugin.printer``` with two methods:
 
 ### isServiceAvailable() ###
@@ -27,7 +27,7 @@ Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPho
 
 ```javascript
 /*
- * Find out if printing is available. Use this for showing/hiding print buttons. 
+ * Find out if printing is available. Use this for showing/hiding print buttons.
  */
 window.plugin.printer.isServiceAvailable(
     function (isAvailable) {
