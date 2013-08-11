@@ -45,7 +45,8 @@
     NSArray         *arguments    = [command arguments];
     CDVPluginResult *pluginResult = nil;
 
-    if (![self isPrintServiceAvailable]) {
+    if (![self isPrintServiceAvailable])
+    {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                         messageAsString:@"{success: false, available: false}"];
 
@@ -54,7 +55,8 @@
         return;
     }
 
-    if ([arguments count] == 0) {
+    if ([arguments count] == 0)
+    {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                         messageAsString:@"{success: false, available: true}"];
 
@@ -70,13 +72,16 @@
     ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
         CDVPluginResult *pluginResult = nil;
 
-        if (!completed || error) {
+        if (!completed || error)
+        {
             NSString *result = [NSString stringWithFormat:@"{success: false, available: true, error: \"%@\"}", error.localizedDescription];
 
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                             messageAsString:result];
 
-        } else {
+        }
+        else
+        {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                             messageAsString:@"{success: true, available: true}"];
         }
@@ -125,7 +130,8 @@
 {
     Class printController = NSClassFromString(@"UIPrintInteractionController");
 
-    if (printController) {
+    if (printController)
+    {
         UIPrintInteractionController *controller = [UIPrintInteractionController sharedPrintController];
 
         return (controller != nil) && [UIPrintInteractionController isPrintingAvailable];
