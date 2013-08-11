@@ -21,13 +21,3 @@
 - (void) isServiceAvailable:(CDVInvokedUrlCommand*)command;
 
 @end
-
-
-@interface APPPrinter (Private)
-
-// Bereitet den Drucker-Kontroller vor
-- (UIPrintInteractionController *) prepareController:(NSString*)content;
-// Überprüft, ob der Drucker-Dienst verfügbar ist
-- (BOOL) isPrintServiceAvailable;
-
-@end
