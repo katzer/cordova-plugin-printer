@@ -16,7 +16,8 @@
  * Is printing available.
  * Callback returns true/false if printing is available/unavailable.
  */
-- (void) isServiceAvailable:(CDVInvokedUrlCommand*)command {
+- (void) isServiceAvailable:(CDVInvokedUrlCommand*)command
+{
     CDVPluginResult *pluginResult = nil;
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
@@ -29,7 +30,8 @@
  * Öffnet den Drucker-Kontroller zur Auswahl des Druckers.
  * Callback gibt Meta-Informationen an.
  */
-- (void) print:(CDVInvokedUrlCommand*)command {
+- (void) print:(CDVInvokedUrlCommand*)command
+{
     NSArray         *arguments    = [command arguments];
     CDVPluginResult *pluginResult = nil;
 
@@ -80,7 +82,8 @@
  *
  * @param {NSString} content Der zu druckende Inhalt
  */
-- (UIPrintInteractionController *) prepareController:(NSString *)content {
+- (UIPrintInteractionController *) prepareController:(NSString *)content
+{
     UIPrintInteractionController *controller = [UIPrintInteractionController sharedPrintController];
 
     //Set the priner settings
@@ -108,7 +111,8 @@
 /**
  * Überprüft, ob der Drucker-Dienst verfügbar ist.
  */
-- (BOOL) isPrintServiceAvailable {
+- (BOOL) isPrintServiceAvailable
+{
     Class printController = NSClassFromString(@"UIPrintInteractionController");
 
     if (printController) {
@@ -116,7 +120,6 @@
 
         return (controller != nil) && [UIPrintInteractionController isPrintingAvailable];
     }
-
 
     return NO;
 }
