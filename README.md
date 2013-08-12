@@ -17,7 +17,8 @@ cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 
 ## Release Notes ##
 #### Version 0.2.0 (11.08.2013) ####
-- Added iOS support
+- Added iOS support<br>
+  *Based on the Print iOS plugin made by* ***Randy McMillan***
 
 ## Using the plugin ##
 The plugin creates the object ```window.plugin.printer``` with two methods:
