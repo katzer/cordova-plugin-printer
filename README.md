@@ -16,6 +16,9 @@ cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 ```
 
 ## Release Notes ##
+#### Version 0.2.1 ####
+- Support for callback scopes
+
 #### Version 0.2.0 (11.08.2013) ####
 - Added iOS support<br>
   *Based on the Print iOS plugin made by* ***Randy McMillan***
@@ -24,7 +27,8 @@ cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 The plugin creates the object ```window.plugin.printer``` with two methods:
 
 ### isServiceAvailable() ###
-Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later. You can use this function to hide print functionality from users who will be unable to use it. Function takes a callback function, passed to which is a boolean property.
+Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later. You can use this function to hide print functionality from users who will be unable to use it.<br>
+Function takes a callback function, passed to which is a boolean property. Optionally you can assign the scope in which the callback will be executed as a second parameter (default to *window*).
 
 ```javascript
 /*
@@ -38,16 +42,18 @@ window.plugin.printer.isServiceAvailable(
 ```
 
 ### print() ###
-Function takes an html string and (optionally) a success callback and a failure callback.
+Function takes an html string and (optionally) a callback function. Optionally you can assign the scope in which the callback will be executed as a third parameter (default to *window*).
 
 ```javascript
 // Get HTML string
 var page = document.body.innerHTML;
 
 /*
- * Pass an HTML and - optionally - success function, error function.
+ * Pass an HTML and - optionally - a callback function.
  */
-window.plugin.printer.print(page);
+window.plugin.printer.print(page, function (success, available, error) {
+
+}, this);
 ```
 
 #### Testing in the iOS Simulator ####
