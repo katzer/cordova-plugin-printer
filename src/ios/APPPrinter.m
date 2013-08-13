@@ -12,8 +12,14 @@
 
 @interface APPPrinter (Private)
 
-// Bereitet den Drucker-Kontroller vor
-- (UIPrintInteractionController *) prepareController:(NSString *)content;
+// Erstellt den PrintController
+- (UIPrintInteractionController *) getPrintController;
+// Stellt die Eigenschaften des Druckers ein.
+- (UIPrintInteractionController *) adjustSettingsForPrintController:(UIPrintInteractionController *)controller;
+// Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
+- (void) loadHTML:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller;
+// Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
+- (void) informAboutResult:(BOOL)success serviceAvailable:(BOOL)available error:(NSString *)error callbackId:(NSString *)callbackId;
 // Überprüft, ob der Drucker-Dienst verfügbar ist
 - (BOOL) isPrintServiceAvailable;
 
@@ -28,7 +34,7 @@
  */
 - (void) isServiceAvailable:(CDVInvokedUrlCommand *)command
 {
-    CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult;
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                     messageAsBool:[self isPrintServiceAvailable]];
@@ -42,85 +48,91 @@
  */
 - (void) print:(CDVInvokedUrlCommand *)command
 {
-    NSArray*         arguments    = [command arguments];
-    CDVPluginResult* pluginResult = nil;
-
     if (![self isPrintServiceAvailable])
     {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                        messageAsString:@"{success: false, available: false}"];
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
+        [self informAboutResult:FALSE serviceAvailable:FALSE error:NULL callbackId:command.callbackId];
         return;
     }
 
-    if ([arguments count] == 0)
-    {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                        messageAsString:@"{success: false, available: true}"];
+    NSArray*  arguments  = [command arguments];
+    NSString* content    = [arguments objectAtIndex:0];
 
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    UIPrintInteractionController* controller = [self getPrintController];
 
-        return;
-    }
+    [self adjustSettingsForPrintController:controller];
+    [self loadHTML:content intoPrintController:controller];
 
-    NSString                     *content    = [arguments objectAtIndex:0];
-    UIPrintInteractionController *controller = [self prepareController:content];
-
-    void (^completionHandler)(UIPrintInteractionController *, BOOL, NSError *) =
-    ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
-        CDVPluginResult *pluginResult = nil;
-
-        if (!completed || error)
-        {
-            NSString *result = [NSString stringWithFormat:@"{success: false, available: true, error: \"%@\"}", error.localizedDescription];
-
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                            messageAsString:result];
-
-        }
-        else
-        {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                            messageAsString:@"{success: true, available: true}"];
-        }
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    };
-
-    [controller presentAnimated:YES completionHandler:completionHandler];
+    [controller presentAnimated:YES completionHandler:^(UIPrintInteractionController* printController, BOOL completed, NSError* error) {
+        [self informAboutResult:completed serviceAvailable:TRUE error:(error ? error.localizedDescription : @"null") callbackId:command.callbackId];
+    }];
 }
 
 /**
- * Bereitet den Drucker-Kontroller vor.
+ * Erstellt den PrintController.
  *
- * @param {NSString} content Der zu druckende Inhalt
+ * @return {UIPrintInteractionController *}
  */
-- (UIPrintInteractionController *) prepareController:(NSString *)content
+- (UIPrintInteractionController *) getPrintController
 {
-    UIPrintInteractionController *controller = [UIPrintInteractionController sharedPrintController];
+    return [UIPrintInteractionController sharedPrintController];
+}
 
-    //Set the priner settings
-    UIPrintInfo *printInfo    = [UIPrintInfo printInfo];
+/**
+ * Stellt die Eigenschaften des Druckers ein.
+ *
+ * @param {UIPrintInteractionController *} controller
+ */
+- (UIPrintInteractionController *) adjustSettingsForPrintController:(UIPrintInteractionController *)controller
+{
+    UIPrintInfo* printInfo    = [UIPrintInfo printInfo];
     printInfo.outputType      = UIPrintInfoOutputGeneral;
     controller.printInfo      = printInfo;
     controller.showsPageRange = YES;
 
-    //Set the base URL to be the www directory.
-    NSString *wwwFilePath     = [[NSBundle mainBundle] pathForResource:@"www" ofType:nil ];
-    NSURL    *baseURL         = [NSURL fileURLWithPath:wwwFilePath];
-
-    //Load page into a webview and use its formatter to print the page
-    UIWebView *webViewPrint = [[UIWebView alloc] init];
-    [webViewPrint loadHTMLString:content baseURL:baseURL];
-
-    //Get formatter for web (note: margin not required - done in web page)
-    UIViewPrintFormatter *viewFormatter = [webViewPrint viewPrintFormatter];
-    controller.printFormatter           = viewFormatter;
-    controller.showsPageRange           = YES;
-
     return controller;
+}
+
+/**
+ * Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
+ *
+ * @param {NSString}                       content
+ * @param {UIPrintInteractionController *} controller
+ */
+- (void) loadHTML:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller
+{
+    // Set the base URL to be the www directory.
+    NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www" ofType:nil];
+    NSURL*    baseURL     = [NSURL fileURLWithPath:wwwFilePath];
+    // Load page into a webview and use its formatter to print the page
+    UIWebView* webPage    = [[UIWebView alloc] init];
+
+    [webPage loadHTMLString:content baseURL:baseURL];
+
+    // Get formatter for web (note: margin not required - done in web page)
+    UIViewPrintFormatter* formatter = [webPage viewPrintFormatter];
+
+    controller.printFormatter = formatter;
+    controller.showsPageRange = YES;
+}
+
+/**
+ * Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
+ *
+ * @param {NSString *} callbackId
+ * @param {Boolean}    success
+ * @param {Boolean}    available
+ * @param {NSString *} error
+ */
+- (void) informAboutResult:(BOOL)success serviceAvailable:(BOOL)available error:(NSString *)error callbackId:(NSString *)callbackId
+{
+    NSString* wasSuccess   = success ? @"true" : @"false";
+    NSString* wasAvailable = available ? @"true" : @"false";
+    NSString* result       = [NSString stringWithFormat:@"%@, %@, %@", wasSuccess, wasAvailable, error];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                     messageAsString:result];
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
 /**
