@@ -16,31 +16,44 @@ Printer.prototype = {
      * Überprüft, ob der Drucker-Dienst verfügbar ist.
      *
      * @param {Function} callback
+     * @param {Object?}  scope    callback scope (default: window)
+     *
      * @return {Boolean}
      */
-    isServiceAvailable: function (callback) {
-        cordova.exec(callback, null, 'Printer', 'isServiceAvailable', []);
+    isServiceAvailable: function (callback, scope) {
+        var callbackFn = function () {
+            callback.apply(scope || window, arguments);
+        };
+
+        cordova.exec(callbackFn, null, 'Printer', 'isServiceAvailable', []);
     },
 
     /**
      * Übergibt den HTML-Content an den Drucker-Dienst.
      *
-     * @param {String} content html string or DOM node (if latter, innerHTML is used to get the contents)
-     * @param {Function?} success callback function called if print successful. {success: true}
-     * @param {Function?} failure callback function called if print unsuccessful. If print fails, {error: reason}. If printing not available: {available: false}
+     * @param {String}    content  HTML string or DOM node (if latter, innerHTML is used to get the contents)
+     * @param {Function?} callback callback function called if print is completed. {success: bool, available: bool, error: reason}
+     * @param {Object?}   scope    callback scope (default: window)
      */
-    print: function (content, success, failure) {
-        content = content.innerHTML || content;
+    print: function (content, callback, scope) {
+        var page = content.innerHTML || content,
+            callbackFn;
 
-        if (typeof content != 'string') {
+        if (typeof page != 'string') {
             console.log('Print function requires an HTML string. Not an object');
             return;
         }
 
-        cordova.exec(success, failure, 'Printer', 'print', [content]);
+        if (typeof callback == 'function'){
+            callbackFn = function () {
+                callback.apply(scope || window, arguments);
+            }
+        }
+
+        cordova.exec(callbackFn, null, 'Printer', 'print', [page]);
     }
 };
 
-var printer = new Printer();
+var plugin = new Printer();
 
-module.exports = printer;
+module.exports = plugin;
