@@ -17,21 +17,21 @@
     </engines>
 
     <!-- interface -->
-    <js-module src="www/email_composer.js" name="EmailComposer">
-        <clobbers target="plugin.email" />
+    <js-module src="www/printer.js" name="Printer">
+        <clobbers target="plugin.printer" />
     </js-module>
 
     <!-- ios -->
     <platform name="ios">
 
         <config-file target="config.xml" parent="/*">
-		<feature name="Printer">
-			<param name="ios-package" value="APPPrinter"/>
-		</feature>
+        <feature name="Printer">
+            <param name="ios-package" value="APPPrinter"/>
+        </feature>
         </config-file>
 
-	<header-file src="src/ios/APPPrinter.h" />
-	<source-file src="src/ios/APPPrinter.m" />
+        <header-file src="src/ios/APPPrinter.h" />
+        <source-file src="src/ios/APPPrinter.m" />
 
     </platform>
 
@@ -44,7 +44,6 @@
         </config-file>
 
         <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin" />
-
     </platform>
 
 </plugin>
