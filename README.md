@@ -6,7 +6,8 @@ A bunch of printing plugins for Cordova 3.x.x
 by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
 
 ## Supported Platforms ##
-- **iOS** *(Print from iOS devices to AirPrint compatible printers)*
+- **iOS** *(Print from iOS devices to AirPrint compatible printers)*<br>
+See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html) for detailed informations and screenshots.
 
 ## Adding the Plugin to your project ##
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
@@ -22,6 +23,9 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 ## Release Notes ##
+#### Version 0.2.1 ####
+- Support for callback scopes
+
 #### Version 0.2.0 (11.08.2013) ####
 - Added iOS support<br>
   *Based on the Print iOS plugin made by* ***Randy McMillan***
@@ -30,7 +34,8 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 The plugin creates the object ```window.plugin.printer``` with two methods:
 
 ### isServiceAvailable() ###
-Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later. You can use this function to hide print functionality from users who will be unable to use it. Function takes a callback function, passed to which is a boolean property.
+Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later. You can use this function to hide print functionality from users who will be unable to use it.<br>
+Function takes a callback function, passed to which is a boolean property. Optionally you can assign the scope in which the callback will be executed as a second parameter (default to *window*).
 
 ```javascript
 /*
@@ -44,16 +49,18 @@ window.plugin.printer.isServiceAvailable(
 ```
 
 ### print() ###
-Function takes an html string and (optionally) a success callback and a failure callback.
+Function takes an html string and (optionally) a callback function. Optionally you can assign the scope in which the callback will be executed as a third parameter (default to *window*).
 
 ```javascript
 // Get HTML string
 var page = document.body.innerHTML;
 
 /*
- * Pass an HTML and - optionally - success function, error function.
+ * Pass an HTML and - optionally - a callback function.
  */
-window.plugin.printer.print(page);
+window.plugin.printer.print(page, function (success, available, error) {
+
+}, this);
 ```
 
 #### Testing in the iOS Simulator ####
