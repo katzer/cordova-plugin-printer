@@ -22,7 +22,9 @@ Printer.prototype = {
      */
     isServiceAvailable: function (callback, scope) {
         var callbackFn = function () {
-            callback.apply(scope || window, arguments);
+            var args = typeof arguments[0] == 'boolean' ? arguments : arguments[0];
+
+            callback.apply(scope || window, args);
         };
 
         cordova.exec(callbackFn, null, 'Printer', 'isServiceAvailable', []);
@@ -46,7 +48,9 @@ Printer.prototype = {
 
         if (typeof callback == 'function'){
             callbackFn = function () {
-                callback.apply(scope || window, arguments);
+                var args = typeof arguments[0] == 'boolean' ? arguments : arguments[0];
+
+                callback.apply(scope || window, args);
             }
         }
 
