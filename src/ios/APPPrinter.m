@@ -17,7 +17,7 @@
 // Stellt die Eigenschaften des Druckers ein.
 - (UIPrintInteractionController *) adjustSettingsForPrintController:(UIPrintInteractionController *)controller;
 // Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
-- (void) loadHTML:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller;
+- (void) loadContent:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller;
 // Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
 - (void) informAboutResult:(BOOL)success serviceAvailable:(BOOL)available error:(NSString *)error callbackId:(NSString *)callbackId;
 // Überprüft, ob der Drucker-Dienst verfügbar ist
@@ -30,7 +30,6 @@
 
 /*
  * Is printing available.
- * Callback returns true/false if printing is available/unavailable.
  */
 - (void) isServiceAvailable:(CDVInvokedUrlCommand *)command
 {
@@ -60,7 +59,7 @@
     UIPrintInteractionController* controller = [self getPrintController];
 
     [self adjustSettingsForPrintController:controller];
-    [self loadHTML:content intoPrintController:controller];
+    [self loadContent:content intoPrintController:controller];
 
     [controller presentAnimated:YES completionHandler:^(UIPrintInteractionController* printController, BOOL completed, NSError* error) {
         [self informAboutResult:completed serviceAvailable:TRUE error:(error ? error.localizedDescription : @"null") callbackId:command.callbackId];
@@ -98,7 +97,7 @@
  * @param {NSString}                       content
  * @param {UIPrintInteractionController *} controller
  */
-- (void) loadHTML:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller
+- (void) loadContent:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller
 {
     // Set the base URL to be the www directory.
     NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www" ofType:nil];
