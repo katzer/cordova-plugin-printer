@@ -36,9 +36,11 @@ Printer.prototype = {
      * @param {String}    content  HTML string or DOM node (if latter, innerHTML is used to get the contents)
      * @param {Function?} callback callback function called if print is completed. {success: bool, available: bool, error: reason}
      * @param {Object?}   scope    callback scope (default: window)
+     * @param {Object?}   options  platform specific options
      */
-    print: function (content, callback, scope) {
-        var page = content.innerHTML || content,
+    print: function (content, callback, scope, options) {
+        var page    = content.innerHTML || content,
+            options = options || {},
             callbackFn;
 
         if (typeof page != 'string') {
@@ -54,7 +56,7 @@ Printer.prototype = {
             }
         }
 
-        cordova.exec(callbackFn, null, 'Printer', 'print', [page]);
+        cordova.exec(callbackFn, null, 'Printer', 'print', [page, options]);
     }
 };
 
