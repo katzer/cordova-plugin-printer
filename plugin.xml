@@ -2,12 +2,12 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         id="de.appplant.cordova.plugin.printer"
-        version="0.2.1">
+        version="0.4.0">
 
     <name>Printer</name>
 
     <description>A bunch of printig plugins for Cordova 3.x.x</description>
-    <keywords>print, printer, ios</keywords>
+    <keywords>print, printer, ios, android</keywords>
     <license>GPL v2 License</license>
 
     <author>Sebastián Katzer (github.com/katzer)</author>
