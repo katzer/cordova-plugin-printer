@@ -113,7 +113,8 @@ public class Printer extends CordovaPlugin {
 
         cordova.getActivity().runOnUiThread( new Runnable() {
             public void run() {
-        		String appId      = self.getFirstInstalledAppId();
+            	JSONObject platformConfig = args.optJSONObject(1);
+        		String appId              = self.getPrintAppId(platformConfig);
 
         		if (appId == null) {
         			self.ctx.success(4);
@@ -129,6 +130,19 @@ public class Printer extends CordovaPlugin {
             	self.startPrinterApp(controller);
             }
         });
+	}
+
+	/**
+	 * Gibt die zu verwendende App-ID an.
+	 */
+	private String getPrintAppId (JSONObject platformConfig) {
+		String appId = platformConfig.optString("appId", null);
+
+		if (appId != null) {
+			return (this.isAppInstalled(appId)) ? appId : null;
+		} else {
+			return this.getFirstInstalledAppId();
+		}
 	}
 
 	/**
@@ -207,10 +221,10 @@ public class Printer extends CordovaPlugin {
 				  public void run() {
 						Bitmap screenshot = self.takeScreenshot(page);
 						File tmpFile      = self.saveScreenshotToTmpFile(screenshot);
+						ViewGroup vg      = (ViewGroup)(page.getParent());
 
 						intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(tmpFile));
 
-						ViewGroup vg = (ViewGroup)(page.getParent());
 						vg.removeView(page);
 				  }
 				}, 1000);
