@@ -9,6 +9,10 @@
 
 #import "APPPrinter.h"
 
+#define APP_PRINT_CANCELLED 0  // Printing cancelled (cancel button pressed)
+#define APP_PRINT_SENT      2  // Page printed
+#define APP_PRINT_FAILED    3  // Printing failed
+#define APP_PRINT_NOTSENT   4  // Page not printed (something wrong happened)
 
 @interface APPPrinter (Private)
 
@@ -19,7 +23,7 @@
 // Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
 - (void) loadContent:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller;
 // Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
-- (void) informAboutResult:(BOOL)success serviceAvailable:(BOOL)available error:(NSString *)error callbackId:(NSString *)callbackId;
+- (void) informAboutResult:(int)code callbackId:(NSString *)callbackId;
 // Überprüft, ob der Drucker-Dienst verfügbar ist
 - (BOOL) isPrintServiceAvailable;
 
@@ -49,7 +53,7 @@
 {
     if (![self isPrintServiceAvailable])
     {
-        [self informAboutResult:FALSE serviceAvailable:FALSE error:NULL callbackId:command.callbackId];
+        [self informAboutResult:APP_PRINT_FAILED callbackId:command.callbackId];
         return;
     }
 
@@ -62,14 +66,18 @@
     [self loadContent:content intoPrintController:controller];
 
     [controller presentAnimated:YES completionHandler:^(UIPrintInteractionController* printController, BOOL completed, NSError* error) {
-        [self informAboutResult:completed serviceAvailable:TRUE error:(error ? error.localizedDescription : @"null") callbackId:command.callbackId];
+        if (completed) {
+            [self informAboutResult:APP_PRINT_SENT callbackId:command.callbackId];
+        } else if (error) {
+            [self informAboutResult:APP_PRINT_FAILED callbackId:command.callbackId];
+        } else {
+            [self informAboutResult:APP_PRINT_CANCELLED callbackId:command.callbackId];
+        }
     }];
 }
 
 /**
  * Erstellt den PrintController.
- *
- * @return {UIPrintInteractionController *}
  */
 - (UIPrintInteractionController *) getPrintController
 {
@@ -78,8 +86,6 @@
 
 /**
  * Stellt die Eigenschaften des Druckers ein.
- *
- * @param {UIPrintInteractionController *} controller
  */
 - (UIPrintInteractionController *) adjustSettingsForPrintController:(UIPrintInteractionController *)controller
 {
@@ -93,9 +99,6 @@
 
 /**
  * Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
- *
- * @param {NSString}                       content
- * @param {UIPrintInteractionController *} controller
  */
 - (void) loadContent:(NSString *)content intoPrintController:(UIPrintInteractionController *)controller
 {
@@ -116,20 +119,11 @@
 
 /**
  * Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
- *
- * @param {NSString *} callbackId
- * @param {Boolean}    success
- * @param {Boolean}    available
- * @param {NSString *} error
  */
-- (void) informAboutResult:(BOOL)success serviceAvailable:(BOOL)available error:(NSString *)error callbackId:(NSString *)callbackId
+- (void) informAboutResult:(int)code callbackId:(NSString *)callbackId
 {
-    NSString* wasSuccess   = success ? @"true" : @"false";
-    NSString* wasAvailable = available ? @"true" : @"false";
-    NSString* result       = [NSString stringWithFormat:@"%@, %@, %@", wasSuccess, wasAvailable, error];
-
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                     messageAsString:result];
+                                                     messageAsInt:code];
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }

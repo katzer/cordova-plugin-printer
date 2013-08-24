@@ -50,9 +50,7 @@ Printer.prototype = {
 
         if (typeof callback == 'function'){
             callbackFn = function () {
-                var args = typeof arguments[0] == 'boolean' ? arguments : arguments[0];
-
-                callback.apply(scope || window, args);
+                callback.apply(scope || window, arguments);
             }
         }
 
