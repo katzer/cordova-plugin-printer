@@ -25,6 +25,9 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 ## Release Notes
+#### Version 0.4.1 (not yet released)
+- Release under LGPL 2.1 license.
+
 #### Version 0.4.0 (24.08.2013)
 - [feature]: Added Android support<br>
   *Based on the Print Android plugin made by* ***Eion Robb***
