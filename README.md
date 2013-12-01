@@ -59,19 +59,6 @@ window.plugin.printer.isServiceAvailable(
 );
 ```
 
-**Android:** The callback function will be called with a second argument which is an array, indicating which printer apps are available for printing.
-
-```javascript
-/*
- * Find out if printing is available. Use this to find out which apps are available for printing.
- */
-window.plugin.printer.isServiceAvailable(
-    function (isAvailable, installedAppIds) {
-        alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
-    }
-);
-```
-
 ### print()
 Function takes an html string and (optionally) a callback function. Optionally you can assign the scope in which the callback will be executed as a third parameter (default to *window*).
 
@@ -92,8 +79,23 @@ window.plugin.printer.print(page, function (code) {
 }, this);
 ```
 
-**Android:** An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
+## Platform specifics
 
+### Get all available printing apps on Android
+The callback function will be called with a second argument which is an array, indicating which printer apps are available for printing.
+```javascript
+/*
+ * Find out if printing is available. Use this to find out which apps are available for printing.
+ */
+window.plugin.printer.isServiceAvailable(
+    function (isAvailable, installedAppIds) {
+        alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
+    }
+);
+```
+
+### Specify printing app on Android
+An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
 ```javascript
 /*
  * Pass an HTML and - optionally - a platform specific configuration.
@@ -128,6 +130,18 @@ Note: you will need to add an extra top margin to new pages.
 Printing is only supported on AirPrint-enabled printers or with the use of third-party software on your computer. The following pages contain more information:
  - AirPrint-enabled printers: http://www.apple.com/ipad/features/airprint.html
  - Enabling AirPrint on your computer: http://reviews.cnet.com/8301-19512_7-20023976-233.html, or http://www.ecamm.com/mac/printopia/
+
+### TypeError: Cannot read property 'currentVersion' of null
+Along with Cordova 3.2 and Windows Phone 8 the `version.bat` script has to be renamed to `version`.
+
+On Mac or Linux
+```
+mv platforms/wp8/cordova/version.bat platforms/wp8/cordova/version
+```
+On Windows
+```
+ren platforms\wp8\cordova\version.bat platforms\wp8\cordova\version
+```
 
 ## Contributing
 
