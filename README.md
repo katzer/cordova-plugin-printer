@@ -84,9 +84,6 @@ window.plugin.printer.print(page, function (code) {
 ### Get all available printing apps on Android
 The callback function will be called with a second argument which is an array, indicating which printer apps are available for printing.
 ```javascript
-/*
- * Find out if printing is available. Use this to find out which apps are available for printing.
- */
 window.plugin.printer.isServiceAvailable(
     function (isAvailable, installedAppIds) {
         alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
@@ -97,9 +94,6 @@ window.plugin.printer.isServiceAvailable(
 ### Specify printing app on Android
 An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
 ```javascript
-/*
- * Pass an HTML and - optionally - a platform specific configuration.
- */
 window.plugin.printer.print(page, null, this, { appId: 'epson.print' });
 ```
 
