@@ -128,3 +128,15 @@ Note: you will need to add an extra top margin to new pages.
 Printing is only supported on AirPrint-enabled printers or with the use of third-party software on your computer. The following pages contain more information:
  - AirPrint-enabled printers: http://www.apple.com/ipad/features/airprint.html
  - Enabling AirPrint on your computer: http://reviews.cnet.com/8301-19512_7-20023976-233.html, or http://www.ecamm.com/mac/printopia/
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+## License
+
+This software is released under the [LGPL 2.1 License](http://opensource.org/licenses/LGPL-2.1).
