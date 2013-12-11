@@ -26,7 +26,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 ## Release Notes
 #### Version 0.4.1 (not yet released)
-- Release under LGPL 2.1 license.
+- Release under the Apache 2.0 license.
 
 #### Version 0.4.0 (24.08.2013)
 - [feature]: Added Android support<br>
@@ -147,4 +147,4 @@ ren platforms\wp8\cordova\version.bat platforms\wp8\cordova\version
 
 ## License
 
-This software is released under the [LGPL 2.1 License](http://opensource.org/licenses/LGPL-2.1).
+This software is released under the [Apache 2.0 License](http://opensource.org/licenses/Apache-2.0).

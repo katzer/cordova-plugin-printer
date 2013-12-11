@@ -7,10 +7,11 @@
     <name>Printer</name>
 
     <description>A bunch of printig plugins for Cordova 3.x.x</description>
+    <repo>https://github.com/katzer/cordova-plugin-printer.git</repo>
     <keywords>print, printer, ios, android</keywords>
-    <license>LGPL v2.1 License</license>
+    <license>Apache 2.0</license>
 
-    <author>Sebastián Katzer (github.com/katzer)</author>
+    <author>Sebastián Katzer</author>
 
     <engines>
         <engine name="cordova" version=">=3.0.0" />
