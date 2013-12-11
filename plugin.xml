@@ -42,6 +42,9 @@
             <feature name="Printer">
                 <param name="android-package" value="de.appplant.cordova.plugin.Printer"/>
             </feature>
+            <feature name="KitKatPrinter">
+                <param name="android-package" value="de.appplant.cordova.plugin.KitKatPrinter"/>
+            </feature>
         </config-file>
 
         <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin" />
