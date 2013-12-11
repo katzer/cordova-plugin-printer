@@ -47,7 +47,7 @@
     CDVPluginResult* pluginResult;
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                    messageAsBool:[self isPrintServiceAvailable]];
+                                       messageAsBool:[self isPrintServiceAvailable]];
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -71,9 +71,7 @@
     [self adjustSettingsForPrintController:controller];
     [self loadContent:content intoPrintController:controller];
 
-    [controller presentAnimated:YES completionHandler:^(UIPrintInteractionController* printController, BOOL completed, NSError* error) {
-
-    }];
+    [self openPrintController:controller];
 
     [self commandDelegate];
 }
@@ -117,6 +115,16 @@
 
     controller.printFormatter = formatter;
     controller.showsPageRange = YES;
+}
+
+/**
+ * Zeigt den PrintController an.
+ */
+- (void) openPrintController:(UIPrintInteractionController*)controller
+{
+    //[self.commandDelegate runInBackground:^{
+        [controller presentAnimated:YES completionHandler:NULL];
+    //}];
 }
 
 /**
