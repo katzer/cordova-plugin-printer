@@ -11,6 +11,10 @@ See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/
 
 - **Android** *(Print through 3rd party printing apps on SDK <= 18)*
 
+## Dependencies
+Cordova will check all dependencies and install them if they are missing.
+- [org.apache.cordova.device](https://github.com/apache/cordova-plugin-device) *(since v0.5.0)*
+
 ## Adding the Plugin to your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 
