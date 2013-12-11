@@ -19,7 +19,7 @@
     under the License.
 */
 
-package de.appplant.cordova.plugin;
+package de.appplant.cordova.plugin.printer;
 
 import java.io.File;
 import java.io.FileOutputStream;

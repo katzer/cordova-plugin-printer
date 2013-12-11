@@ -19,7 +19,7 @@
     under the License.
 */
 
-package de.appplant.cordova.plugin;
+package de.appplant.cordova.plugin.printer;
 
 public class KitKatPrinter extends CordovaPlugin {
 
