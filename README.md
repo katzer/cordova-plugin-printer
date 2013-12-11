@@ -9,7 +9,7 @@ by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
 - **iOS** *(Print from iOS devices to AirPrint compatible printers)*<br>
 See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html) for detailed informations and screenshots.
 
-- **Android** *(<= 4.3, Print through 3rd party printing apps)*
+- **Android** *(Print through 3rd party printing apps on SDK <= 18)*
 
 ## Adding the Plugin to your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
@@ -28,6 +28,8 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 #### Version 0.5.0 (not yet released)
 - Release under the Apache 2.0 license.
 - [***change:***] Removed the `callback` property from the `print` interface.
+- [enhancement:] Added Android KitKat support<br>
+  *Based on the Print Android plugin made by* ***Eion Robb***
 
 #### Version 0.4.0 (24.08.2013)
 - [feature]: Added Android support<br>
@@ -75,7 +77,7 @@ window.plugin.printer.print(page);
 
 ## Platform specifics
 
-### Get all available printing apps on Android
+### Get all available printing apps on Android <= 4.3
 The callback function will be called with a second argument which is an array, indicating which printer apps are available for printing.
 ```javascript
 window.plugin.printer.isServiceAvailable(
@@ -85,7 +87,7 @@ window.plugin.printer.isServiceAvailable(
 );
 ```
 
-### Specify printing app on Android
+### Specify printing app on Android <= 4.3
 An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
 ```javascript
 window.plugin.printer.print(page, { appId: 'epson.print' });
