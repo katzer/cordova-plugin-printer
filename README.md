@@ -25,8 +25,9 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 ## Release Notes
-#### Version 0.4.1 (not yet released)
+#### Version 0.5.0 (not yet released)
 - Release under the Apache 2.0 license.
+- [***change:***] Removed the `callback` property from the `print` interface.
 
 #### Version 0.4.0 (24.08.2013)
 - [feature]: Added Android support<br>
@@ -60,23 +61,16 @@ window.plugin.printer.isServiceAvailable(
 ```
 
 ### print()
-Function takes an html string and (optionally) a callback function. Optionally you can assign the scope in which the callback will be executed as a third parameter (default to *window*).
+Function takes an html string.
+
+**Note:** All required CSS rules needs to be included as well.
 
 ```javascript
 // Get HTML string
 var page = document.body.innerHTML;
 
-/*
- * Pass an HTML and - optionally - a callback function.
- */
-window.plugin.printer.print(page, function (code) {
-	switch (code) {
-	    case 0:     // printing cancelled (cancel button pressed)
-	    case 2:     // printed
-	    case 3:     // printing failed
-	    case 4:     // page not printed (something wrong happened e.g. service is not available)
-	}
-}, this);
+// Pass the HTML
+window.plugin.printer.print(page);
 ```
 
 ## Platform specifics
@@ -94,7 +88,7 @@ window.plugin.printer.isServiceAvailable(
 ### Specify printing app on Android
 An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
 ```javascript
-window.plugin.printer.print(page, null, this, { appId: 'epson.print' });
+window.plugin.printer.print(page, { appId: 'epson.print' });
 ```
 
 ## Quirks
@@ -124,18 +118,6 @@ Note: you will need to add an extra top margin to new pages.
 Printing is only supported on AirPrint-enabled printers or with the use of third-party software on your computer. The following pages contain more information:
  - AirPrint-enabled printers: http://www.apple.com/ipad/features/airprint.html
  - Enabling AirPrint on your computer: http://reviews.cnet.com/8301-19512_7-20023976-233.html, or http://www.ecamm.com/mac/printopia/
-
-### TypeError: Cannot read property 'currentVersion' of null
-Along with Cordova 3.2 and Windows Phone 8 the `version.bat` script has to be renamed to `version`.
-
-On Mac or Linux
-```
-mv platforms/wp8/cordova/version.bat platforms/wp8/cordova/version
-```
-On Windows
-```
-ren platforms\wp8\cordova\version.bat platforms\wp8\cordova\version
-```
 
 ## Contributing
 

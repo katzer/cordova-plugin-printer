@@ -340,15 +340,4 @@ public class Printer extends CordovaPlugin {
 
 		return null;
 	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-	 	super.onActivityResult(requestCode, resultCode, intent);
-
-	 	if (resultCode == -1) {
-	 		ctx.success(4);
-	 	} else {
-	 		ctx.success();
-	 	}
-	}
 }
