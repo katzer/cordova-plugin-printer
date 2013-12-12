@@ -28,8 +28,19 @@ Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/gui
 cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
+## PhoneGap Build
+Add the following xml to your config.xml to always use the latest version of this plugin:
+```
+<gap:plugin name="de.appplant.cordova.plugin.printer" />
+```
+or to use this exact version: 
+```
+<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.0" />
+```
+More informations can be found [here](https://build.phonegap.com/plugins/352).
+
 ## Release Notes
-#### Version 0.5.0 (not yet released)
+#### Version 0.5.0 (11.12.2013)
 - Release under the Apache 2.0 license.
 - [***change:***] Removed the `callback` property from the `print` interface.
 - [enhancement:] Added Android KitKat support<br>
