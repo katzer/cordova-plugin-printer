@@ -9,11 +9,7 @@ by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
 - **iOS** *(Print from iOS devices to AirPrint compatible printers)*<br>
 See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html) for detailed informations and screenshots.
 
-- **Android** *(Print through 3rd party printing apps on SDK <= 18)*
-
-## Dependencies
-Cordova will check all dependencies and install them if they are missing.
-- [org.apache.cordova.device](https://github.com/apache/cordova-plugin-device) *(since v0.5.0)*
+- **Android** *(SDK 19)*
 
 ## Adding the Plugin to your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
@@ -29,7 +25,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 ## Release Notes
-#### Version 0.5.0 (not yet released)
+#### Version 0.5.0 (11.12.2013)
 - Release under the Apache 2.0 license.
 - [***change:***] Removed the `callback` property from the `print` interface.
 - [enhancement:] Added Android KitKat support<br>
@@ -79,23 +75,6 @@ var page = document.body.innerHTML;
 window.plugin.printer.print(page);
 ```
 
-## Platform specifics
-
-### Get all available printing apps on Android <= 4.3
-The callback function will be called with a second argument which is an array, indicating which printer apps are available for printing.
-```javascript
-window.plugin.printer.isServiceAvailable(
-    function (isAvailable, installedAppIds) {
-        alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
-    }
-);
-```
-
-### Specify printing app on Android <= 4.3
-An App-ID can be assigned as a platform configuration to indicate which 3rd party printing app shall be used. Otherwise the first found application will be used.
-```javascript
-window.plugin.printer.print(page, { appId: 'epson.print' });
-```
 
 ## Quirks
 
