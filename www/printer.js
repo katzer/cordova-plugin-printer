@@ -39,11 +39,7 @@ Printer.prototype = {
             callback.apply(scope || window, args);
         };
 
-        if (device.platform == 'Android' && device.version >= '4.4') {
-            cordova.exec(callbackFn, null, 'KitKatPrinter', 'isServiceAvailable', []);
-        } else {
-            cordova.exec(callbackFn, null, 'Printer', 'isServiceAvailable', []);
-        };
+        cordova.exec(callbackFn, null, 'Printer', 'isServiceAvailable', []);
     },
 
     /**
@@ -61,11 +57,7 @@ Printer.prototype = {
             return;
         }
 
-        if (device.platform == 'Android' && device.version >= '4.4') {
-            cordova.exec(null, null, 'KitKatPrinter', 'print', [page, options]);
-        } else {
-            cordova.exec(null, null, 'Printer', 'print', [page, options]);
-        };
+        cordova.exec(null, null, 'Printer', 'print', [page, options]);
     }
 };
 

@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="de.appplant.cordova.plugin.printer"
-        version="0.5.0">
+        version="0.5.1">
 
     <name>Printer</name>
 
@@ -50,8 +50,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/Printer.java"       target-dir="src/de/appplant/cordova/plugin/printer" />
-        <source-file src="src/android/KitKatPrinter.java" target-dir="src/de/appplant/cordova/plugin/printer" />
+        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 
 </plugin>
