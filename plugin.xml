@@ -27,7 +27,6 @@
 
     <!-- ios -->
     <platform name="ios">
-
         <config-file target="config.xml" parent="/*">
         <feature name="Printer">
             <param name="ios-package" value="APPPrinter"/>
@@ -36,7 +35,6 @@
 
         <header-file src="src/ios/APPPrinter.h" />
         <source-file src="src/ios/APPPrinter.m" />
-
     </platform>
 
     <!-- android -->

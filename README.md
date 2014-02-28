@@ -25,6 +25,9 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 ## Release Notes
+#### Version 0.5.2 (not yet released)
+- [bugfix:] `isServiceAvailable` on Android did not return a list of available printing apps.
+
 #### Version 0.5.1 (15.12.2013)
 - Removed Android KitKat support *(See kitkat branch)*
 

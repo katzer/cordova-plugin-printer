@@ -108,9 +108,15 @@ public class Printer extends CordovaPlugin {
      * Überprüft, ob ein Drucker zur Verfügung steht.
      */
     private void isServiceAvailable (CallbackContext ctx) {
-        JSONArray appIds    = this.getInstalledAppIds();
-        Boolean available   = appIds.length() > 0;
-        PluginResult result = new PluginResult(PluginResult.Status.OK, available);
+        JSONArray appIds  = this.getInstalledAppIds();
+        Boolean available = appIds.length() > 0;
+        JSONArray args    = new JSONArray();
+        PluginResult result;
+
+        args.put(available);
+        args.put(appIds);
+
+        result = new PluginResult(PluginResult.Status.OK, args);
 
         ctx.sendPluginResult(result);
     }
