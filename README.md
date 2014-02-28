@@ -11,18 +11,39 @@ See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/
 
 - **Android** *(Print through 3rd party printing apps)*
 
+
 ## Adding the Plugin to your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 
 ```bash
+# from master:
 cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
+cordova build
+
+# stable version:
+cordova de.appplant.cordova.plugin.printer
+cordova build
 ```
+
 
 ## Removing the Plugin from your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 ```
 cordova plugin rm de.appplant.cordova.plugin.printer
 ```
+
+
+## PhoneGap Build
+Add the following xml to your config.xml to always use the latest version of this plugin:
+```
+<gap:plugin name="de.appplant.cordova.plugin.printer" />
+```
+or to use this exact version:
+```
+<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.1" />
+```
+More informations can be found [here](https://build.phonegap.com/plugins/360).
+
 
 ## Release Notes
 #### Version 0.5.2 (not yet released)
