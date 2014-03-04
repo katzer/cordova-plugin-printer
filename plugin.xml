@@ -107,4 +107,12 @@
         <resource-file src="res/android/layout/select_printer_activity.xml"
             target="res/layout/select_printer_activity.xml" />
     </platform>
+
+    <!-- windows -->
+    <platform name="windows">
+        <js-module src="src/windows/PrinterProxy.js" name="PrinterProxy">
+            <merges target="" />
+        </js-module>
+    </platform>
+	
 </plugin>
