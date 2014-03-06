@@ -49,4 +49,11 @@
         <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 
+    <!-- windows8 -->
+    <platform name="windows8">
+        <js-module src="src/windows8/PrinterProxy.js" name="PrinterProxy">
+            <clobbers target="" />
+        </js-module>
+    </platform>
+	
 </plugin>
