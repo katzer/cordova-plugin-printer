@@ -25,10 +25,13 @@ var Printer = function () {
 
 Printer.prototype = {
     /**
-     * Überprüft, ob der Drucker-Dienst verfügbar ist.
+     * Checks if the printer service is avaible (iOS)
+     * or if a printing app is installed on the device (Android).
      *
      * @param {Function} callback
-     * @param {Object?}  scope    callback scope (default: window)
+     *      A callback function
+     * @param {Object?} scope
+     *      The scope of the callback (default: window)
      *
      * @return {Boolean}
      */
@@ -43,10 +46,13 @@ Printer.prototype = {
     },
 
     /**
-     * Übergibt den HTML-Content an den Drucker-Dienst.
+     * Sends the content to the printer app or service.
      *
-     * @param {String}  content HTML string or DOM node (if latter, innerHTML is used to get the contents)
-     * @param {Object?} options platform specific options
+     * @param {String} content
+     *      HTML string or DOM node
+     *      if latter, innerHTML is used to get the contents
+     * @param {Object?} options
+     *      Platform specific options
      */
     print: function (content, options) {
         var page    = content.innerHTML || content,
