@@ -23,42 +23,59 @@
 
 @interface APPPrinter (Private)
 
-// Erstellt den PrintController
-- (UIPrintInteractionController*) getPrintController;
-// Stellt die Eigenschaften des Druckers ein.
+// Retrieves an instance of shared print controller
+- (UIPrintInteractionController*) printController;
+// Adjusts the settings for the print controller
 - (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller;
-// Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
+// Loads the content into the print controller
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller;
-// Ruft den Callback auf und informiert diesen über den das Ergebnis des Druckvorgangs.
+// Opens the print controller so that the user can choose between available iPrinters
 - (void) informAboutResult:(int)code callbackId:(NSString*)callbackId;
-// Überprüft, ob der Drucker-Dienst verfügbar ist
-- (BOOL) isPrintServiceAvailable;
+// Checks either the printing service is avaible or not
+- (BOOL) isPrintingAvailable;
+
+@end
+
+@interface APPPrinter ()
+
+// Getter property for the `isPrintingAvailable` method
+@property (readonly, getter=isPrintingAvailable) BOOL isPrintingAvailable;
+// Getter property for the `printController` method
+@property (readonly, getter=printController) UIPrintInteractionController* printController;
 
 @end
 
 
 @implementation APPPrinter
 
+@synthesize isPrintingAvailable, printController;
+
 /*
- * Is printing available.
+ * Checks if the printing service is available.
+ *
+ * @param {Function} callback
+ *      A callback function to be called with the result
  */
 - (void) isServiceAvailable:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult;
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                       messageAsBool:[self isPrintServiceAvailable]];
+                                       messageAsBool:isPrintingAvailable];
 
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult
+                                callbackId:command.callbackId];
 }
 
 /**
- * Öffnet den Drucker-Kontroller zur Auswahl des Druckers.
- * Callback gibt Meta-Informationen an.
+ * Sends the printing content to the printer controller and opens them.
+ *
+ * @param {NSString} content
+ *      The (HTML encoded) content
  */
 - (void) print:(CDVInvokedUrlCommand*)command
 {
-    if (![self isPrintServiceAvailable])
+    if (!self.isPrintingAvailable)
     {
         return;
     }
@@ -66,7 +83,7 @@
     NSArray*  arguments  = [command arguments];
     NSString* content    = [arguments objectAtIndex:0];
 
-    UIPrintInteractionController* controller = [self getPrintController];
+    UIPrintInteractionController* controller = printController;
 
     [self adjustSettingsForPrintController:controller];
     [self loadContent:content intoPrintController:controller];
@@ -77,20 +94,30 @@
 }
 
 /**
- * Erstellt den PrintController.
+ * Retrieves an instance of shared print controller.
+ *
+ * @return {UIPrintInteractionController*}
  */
-- (UIPrintInteractionController*) getPrintController
+- (UIPrintInteractionController*) printController
 {
     return [UIPrintInteractionController sharedPrintController];
 }
 
 /**
- * Stellt die Eigenschaften des Druckers ein.
+ * Adjusts the settings for the print controller.
+ *
+ * @param {UIPrintInteractionController} controller
+ *      The print controller instance
+ *
+ * @return {UIPrintInteractionController} controller
+ *      The modified print controller instance
  */
 - (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller
 {
-    UIPrintInfo* printInfo    = [UIPrintInfo printInfo];
-    printInfo.outputType      = UIPrintInfoOutputGeneral;
+    UIPrintInfo* printInfo = [UIPrintInfo printInfo];
+
+    printInfo.outputType = UIPrintInfoOutputGeneral;
+
     controller.printInfo      = printInfo;
     controller.showsPageRange = YES;
 
@@ -98,12 +125,19 @@
 }
 
 /**
- * Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
+ * Loads the content into the print controller.
+ *
+ * @param {NSString} content
+ *      The (HTML encoded) content
+ * @param {UIPrintInteractionController} controller
+ *      The print controller instance
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
     // Set the base URL to be the www directory.
-    NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www" ofType:nil];
+    NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
+                                                            ofType:nil];
+
     NSURL*    baseURL     = [NSURL fileURLWithPath:wwwFilePath];
     // Load page into a webview and use its formatter to print the page
     UIWebView* webPage    = [[UIWebView alloc] init];
@@ -118,7 +152,11 @@
 }
 
 /**
- * Zeigt den PrintController an.
+ * Opens the print controller so that the user can choose between
+ * available iPrinters.
+ *
+ * @param {UIPrintInteractionController} controller
+ *      The prepared print controller with a content
  */
 - (void) openPrintController:(UIPrintInteractionController*)controller
 {
@@ -128,20 +166,19 @@
 }
 
 /**
- * Überprüft, ob der Drucker-Dienst verfügbar ist.
+ * Checks either the printing service is avaible or not.
+ *
+ * @return {BOOL}
  */
-- (BOOL) isPrintServiceAvailable
+- (BOOL) isPrintingAvailable
 {
-    Class printController = NSClassFromString(@"UIPrintInteractionController");
+    Class controllerCls = NSClassFromString(@"UIPrintInteractionController");
 
-    if (printController)
-    {
-        UIPrintInteractionController* controller = [UIPrintInteractionController sharedPrintController];
-
-        return (controller != nil) && [UIPrintInteractionController isPrintingAvailable];
+    if (!controllerCls){
+        return NO;
     }
 
-    return NO;
+    return printController && [UIPrintInteractionController isPrintingAvailable];
 }
 
 @end

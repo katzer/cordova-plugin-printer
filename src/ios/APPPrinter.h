@@ -23,9 +23,7 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface APPPrinter : CDVPlugin {
-
-}
+@interface APPPrinter : CDVPlugin
 
 // Prints the content
 - (void) print:(CDVInvokedUrlCommand*)command;
