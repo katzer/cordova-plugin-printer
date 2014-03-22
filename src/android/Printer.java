@@ -67,7 +67,7 @@ public class Printer extends CordovaPlugin {
         "epson.print",                              // Epson iPrint
         "jp.co.fujixerox.prt.PrintUtil.PCL",        // Fuji Xerox Print Utility
         "jp.co.fujixerox.prt.PrintUtil.Karin",      // Fuji Xeros Print&Scan (S)
-        "com.hp.android.print",                     // HP ePrint" "com.hp.android.print
+        "com.hp.android.print",                     // HP ePrint
         "com.blackspruce.lpd",                      // Let's Print Droid
         "com.threebirds.notesprint",                // NotesPrint print your notes
         "com.xerox.mobileprint",                    // Print Portal (Xerox)

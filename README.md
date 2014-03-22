@@ -46,7 +46,7 @@ More informations can be found [here](https://build.phonegap.com/plugins/360).
 
 
 ## Release Notes
-#### Version 0.5.2 (not yet released)
+#### Version 0.5.2 (22.03.2014)
 - [bugfix:] `isServiceAvailable` on Android did not return a list of available printing apps.
 
 #### Version 0.5.1 (15.12.2013)
