@@ -230,13 +230,14 @@ public class Printer extends CordovaPlugin {
 
         page.setVisibility(View.INVISIBLE);
         page.getSettings().setJavaScriptEnabled(false);
+        page.getSettings().setDatabaseEnabled(true);
 
         page.setWebViewClient( new WebViewClient() {
             @Override
             public void onPageFinished(final WebView page, String url) {
                 new Handler().postDelayed( new Runnable() {
-                  @Override
-                  public void run() {
+                    @Override
+                    public void run() {
                         Bitmap screenshot = self.takeScreenshot(page);
                         File tmpFile      = self.saveScreenshotToTmpFile(screenshot);
                         ViewGroup vg      = (ViewGroup)(page.getParent());
@@ -244,7 +245,7 @@ public class Printer extends CordovaPlugin {
                         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(tmpFile));
 
                         vg.removeView(page);
-                  }
+                    }
                 }, 1000);
             }
         });

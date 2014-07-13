@@ -54,6 +54,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ## ChangeLog
 #### Version 0.6.0 (not yet released)
 - [bugfix]: Printing wasn't possible because `isServiceAvailable` returns False IOS
+- [bugfix]: Using plugin prevents openDatabase() on Android
 - [feature]: Added Windows8 support<br>
   *Thanks to* ***pirvudoru***
 

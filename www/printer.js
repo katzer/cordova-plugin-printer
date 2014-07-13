@@ -46,11 +46,11 @@ Printer.prototype = {
     },
 
     /**
-     * Sends the content to the printer app or service.
+     * Sends the content to a printer app or service.
      *
      * @param {String} content
      *      HTML string or DOM node
-     *      if latter, innerHTML is used to get the contents
+     *      if latter, innerHTML is used to get the content
      * @param {Object?} options
      *      Platform specific options
      */
