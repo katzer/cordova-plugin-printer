@@ -36,19 +36,7 @@
 
 @end
 
-@interface APPPrinter ()
-
-// Getter property for the `isPrintingAvailable` method
-@property (readonly, getter=isPrintingAvailable) BOOL isPrintingAvailable;
-// Getter property for the `printController` method
-@property (readonly, getter=printController) UIPrintInteractionController* printController;
-
-@end
-
-
 @implementation APPPrinter
-
-@synthesize isPrintingAvailable, printController;
 
 /*
  * Checks if the printing service is available.
@@ -59,9 +47,10 @@
 - (void) isServiceAvailable:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult;
+    BOOL isAvailable = [self isPrintingAvailable];
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                       messageAsBool:isPrintingAvailable];
+                                       messageAsBool:isAvailable];
 
     [self.commandDelegate sendPluginResult:pluginResult
                                 callbackId:command.callbackId];
@@ -75,15 +64,14 @@
  */
 - (void) print:(CDVInvokedUrlCommand*)command
 {
-    if (!self.isPrintingAvailable)
-    {
+    if (!self.isPrintingAvailable) {
         return;
     }
 
     NSArray*  arguments  = [command arguments];
     NSString* content    = [arguments objectAtIndex:0];
 
-    UIPrintInteractionController* controller = printController;
+    UIPrintInteractionController* controller = [self printController];
 
     [self adjustSettingsForPrintController:controller];
     [self loadContent:content intoPrintController:controller];
@@ -174,11 +162,12 @@
 {
     Class controllerCls = NSClassFromString(@"UIPrintInteractionController");
 
-    if (!controllerCls){
+    if (!controllerCls) {
         return NO;
     }
 
-    return printController && [UIPrintInteractionController isPrintingAvailable];
+    return [self printController] && [UIPrintInteractionController
+                                      isPrintingAvailable];
 }
 
 @end
