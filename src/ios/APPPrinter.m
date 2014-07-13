@@ -104,7 +104,8 @@
 {
     UIPrintInfo* printInfo = [UIPrintInfo printInfo];
 
-    printInfo.outputType = UIPrintInfoOutputGeneral;
+    printInfo.outputType  = UIPrintInfoOutputGeneral;
+    printInfo.orientation = UIPrintInfoOrientationPortrait;
 
     controller.printInfo      = printInfo;
     controller.showsPageRange = YES;
@@ -134,9 +135,14 @@
 
     // Get formatter for web (note: margin not required - done in web page)
     UIViewPrintFormatter* formatter = [webPage viewPrintFormatter];
+    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
 
-    controller.printFormatter = formatter;
-    controller.showsPageRange = YES;
+    UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
+    renderer.headerHeight = -30.0f;
+    renderer.footerHeight = -30.0f;
+    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+
+    controller.printPageRenderer = renderer;
 }
 
 /**
@@ -148,9 +154,7 @@
  */
 - (void) openPrintController:(UIPrintInteractionController*)controller
 {
-    //[self.commandDelegate runInBackground:^{
-        [controller presentAnimated:YES completionHandler:NULL];
-    //}];
+    [controller presentAnimated:YES completionHandler:NULL];
 }
 
 /**
