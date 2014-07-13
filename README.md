@@ -12,79 +12,88 @@ See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/
 - **Android** *(Print through 3rd party printing apps)*
 
 
-## Adding the Plugin to your project
-Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
+## Installation
+The plugin can either be installed from git repository or from local file system through the [Command-line Interface][CLI].<br>
+Or cloud based through [PhoneGap Build][PGB].
 
+### Local development environment
+From master:
 ```bash
-# from master:
-cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
-cordova build
-
-# stable version:
-cordova de.appplant.cordova.plugin.printer
-cordova build
+# ~~ from master ~~
+cordova plugin add https://github.com/katzer/cordova-plugin-printer.git && cordova prepare
+```
+from a local folder:
+```bash
+# ~~ local folder ~~
+cordova plugin add de.appplant.cordova.plugin.printer --searchpath path/to/plugin && cordova prepare
+```
+or to use the last stable version:
+```bash
+# ~~ stable version ~~
+cordova plugin add de.appplant.cordova.plugin.printer && cordova prepare
 ```
 
-
-## Removing the Plugin from your project
-Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
+### PhoneGap Build
+Add the following xml to your config.xml to always use the latest version of this plugin:
+```xml
+<gap:plugin name="de.appplant.cordova.plugin.printer" />
 ```
+or to use an specific version:
+```xml
+<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.2" />
+```
+More informations can be found [here][PGB_plugin].
+
+### Removing the Plugin
+Through the [Command-line Interface][CLI]:
+```bash
 cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 
-## PhoneGap Build
-Add the following xml to your config.xml to always use the latest version of this plugin:
-```
-<gap:plugin name="de.appplant.cordova.plugin.printer" />
-```
-or to use this exact version:
-```
-<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.1" />
-```
-More informations can be found [here](https://build.phonegap.com/plugins/360).
-
-
-## Release Notes
+## ChangeLog
 #### Version 0.6.0 (not yet released)
+- [bugfix]: Printing wasn't possible because `isServiceAvailable` returns False IOS
 - [feature]: Added Windows8 support<br>
   *Thanks to* ***pirvudoru***
 
-#### Version 0.5.2 (22.03.2014)
-- [bugfix:] `isServiceAvailable` on Android did not return a list of available printing apps.
+#### Further informations
+- See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
 
-#### Version 0.5.1 (15.12.2013)
-- Removed Android KitKat support *(See kitkat branch)*
-
-#### Version 0.5.0 (yanked)
-- Release under the Apache 2.0 license.
-- [***change:***] Removed the `callback` property from the `print` interface.
-- [enhancement:] Added Android KitKat support<br>
-  *Based on the Print Android plugin made by* ***Eion Robb***
-
-#### Version 0.4.0 (24.08.2013)
-- [feature]: Added Android support<br>
-  *Based on the Print Android plugin made by* ***Eion Robb***
-- [feature]: `print()` accepts a 4th arguments for platform specific properties.
-- [change]: the callback of `print()` will be called with a result code about the user action.
-
-#### Version 0.2.1 (13.08.2013)
-- [feature]: Support for callback scopes.
-
-#### Version 0.2.0 (11.08.2013)
-- [feature]: Added iOS support<br>
-  *Based on the Print iOS plugin made by* ***Randy McMillan***
 
 ## Using the plugin
-The plugin creates the object ```window.plugin.printer``` with two methods:
+The plugin creates the object `window.plugin.printer` with the following methods:
 
-### isServiceAvailable()
-Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later. You can use this function to hide print functionality from users who will be unable to use it.<br>
-Function takes a callback function, passed to which is a boolean property. Optionally you can assign the scope in which the callback will be executed as a second parameter (default to *window*).
+1. [plugin.printer.isServiceAvailable][available]
+2. [plugin.printer.print][print]
+
+### Plugin initialization
+The plugin and its methods are not available before the *deviceready* event has been fired.
 
 ```javascript
-/*
- * Find out if printing is available. Use this for showing/hiding print buttons.
+document.addEventListener('deviceready', function () {
+    // window.plugin.printer is now available
+}, false);
+```
+
+### Find out if printing is available on the device
+The device his printing capabilities can be reviewed through the `printer.isServiceAvailable` interface.
+You can use this function to hide print functionality from users who will be unable to use it.<br>
+The method takes a callback function, passed to which is a boolean property. Optionally you can assign the scope in which the callback will be executed as a second parameter (default to *window*).
+
+__Note:__ Printing is only available on devices capable of multi-tasking (iPhone 3GS, iPhone 4 etc.) running iOS 4.2 or later or through a pre-installed printer app (Android).<br>
+
+```javascript
+/**
+ * Checks if the printer service is avaible (iOS)
+ * or if a printing app is installed on the device (Android).
+ *
+ * @param {Function} callback
+ *      A callback function
+ * @param {Object?} scope
+ *      The scope of the callback (default: window)
+ *
+ * @return {Boolean}
  */
 window.plugin.printer.isServiceAvailable(
     function (isAvailable) {
@@ -93,18 +102,40 @@ window.plugin.printer.isServiceAvailable(
 );
 ```
 
-### print()
-Function takes an html string.
+### Send content to a printer
+Content can be send to a printer through the `printer.print` interface.<br>
+The method takes a string or a HTML DOM node.
 
-**Note:** All required CSS rules needs to be included as well.
+#### Further informations
+- See the [isServiceAvailable][available] method to find out if printing is available on the device.
+- All required CSS rules needs to be included in order to print HTML encoded content.
+- On Android the functionality between different print apps may vary.
 
 ```javascript
-// Get HTML string
-var page = document.body.innerHTML;
+/**
+ * Sends the content to a printer app or service.
+ *
+ * @param {String} content
+ *      HTML string or DOM node
+ *      if latter, innerHTML is used to get the content
+ * @param {Object?} options
+ *      Platform specific options
+ */
+window.plugin.printer.print(content, options);
+```
 
-// Pass the HTML
+
+## Example
+The following exmaple demonstrates how to print out the whole HTML page.
+
+```javascript
+// Get the content
+var page = document.body;
+
+// Pass to the printer
 window.plugin.printer.print(page);
 ```
+
 
 ## Platform specifics
 
@@ -162,4 +193,18 @@ Printing is only supported on AirPrint-enabled printers or with the use of third
 
 ## License
 
-This software is released under the [Apache 2.0 License](http://opensource.org/licenses/Apache-2.0).
+This software is released under the [Apache 2.0 License][apache2_license].
+
+© 2013-2014 appPlant UG, Inc. All rights reserved
+
+
+[cordova]: https://cordova.apache.org
+[CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
+[PGB]: http://docs.build.phonegap.com/en_US/3.3.0/index.html
+[PGB_plugin]: https://build.phonegap.com/plugins/676
+[changelog]: CHANGELOG.md
+[available]: #find-out-if-printing-is-available-on-the-device
+[print]: #send-content-to-a-printer
+[apache2_license]: http://opensource.org/licenses/Apache-2.0
+[katzer]: katzer@appplant.de
+[appplant]: www.appplant.de
