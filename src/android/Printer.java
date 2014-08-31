@@ -17,85 +17,79 @@
     KIND, either express or implied.  See the License for the
     specific language governing permissions and limitations
     under the License.
-*/
+ */
 
-package de.appplant.cordova.plugin.printer;
+package de.appplant.cordova.plugin.cloudprint;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Picture;
-import android.net.Uri;
-import android.os.Handler;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
-
+/**
+ * This plug in brings up a native overlay to print HTML documents using
+ * AirPrint for iOS and Google Cloud Print for Android.
+ */
 public class Printer extends CordovaPlugin {
 
-    private CallbackContext ctx;
+    private WebView view;
+    private CallbackContext command;
+
+    private static final String PRINT_DIALOG_URL =
+            "https://www.google.com/cloudprint/dialog.html";
+
+    private static final String JS_INTERFACE = "Printer";
+
+    private static final String DEFAULT_DOC_NAME = "unknown";
 
     /**
-     * Auflistung von App-IDs, welche den Content ausdrucken können
+     * Post message that is sent by Print Dialog web
+     * page when the printing dialog needs to be closed.
      */
-    private String printAppIds[] = {
-        "kr.co.iconlab.BasicPrintingProfile",       // Bluetooth Smart Printing
-        "com.blueslib.android.app",                 // Bluetooth SPP Printer API
-        "com.brother.mfc.brprint",                  // Brother iPrint&Scan
-        "com.brother.ptouch.sdk",                   // Brother Print Library
-        "jp.co.canon.bsd.android.aepp.activity",    // Canon Easy-PhotoPrint
-        "com.pauloslf.cloudprint",                  // Cloud Print
-        "com.dlnapr1.printer",                      // CMC DLNA Print Client
-        "com.dell.mobileprint",                     // Dell Mobile Print
-        "com.printjinni.app.print",                 // PrintJinni
-        "epson.print",                              // Epson iPrint
-        "jp.co.fujixerox.prt.PrintUtil.PCL",        // Fuji Xerox Print Utility
-        "jp.co.fujixerox.prt.PrintUtil.Karin",      // Fuji Xeros Print&Scan (S)
-        "com.hp.android.print",                     // HP ePrint
-        "com.blackspruce.lpd",                      // Let's Print Droid
-        "com.threebirds.notesprint",                // NotesPrint print your notes
-        "com.xerox.mobileprint",                    // Print Portal (Xerox)
-        "com.zebra.kdu",                            // Print Station (Zebra)
-        "net.jsecurity.printbot",                   // PrintBot
-        "com.dynamixsoftware.printhand",            // PrintHand Mobile Print
-        "com.dynamixsoftware.printhand.premium",    // PrintHand Mobile Print Premium
-        "com.sec.print.mobileprint",                // Samsung Mobile Print
-        "com.rcreations.send2printer",              // Send 2 Printer
-        "com.ivc.starprint",                        // StarPrint
-        "com.threebirds.easyviewer",                // WiFi Print
-        "com.woosim.android.print",                 // Woosim BT printer
-        "com.woosim.bt.app",                        // WoosimPrinter
-        "com.zebra.android.zebrautilities",         // Zebra Utilities
-    };
+    static final
+    private String CLOSE_POST_MESSAGE_NAME = "cp-dialog-on-close";
 
+    /**
+     * Executes the request.
+     *
+     * This method is called from the WebView thread.
+     * To do a non-trivial amount of work, use:
+     *     cordova.getThreadPool().execute(runnable);
+     *
+     * To run on the UI thread, use:
+     *     cordova.getActivity().runOnUiThread(runnable);
+     *
+     * @param action          The action to execute.
+     * @param rawArgs         The exec() arguments in JSON form.
+     * @param callbackContext The callback context used when calling back into JavaScript.
+     * @return                Whether the action was valid.
+     */
     @Override
-    public boolean execute (String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        // Etwas soll ausgedruckt werden
-        if ("print".equals(action)) {
-            print(args, callbackContext);
+    public boolean execute (String action, JSONArray args,
+            CallbackContext callbackContext) throws JSONException {
+
+        command = callbackContext;
+
+        if (action.equalsIgnoreCase("isServiceAvailable")) {
+            isServiceAvailable();
 
             return true;
         }
 
-        // Es soll überprüft werden, ob ein Dienst zum Ausdrucken von Inhalten zur Verfügung steht
-        if ("isServiceAvailable".equals(action)) {
-            isServiceAvailable(callbackContext);
+        if (action.equalsIgnoreCase("print")) {
+            print(args);
 
             return true;
         }
@@ -105,246 +99,151 @@ public class Printer extends CordovaPlugin {
     }
 
     /**
-     * Überprüft, ob ein Drucker zur Verfügung steht.
+     * Informs if the device is able to print documents.
+     * A Internet connection is required to load the cloud print dialog.
      */
-    private void isServiceAvailable (CallbackContext ctx) {
-        JSONArray appIds  = this.getInstalledAppIds();
-        Boolean available = appIds.length() > 0;
-        JSONArray args    = new JSONArray();
-        PluginResult result;
+    private void isServiceAvailable () {
+        Boolean supported   = isOnline();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
-        args.put(available);
-        args.put(appIds);
-
-        result = new PluginResult(PluginResult.Status.OK, args);
-
-        ctx.sendPluginResult(result);
+        command.sendPluginResult(result);
     }
 
     /**
-     * Druckt den HTML Content aus.
+     * Configures the WebView components which will call the Google Cloud Print
+     * Service.
      */
-    private void print (final JSONArray args, CallbackContext ctx) {
-        final Printer self = this;
+    private void setup () {
+        Activity ctx = cordova.getActivity();
+        view         = new WebView(ctx);
+        WebSettings settings = view.getSettings();
 
-        this.ctx = ctx;
+        view.setVisibility(View.INVISIBLE);
+        view.setVerticalScrollBarEnabled(false);
+        view.setHorizontalScrollBarEnabled(false);
+        view.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        view.setScrollbarFadingEnabled(false);
 
-        cordova.getActivity().runOnUiThread( new Runnable() {
-            public void run() {
-                JSONObject platformConfig = args.optJSONObject(1);
-                String appId              = self.getPrintAppId(platformConfig);
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
+        settings.setJavaScriptEnabled(true);
 
-                if (appId == null) {
-                    self.ctx.success(4);
-                    return;
-                };
-
-                String content    = args.optString(0, "<html></html>");
-                Intent controller = self.getPrintController(appId);
-
-                self.adjustSettingsForPrintController(controller);
-                self.loadContentIntoPrintController(content, controller);
-
-                self.startPrinterApp(controller);
-            }
-        });
+        ctx.addContentView(view, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT)
+                );
     }
 
     /**
-     * Gibt die zu verwendende App-ID an.
+     * Creates the web view client which sets the print document.
+     *
+     * @param content
+     *      HTML encoded string
+     * @param docName
+     *      The name for the document
      */
-    private String getPrintAppId (JSONObject platformConfig) {
-        String appId = platformConfig.optString("appId", null);
-
-        if (appId != null) {
-            return (this.isAppInstalled(appId)) ? appId : null;
-        } else {
-            return this.getFirstInstalledAppId();
-        }
-    }
-
-    /**
-     * Erstellt den Print-View.
-     */
-    private Intent getPrintController (String appId) {
-        String intentId = "android.intent.action.SEND";
-
-        if (appId.equals("com.rcreations.send2printer")) {
-            intentId = "com.rcreations.send2printer.print";
-        } else if (appId.equals("com.dynamixsoftware.printershare")) {
-            intentId = "android.intent.action.VIEW";
-        } else if (appId.equals("com.hp.android.print")) {
-            intentId = "org.androidprinting.intent.action.PRINT";
-        }
-
-        Intent intent = new Intent(intentId);
-
-        if (appId != null)
-            intent.setPackage(appId);
-
-        return intent;
-    }
-
-    /**
-     * Stellt die Eigenschaften des Druckers ein.
-     */
-    private void adjustSettingsForPrintController (Intent intent) {
-        String mimeType = "image/png";
-        String appId    = intent.getPackage();
-
-        // Check for special cases that can receive HTML
-        if (appId.equals("com.rcreations.send2printer") || appId.equals("com.dynamixsoftware.printershare")) {
-            mimeType = "text/html";
-        }
-
-        intent.setType(mimeType);
-    }
-
-    /**
-     * Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
-     */
-    private void loadContentIntoPrintController (String content, Intent intent) {
-        String mimeType = intent.getType();
-
-        if (mimeType.equals("text/html")) {
-            loadContentAsHtmlIntoPrintController(content, intent);
-        } else {
-            loadContentAsBitmapIntoPrintController(content, intent);
-        }
-    }
-
-    /**
-     * Lädt den zu druckenden Content als HTML in ein WebView, welcher vom Drucker ausgedruckt werden soll.
-     */
-    private void loadContentAsHtmlIntoPrintController (String content, Intent intent) {
-        intent.putExtra(Intent.EXTRA_TEXT, content);
-    }
-
-    /**
-     * Lädt den zu druckenden Content als BMP in ein WebView, welcher vom Drucker ausgedruckt werden soll.
-     */
-    private void loadContentAsBitmapIntoPrintController (String content, final Intent intent) {
-              Activity ctx = cordova.getActivity();
-        final WebView page = new WebView(ctx);
-        final Printer self = this;
-
-        page.setVisibility(View.INVISIBLE);
-        page.getSettings().setJavaScriptEnabled(false);
-        page.getSettings().setDatabaseEnabled(true);
-
-        page.setWebViewClient( new WebViewClient() {
+    private void setupWebViewClient (final String content, final String docName) {
+        view.setWebViewClient( new WebViewClient() {
             @Override
-            public void onPageFinished(final WebView page, String url) {
-                new Handler().postDelayed( new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap screenshot = self.takeScreenshot(page);
-                        File tmpFile      = self.saveScreenshotToTmpFile(screenshot);
-                        ViewGroup vg      = (ViewGroup)(page.getParent());
+            public void onPageFinished(final WebView view, String url) {
+                StringBuffer js = new StringBuffer();
 
-                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(tmpFile));
+                if (!url.equals(PRINT_DIALOG_URL)) {
+                    return;
+                }
 
-                        vg.removeView(page);
-                    }
-                }, 1000);
+                js.append("javascript:printDialog.setPrintDocument(");
+                js.append("printDialog.createPrintDocument(");
+                js.append("'text/html',");
+                js.append("'" + docName + "',");
+                js.append("'" + content + "'");
+                js.append("))");
+
+                // Submit print document
+                view.loadUrl(js.toString());
+
+                js.delete(0,  js.length());
+
+                js.append("javascript:window.addEventListener('message',");
+                js.append("function(evt){");
+                js.append(JS_INTERFACE);
+                js.append(".onPostMessage(evt.data)}, false)");
+
+                // Add post messages listener
+                view.loadUrl(js.toString());
             }
         });
-
-        //Set base URI to the assets/www folder
-        String baseURL = webView.getUrl();
-               baseURL = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
-
-        ctx.addContentView(page, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        page.loadDataWithBaseURL(baseURL, content, "text/html", "UTF-8", null);
     }
 
     /**
-     * Nimmt einen Screenshot der Seite auf.
+     * JS interface to get informed when the job is finished and the view should
+     * be closed.
      */
-    private Bitmap takeScreenshot (WebView page) {
-        Picture picture = page.capturePicture();
-        Bitmap bitmap   = Bitmap.createBitmap(picture.getWidth(), picture.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas   = new Canvas(bitmap);
-
-        picture.draw(canvas);
-
-        return bitmap;
-    }
-
-    /**
-     * Speichert den Screenshot der Seite in einer tmp. Datei ab.
-     */
-    private File saveScreenshotToTmpFile (Bitmap screenshot) {
-        try {
-            File tmpFile = File.createTempFile("screenshot", ".tmp");
-            FileOutputStream stream = new FileOutputStream(tmpFile);
-
-            screenshot.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            stream.close();
-
-            return tmpFile;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /**
-     * Öffnet die Printer App, damit der Content ausgedruckt werden kann.
-     */
-    private void startPrinterApp (Intent intent) {
-        cordova.startActivityForResult(this, intent, 0);
-    }
-
-    /**
-     * Findet heraus, ob die Anwendung installiert ist.
-     */
-    private boolean isAppInstalled (String appId) {
-        PackageManager pm = cordova.getActivity().getPackageManager();
-
-        try {
-            PackageInfo pi = pm.getPackageInfo(appId, 0);
-
-            if (pi != null){
-                return true;
+    private void setupJavascriptInterface () {
+        view.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void onPostMessage (String message) {
+                if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
+                    removeView();
+                    command.success();
+                }
             }
-        } catch (PackageManager.NameNotFoundException e) {}
-
-        return false;
+        }, JS_INTERFACE);
     }
 
     /**
-     * Die IDs aller verfügbaren Drucker-Apps.
+     * Loads the Google Cloud Print Dialog page and opens them with the called
+     * content.
+     *
+     * @param args
+     *      The exec arguments as JSON
      */
-    private JSONArray getInstalledAppIds () {
-        JSONArray appIds  = new JSONArray();
+    private void print (JSONArray args) {
+        final String content = args.optString(0, "<html></html>");
+        final String docName = args.optString(1, DEFAULT_DOC_NAME);
 
-        for (int i = 0; i < printAppIds.length; i++) {
-            String appId        = printAppIds[i];
-            Boolean isInstalled = this.isAppInstalled(appId);
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setup();
+                setupWebViewClient(content, docName);
+                setupJavascriptInterface();
 
-            if (isInstalled){
-                appIds.put(appId);
+                view.loadUrl(PRINT_DIALOG_URL);
+                view.setVisibility(View.VISIBLE);
             }
-        }
-
-        return appIds;
+        });
     }
 
     /**
-     * Die erste ID in der Liste, deren App installiert ist.
+     * Checks if the device is connected to the Internet.
+     *
+     * @return
+     *      true if online otherwise false
      */
-    private String getFirstInstalledAppId () {
-        for (int i = 0; i < printAppIds.length; i++) {
-            String appId        = printAppIds[i];
-            Boolean isInstalled = this.isAppInstalled(appId);
+    private Boolean isOnline () {
+        Activity activity = cordova.getActivity();
+        ConnectivityManager conMGr =
+                (ConnectivityManager) activity.getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
 
-            if (isInstalled){
-                return appId;
+        NetworkInfo netInfo = conMGr.getActiveNetworkInfo();
+
+        return netInfo != null && netInfo.isConnected();
+    }
+
+    /**
+     * Removes the view from the layout.
+     */
+    public void removeView () {
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup vg = (ViewGroup)view.getParent();
+
+                view.stopLoading();
+                vg.removeView(view);
             }
-        }
-
-        return null;
+        });
     }
 }

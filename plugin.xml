@@ -2,18 +2,29 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="de.appplant.cordova.plugin.printer"
-        version="0.5.3">
+        id="de.appplant.cordova.plugin.cloudprint"
+        version="0.6.0-dev">
 
-    <name>Printer</name>
+    <name>AirPrint and Google Cloud Print Printer</name>
 
-    <description>A bunch of printig plugins for Cordova 3.x.x</description>
-    <repo>https://github.com/katzer/cordova-plugin-printer.git</repo>
-    <keywords>print, printer, ios, android, windows 8</keywords>
+    <description>
+        Cordova plugin to print HTML documents using AirPrint for iOS
+        and Google Cloud Print for Android.
+    </description>
+
+    <repo>
+        https://github.com/katzer/cordova-plugin-printer.git
+    </repo>
+
+    <keywords>
+        print, printer, ios, android, windows 8, google cloud, air print
+    </keywords>
+
     <license>Apache 2.0</license>
 
     <author>Sebastián Katzer</author>
 
+    <!-- cordova -->
     <engines>
         <engine name="cordova" version=">=3.0.0" />
     </engines>
@@ -21,6 +32,7 @@
     <!-- interface -->
     <js-module src="www/printer.js" name="Printer">
         <clobbers target="plugin.printer" />
+        <clobbers target="cordova.plugins.printer" />
     </js-module>
 
     <!-- ios -->
@@ -39,17 +51,15 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Printer">
-                <param name="android-package" value="de.appplant.cordova.plugin.printer.Printer"/>
+                <param name="android-package" value="de.appplant.cordova.plugin.cloudprint.Printer"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
-    </platform>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
 
-    <!-- windows8
-    <platform name="windows8">
-        <js-module src="src/windows8/PrinterProxy.js" name="PrinterProxy">
-            <clobbers target="" />
-        </js-module>
-    </platform>-->
+        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/cloudprint" />
+    </platform>
 </plugin>
