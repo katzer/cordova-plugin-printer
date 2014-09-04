@@ -21,20 +21,12 @@
 
 #import "APPPrinter.h"
 
-@interface APPPrinter (Private)
+@interface APPPrinter ()
 
-// Retrieves an instance of shared print controller
-- (UIPrintInteractionController*) printController;
-// Adjusts the settings for the print controller
-- (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller;
-// Loads the content into the print controller
-- (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller;
-// Opens the print controller so that the user can choose between available iPrinters
-- (void) informAboutResult:(int)code callbackId:(NSString*)callbackId;
-// Checks either the printing service is avaible or not
-- (BOOL) isPrintingAvailable;
+@property (retain) NSString* callbackId;
 
 @end
+
 
 @implementation APPPrinter
 
@@ -76,9 +68,9 @@
     [self adjustSettingsForPrintController:controller];
     [self loadContent:content intoPrintController:controller];
 
-    [self openPrintController:controller];
+    _callbackId = command.callbackId;
 
-    [self commandDelegate];
+    [self openPrintController:controller];
 }
 
 /**
@@ -154,7 +146,14 @@
  */
 - (void) openPrintController:(UIPrintInteractionController*)controller
 {
-    [controller presentAnimated:YES completionHandler:NULL];
+    [controller presentAnimated:YES completionHandler:
+     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+        CDVPluginResult* pluginResult =
+        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+        [self.commandDelegate sendPluginResult:pluginResult
+                                    callbackId:_callbackId];
+    }];
 }
 
 /**
