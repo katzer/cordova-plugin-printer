@@ -38,17 +38,17 @@ The plugin can either be installed from git repository, from local file system t
 From master:
 ```bash
 # ~~ from master ~~
-cordova plugin add https://github.com/katzer/cordova-plugin-printer.git && cordova prepare
+cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 ```
 from a local folder:
 ```bash
 # ~~ local folder ~~
-cordova plugin add de.appplant.cordova.plugin.cloudprint --searchpath path/to/plugin && cordova prepare
+cordova plugin add de.appplant.cordova.plugin.cloudprint --searchpath path/to/plugin
 ```
 or to use the last stable version:
 ```bash
 # ~~ stable version ~~
-cordova plugin add de.appplant.cordova.plugin.cloudprint && cordova prepare
+cordova plugin add de.appplant.cordova.plugin.cloudprint
 ```
 
 ### PhoneGap Build
