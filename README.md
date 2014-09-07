@@ -229,7 +229,7 @@ Second page.
 
 See W3Schools for more more information: http://www.w3schools.com/cssref/pr_print_pagebb.asp
 
-__Note:__ you will need to add an extra top margin to new pages.
+__Note:__ You will need to add an extra top margin to new pages.
 
 
 ## Contributing
