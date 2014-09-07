@@ -10,8 +10,12 @@ AirPrint printers are available for these devices when using the latest version 
  - iPhone (3GS or later)
  - iPod touch (3rd generation or later)
 
+<img src="http://static1.businessinsider.com/image/4cf67b8149e2aeb00b020000/only-12-printers-work-with-apples-airprint-heres-the-list.jpg" />
+
 ### About Google Cloud Print
 Google™ Cloud Print is a new technology that connects your printers to the web. Using Google Cloud Print, you can make your home and work printers available to you and anyone you choose, from the applications you use every day. Google Cloud Print works on your phone, tablet, Chromebook, PC, and any other web-connected device you want to print from.
+
+<img src="http://getandroidstuff.com/wp-content/uploads/2013/06/google-cloud-print-apk-for-andorid.jpg" />
 
 ### Supported Printers
 Printing is only supported on AirPrint-enabled printers or Google Cloud Print-enabled printers. The following pages contain more information:
