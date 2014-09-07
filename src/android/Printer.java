@@ -44,8 +44,8 @@ public class Printer extends CordovaPlugin {
     @Override
     public boolean execute (String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // Es soll überprüft werden, ob ein Dienst zum Ausdrucken von Inhalten zur Verfügung steht
-        if (action.equalsIgnoreCase("isServiceAvailable")) {
-            isServiceAvailable(callbackContext);
+        if (action.equalsIgnoreCase("isAvailable")) {
+            isAvailable(callbackContext);
 
             return true;
         }
@@ -64,7 +64,7 @@ public class Printer extends CordovaPlugin {
     /**
      * Überprüft, ob ein Drucker zur Verfügung steht.
      */
-    private void isServiceAvailable (CallbackContext ctx) {
+    private void isAvailable (CallbackContext ctx) {
         Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
