@@ -31,7 +31,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
@@ -112,8 +114,13 @@ public class Printer extends CordovaPlugin {
     /**
      * Configures the WebView components which will call the Google Cloud Print
      * Service.
+     *
+     * @param content
+     *      HTML encoded string
+     * @param docName
+     *      The name for the document
      */
-    private void setup () {
+    private void initWebView (String content, String docName) {
         Activity ctx = cordova.getActivity();
         view         = new WebView(ctx);
         WebSettings settings = view.getSettings();
@@ -132,6 +139,10 @@ public class Printer extends CordovaPlugin {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT)
                 );
+
+        setWebViewClient(content, docName);
+        setJavascriptInterface();
+        setKeyListener();
     }
 
     /**
@@ -142,7 +153,7 @@ public class Printer extends CordovaPlugin {
      * @param docName
      *      The name for the document
      */
-    private void setupWebViewClient (final String content, final String docName) {
+    private void setWebViewClient (final String content, final String docName) {
         view.setWebViewClient( new WebViewClient() {
             @Override
             public void onPageFinished(final WebView view, String url) {
@@ -179,7 +190,7 @@ public class Printer extends CordovaPlugin {
      * JS interface to get informed when the job is finished and the view should
      * be closed.
      */
-    private void setupJavascriptInterface () {
+    private void setJavascriptInterface () {
         view.addJavascriptInterface(new Object() {
             @JavascriptInterface
             public void onPostMessage (String message) {
@@ -189,6 +200,27 @@ public class Printer extends CordovaPlugin {
                 }
             }
         }, JS_INTERFACE);
+    }
+
+    /**
+     * Key listener to get informed when the user has pressed the back button to
+     * remove the view from the screen.
+     */
+    private void setKeyListener () {
+        view.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        removeView();
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
     }
 
     /**
@@ -205,9 +237,7 @@ public class Printer extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setup();
-                setupWebViewClient(content, docName);
-                setupJavascriptInterface();
+                initWebView(content, docName);
 
                 view.loadUrl(PRINT_DIALOG_URL);
                 view.setVisibility(View.VISIBLE);
