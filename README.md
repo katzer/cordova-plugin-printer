@@ -129,6 +129,7 @@ The method takes a string or a HTML DOM node. Optional parameters allows to spec
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
 - All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
+- See the [examples][examples] to get an overview on how to use the plugin.
 
 ```javascript
 /**
@@ -148,25 +149,24 @@ cordova.plugins.printer.print(content, options, callback, scope);
 ```
 
 
-## Example
-The following exmaple demonstrates how to print the whole HTML page.
+## Examples
+_NOTE:_ All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
 
+#### Print the whole HTML page
 ```javascript
 // Get the content
 var page = document.body;
 
-// 1. Pass to the printer
 cordova.plugins.printer.print(page, { name:'Document.html' }, function () {
 	alert('printing finished or canceled')
 });
+```
 
-// 2. Also valid
+#### Print custom specific content
+```javascript
+var page = '<h1>Hello Document</h1>';
+
 cordova.plugins.printer.print(page, 'Document.html', function () {
-	alert('printing finished or canceled')
-});
-
-// 3. Works too
-cordova.plugins.printer.print('<h1>Hello World</h1>', 'Document.html', function () {
     alert('printing finished or canceled')
 });
 ```
@@ -219,6 +219,7 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [changelog]: CHANGELOG.md
 [available]: #find-out-if-printing-is-available-on-the-device
 [print]: #send-content-to-a-printer
+[examples]: #examples
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
 [katzer]: katzer@appplant.de
 [appplant]: www.appplant.de
