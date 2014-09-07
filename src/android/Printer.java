@@ -75,7 +75,7 @@ public class Printer extends CordovaPlugin {
      * Druckt den HTML Content aus.
      */
     private void print (final JSONArray args, CallbackContext ctx) {
-        final KitKatPrinter self = this;
+        final Printer self = this;
 
         cordova.getActivity().runOnUiThread( new Runnable() {
             public void run() {
