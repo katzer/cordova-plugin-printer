@@ -78,6 +78,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 - AirPrint support
 - Google Cloud Print support
 - [__change__:] Renamed `isServiceAvailable` to `isAvailable`.
+- [enhancement:] New print options like `name`, `landscape` or `duplex`.
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
@@ -128,6 +129,15 @@ cordova.plugins.printer.isAvailable(
 Content can be send to a printer through the `printer.print` interface.<br>
 The method takes a string or a HTML DOM node. Optional parameters allows to specify the name of the document and a callback. The callback will be called if the user cancels or completes the print job.
 
+#### Available Options
+| Name | Description | Type | Support |
+| ---- | ----------- |:----:| -------:|
+| name | The name of the print job and of the document | String | all |
+| printerId| An identifier of the printer to use for the print job. | String | iOS |
+| duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided (duplex:true) or single-sided (duplex:false).<br>Double-sided by default. | Boolean | iOS |
+| landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | iOS |
+| graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | iOS |
+
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
 - All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
@@ -154,22 +164,29 @@ cordova.plugins.printer.print(content, options, callback, scope);
 ## Examples
 __NOTE:__ All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
 
-#### Print the whole HTML page
+#### 1. Print the whole HTML page
 ```javascript
 // Either a DOM node or a string
 var page = document.body;
 
-cordova.plugins.printer.print(page, { name:'Document.html' }, function () {
+cordova.plugins.printer.print(page, 'Document.html', function () {
 	alert('printing finished or canceled')
 });
 ```
 
-#### Print custom specific content
+#### 2. Print custom specific content
 ```javascript
 // Either a DOM node or a string
 var page = '<h1>Hello Document</h1>';
 
 cordova.plugins.printer.print(page, 'Document.html', function () {
+    alert('printing finished or canceled')
+});
+```
+
+#### 3. Adjust the page
+```javascript
+cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, function () {
     alert('printing finished or canceled')
 });
 ```
