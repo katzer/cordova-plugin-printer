@@ -30,8 +30,6 @@ See [Drawing and Printing Guide for iOS](http://developer.apple.com/library/ios/
 
 - **Android** *(Print from Android devices to Google Cloud Print compatible printers)*
 
-- **Windows 8**
-
 
 ## Installation
 The plugin can either be installed from git repository, from local file system through the [Command-line Interface][CLI] or cloud based through [PhoneGap Build][PGB].
@@ -75,7 +73,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 #### Version 0.6.0 (not yet released)
 - AirPrint support
 - Google Cloud Print support
-- [_change_:] Renamed `isServiceAvailable` to `isAvailable`.
+- [__change__:] Renamed `isServiceAvailable` to `isAvailable`.
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
@@ -150,7 +148,7 @@ cordova.plugins.printer.print(content, options, callback, scope);
 
 
 ## Examples
-_NOTE:_ All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
+__NOTE:__ All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
 
 #### Print the whole HTML page
 ```javascript
