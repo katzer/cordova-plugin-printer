@@ -1,5 +1,5 @@
 /*
-    Copyright 2013 appPlant UG
+    Copyright 2013-2014 appPlant UG
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -19,48 +19,80 @@
     under the License.
 */
 
-var Printer = function () {
+var exec = require('cordova/exec');
 
+/**
+ * The default document/job name.
+ */
+exports.DEFAULT_DOC_NAME = 'unknown';
+
+/**
+ * Checks if the printer service is avaible (iOS)
+ * or if connected to the Internet (Android).
+ *
+ * @param {Function} callback
+ *      A callback function
+ * @param {Object?} scope
+ *      The scope of the callback (default: window)
+ *
+ * @return {Boolean}
+ */
+exports.isAvailable = function (callback, scope) {
+    var fn = this._createCallbackFn(callback);
+
+    exec(fn, null, 'Printer', 'isAvailable', []);
 };
 
-Printer.prototype = {
-    /**
-     * Überprüft, ob der Drucker-Dienst verfügbar ist.
-     *
-     * @param {Function} callback
-     * @param {Object?}  scope    callback scope (default: window)
-     *
-     * @return {Boolean}
-     */
-    isServiceAvailable: function (callback, scope) {
-        var callbackFn = function () {
-            var args = typeof arguments[0] == 'boolean' ? arguments : arguments[0];
+/**
+ * Sends the content to the Google Cloud Print service.
+ *
+ * @param {String} content
+ *      HTML string or DOM node
+ *      if latter, innerHTML is used to get the content
+ * @param {Object} options
+ *       Options for the print job
+ * @param {Function?} callback
+ *      A callback function
+ * @param {Object?} scope
+ *      The scope of the callback (default: window)
+ */
+exports.print = function (content, options, callback, scope) {
+    var page   = content.innerHTML || content,
+        params = options || {},
+        fn     = this._createCallbackFn(callback);
 
-            callback.apply(scope || window, args);
-        };
-
-        cordova.exec(callbackFn, null, 'Printer', 'isServiceAvailable', []);
-    },
-
-    /**
-     * Übergibt den HTML-Content an den Drucker-Dienst.
-     *
-     * @param {String}  content HTML string or DOM node (if latter, innerHTML is used to get the contents)
-     * @param {Object?} options platform specific options
-     */
-    print: function (content, options) {
-        var page    = content.innerHTML || content,
-            options = options || {};
-
-        if (typeof page != 'string') {
-            console.log('Print function requires an HTML string. Not an object');
-            return;
-        }
-
-        cordova.exec(null, null, 'Printer', 'print', [page, options]);
+    if (typeof page != 'string') {
+        console.log('Print function requires an HTML string. Not an object');
+        return;
     }
+
+    if (typeof params == 'string')
+        params = { name: params };
+
+    if ([null, undefined, ''].indexOf(params.name) > -1)
+        params.name = this.DEFAULT_DOC_NAME;
+
+    exec(fn, null, 'Printer', 'print', [page, params]);
 };
 
-var plugin = new Printer();
+/**
+ * @private
+ *
+ * Creates a callback, which will be executed within a specific scope.
+ *
+ * @param {Function} callbackFn
+ *      The callback function
+ * @param {Object} scope
+ *      The scope for the function
+ *
+ * @return {Function}
+ *      The new callback function
+ */
+exports._createCallbackFn = function (callbackFn, scope) {
+    if (typeof callbackFn != 'function')
+        return;
 
-module.exports = plugin;
+    return function () {
+        callbackFn.apply(scope || this, arguments);
+    };
+};
