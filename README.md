@@ -2,7 +2,7 @@
 <p align="right">
     <a href="https://github.com/katzer/cordova-plugin-printer">master</a>
     <span>&nbsp;</span>
-    <b><a href="https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print">v0.6</a></b>
+    <b><a href="#">v0.6</a></b>
     <span>&nbsp;</span>
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/network-printer">v0.5</a>
 </p>
