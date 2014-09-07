@@ -36,7 +36,7 @@
  * @param {Function} callback
  *      A callback function to be called with the result
  */
-- (void) isServiceAvailable:(CDVInvokedUrlCommand*)command
+- (void) isAvailable:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult;
     BOOL isAvailable = [self isPrintingAvailable];

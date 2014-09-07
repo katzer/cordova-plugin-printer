@@ -75,6 +75,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 #### Version 0.6.0 (not yet released)
 - AirPrint support
 - Google Cloud Print support
+- [_change_:] Renamed `isServiceAvailable` to `isAvailable`.
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
@@ -83,7 +84,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 ## Using the plugin
 The plugin creates the object `cordova.plugins.printer` with the following methods:
 
-1. [printer.isServiceAvailable][available]
+1. [printer.isAvailable][available]
 2. [printer.print][print]
 
 ### Plugin initialization
@@ -96,7 +97,7 @@ document.addEventListener('deviceready', function () {
 ```
 
 ### Find out if printing is available on the device
-The device his printing capabilities can be reviewed through the `printer.isServiceAvailable` interface.
+The device his printing capabilities can be reviewed through the `printer.isAvailable` interface.
 You can use this function to hide print functionality from users who will be unable to use it.<br>
 The method takes a callback function, passed to which is a boolean property. Optionally you can assign the scope in which the callback will be executed as a second parameter (default to *window*).
 
@@ -114,7 +115,7 @@ __Note:__ Printing is only available on devices capable of multi-tasking (iPhone
  *
  * @return {Boolean}
  */
-cordova.plugins.printer.isServiceAvailable(
+cordova.plugins.printer.isAvailable(
     function (isAvailable) {
         alert(isAvailable ? 'Service is available' : 'Service NOT available');
     }
@@ -126,7 +127,7 @@ Content can be send to a printer through the `printer.print` interface.<br>
 The method takes a string or a HTML DOM node. Optional parameters allows to specify the name of the document and a callback. The callback will be called if the user cancels or completes the print job.
 
 #### Further informations
-- See the [isServiceAvailable][available] method to find out if printing is available on the device.
+- See the [isAvailable][available] method to find out if printing is available on the device.
 - All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
 
 ```javascript
