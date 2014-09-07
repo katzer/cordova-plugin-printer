@@ -72,7 +72,7 @@ exports.print = function (content, options, callback, scope) {
     if ([null, undefined, ''].indexOf(params.name) > -1)
         params.name = this.DEFAULT_DOC_NAME;
 
-    exec(fn, null, 'Printer', 'print', [page, params.name]);
+    exec(fn, null, 'Printer', 'print', [page, params]);
 };
 
 /**

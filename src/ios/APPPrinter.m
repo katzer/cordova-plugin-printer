@@ -60,17 +60,17 @@
         return;
     }
 
-    NSArray*  arguments  = [command arguments];
-    NSString* content    = [arguments objectAtIndex:0];
+    _callbackId = command.callbackId;
+
+    NSArray*  arguments           = [command arguments];
+    NSString* content             = [arguments objectAtIndex:0];
+    NSMutableDictionary* settings = [arguments objectAtIndex:1];
 
     UIPrintInteractionController* controller = [self printController];
 
-    [self adjustSettingsForPrintController:controller];
+    [self adjustPrintController:controller withSettings:settings];
     [self loadContent:content intoPrintController:controller];
-
-    _callbackId = command.callbackId;
-
-    [self openPrintController:controller];
+    [self presentPrintController:controller];
 }
 
 /**
@@ -92,17 +92,52 @@
  * @return {UIPrintInteractionController} controller
  *      The modified print controller instance
  */
-- (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller
+- (UIPrintInteractionController*) adjustPrintController:(UIPrintInteractionController*)controller
+                                           withSettings:(NSMutableDictionary*)settings
 {
-    UIPrintInfo* printInfo = [UIPrintInfo printInfo];
+    UIPrintInfo* printInfo             = [UIPrintInfo printInfo];
+    UIPrintInfoOrientation orientation = UIPrintInfoOrientationPortrait;
+    UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
 
-    printInfo.outputType  = UIPrintInfoOutputGeneral;
-    printInfo.orientation = UIPrintInfoOrientationPortrait;
+    if ([[settings objectForKey:@"landscape"] boolValue]) {
+        orientation = UIPrintInfoOrientationLandscape;
+    }
+
+    if ([[settings objectForKey:@"graystyle"] boolValue]) {
+        outputType = UIPrintInfoOutputGrayscale;
+    }
+
+    printInfo.outputType  = outputType;
+    printInfo.orientation = orientation;
+    printInfo.jobName     = [settings objectForKey:@"name"];
+    printInfo.duplex      = [[settings objectForKey:@"duplex"] boolValue];
+    printInfo.printerID   = [settings objectForKey:@"printerId"];
 
     controller.printInfo      = printInfo;
-    controller.showsPageRange = YES;
+    controller.showsPageRange = NO;
 
     return controller;
+}
+
+/**
+ * Adjusts the web view and page renderer.
+ */
+- (void) adjustWebView:(UIWebView*)page
+     andPrintPageRenderer:(UIPrintPageRenderer*)renderer
+{
+    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
+    // margin not required - done in web page
+    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
+
+    renderer.headerHeight = -30.0f;
+    renderer.footerHeight = -30.0f;
+    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+
+    page.scalesPageToFit        = YES;
+    page.dataDetectorTypes      = UIDataDetectorTypeNone;
+    page.userInteractionEnabled = NO;
+    page.autoresizingMask       = (UIViewAutoresizingFlexibleWidth |
+                                   UIViewAutoresizingFlexibleHeight);
 }
 
 /**
@@ -115,24 +150,18 @@
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
+    UIWebView* page               = [[UIWebView alloc] init];
+    UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
+
+    [self adjustWebView:page andPrintPageRenderer:renderer];
+
     // Set the base URL to be the www directory.
     NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
                                                             ofType:nil];
+    NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
 
-    NSURL*    baseURL     = [NSURL fileURLWithPath:wwwFilePath];
-    // Load page into a webview and use its formatter to print the page
-    UIWebView* webPage    = [[UIWebView alloc] init];
 
-    [webPage loadHTMLString:content baseURL:baseURL];
-
-    // Get formatter for web (note: margin not required - done in web page)
-    UIViewPrintFormatter* formatter = [webPage viewPrintFormatter];
-    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
-
-    UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
-    renderer.headerHeight = -30.0f;
-    renderer.footerHeight = -30.0f;
-    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+    [page loadHTMLString:content baseURL:baseURL];
 
     controller.printPageRenderer = renderer;
 }
@@ -144,7 +173,7 @@
  * @param {UIPrintInteractionController} controller
  *      The prepared print controller with a content
  */
-- (void) openPrintController:(UIPrintInteractionController*)controller
+- (void) presentPrintController:(UIPrintInteractionController*)controller
 {
     [controller presentAnimated:YES completionHandler:
      ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {

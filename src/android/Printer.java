@@ -232,7 +232,8 @@ public class Printer extends CordovaPlugin {
      */
     private void print (JSONArray args) {
         final String content = args.optString(0, "<html></html>");
-        final String docName = args.optString(1, DEFAULT_DOC_NAME);
+        final String docName = args.optJSONObject(1)
+                                   .optString("name", DEFAULT_DOC_NAME);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
