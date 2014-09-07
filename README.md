@@ -44,7 +44,8 @@ Printing is only supported on AirPrint-enabled printers or Google Cloud Print-en
 ### Plugin's Purpose
 This Cordova plugin serves as a platform independent JavaScript bridge to call the underlying native SDKs.
 
-### Overview
+
+## Overview
 1. [Introduction](#cordova-print-plugin)
 2. [Supported Platforms](#supported-platforms)
 3. [Installation](#installation)
