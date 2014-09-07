@@ -152,7 +152,7 @@ __NOTE:__ All CSS rules needs to be embedded or accessible via absolute URLs in 
 
 #### Print the whole HTML page
 ```javascript
-// Get the content
+// Either a DOM node or a string
 var page = document.body;
 
 cordova.plugins.printer.print(page, { name:'Document.html' }, function () {
@@ -162,6 +162,7 @@ cordova.plugins.printer.print(page, { name:'Document.html' }, function () {
 
 #### Print custom specific content
 ```javascript
+// Either a DOM node or a string
 var page = '<h1>Hello Document</h1>';
 
 cordova.plugins.printer.print(page, 'Document.html', function () {
