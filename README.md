@@ -1,27 +1,23 @@
 
-<ul style="float:right">
-    <li>[master][master_branch]</li>
-    <li>[v0.6][google-cloud-print_branch]</li>
-    <li>[v0.5][network-printer_branch]</li>
-</ul>
+<p align="right">
+    <a href="https://github.com/katzer/cordova-plugin-printer">master</a>
+    <span>&nbsp;</span>
+    <b><a href="https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print">v0.6</a></b>
+    <span>&nbsp;</span>
+    <a href="https://github.com/katzer/cordova-plugin-printer/tree/network-printer">v0.5</a>
+</p>
 
 Cordova Print Plugin
 ====================
 
 [Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] for iOS and [Google Cloud Print][GCP] for Android.
 
-### Choose the right branch!
-This is the _google-cloud-print_ branch. The plugin provides multiple branches to support different printers and android versions while _AirPrint_ is supported in each one.
+### Choose the right branch for you!
+This is the _google-cloud-print_ branch. The plugin provides multiple branches to support different printers and android versions while _AirPrint_ is supported with each one.
 
-- [master Branch][master_branch]
- - Versions >= 0.7.x
- - For iOS and Android >= 4.4
-- [google-cloud-print Branch][google-cloud-print_branch]
- - Version ~> 0.6.x
- - For Android <= 4.3
-- [network-printer Branch][network-printer_branch]
- - __Deprecated versions <= 0.5.x
- - For Android <= 4.3
+- [master Branch][master_branch] for iOS and Android >= 4.4 (>= v0.7.x)
+- [google-cloud-print Branch][google-cloud-print_branch] for Android <= 4.3 (~> v0.6.x)
+- __Deprecated__ [network-printer Branch][network-printer_branch] for Android <= 4.3 (<= v0.5.x)
 
 ### About Apple AirPrint
 AirPrint is an Apple™ technology that helps you create full-quality printed output without the need to download or install drivers. AirPrint is built in to many printer models from most popular printer manufacturers. Just select an AirPrint printer on your local network to print from your favorite iOS or OS X app.
@@ -253,9 +249,9 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [cordova]: https://cordova.apache.org
 [GCP]: http://www.google.com/cloudprint/learn/index.html
 [AirPrint]: http://support.apple.com/kb/ht4356
-[master_branch]:
+[master_branch]: https://github.com/katzer/cordova-plugin-printer
 [google-cloud-print_branch]: #
-[network-printer_branch]:
+[network-printer_branch]: https://github.com/katzer/cordova-plugin-printer/tree/network-printer
 [ios_guide]: http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html
 [CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
 [PGB]: http://docs.build.phonegap.com/en_US/index.html
