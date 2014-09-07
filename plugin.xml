@@ -13,7 +13,7 @@
     </description>
 
     <repo>
-        https://github.com/katzer/cordova-plugin-printer.git
+        https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print
     </repo>
 
     <keywords>
