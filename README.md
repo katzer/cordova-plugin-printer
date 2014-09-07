@@ -21,7 +21,7 @@ The plugin provides multiple branches to support different printer types and and
 - __Deprecated__ [network-printer Branch][network-printer_branch] for Android <= 4.3 (<= v0.5.x)
 
 ### About Apple AirPrint
-AirPrint is an Apple™ technology that helps you create full-quality printed output without the need to download or install drivers. AirPrint is built in to many printer models from most popular printer manufacturers. Just select an AirPrint printer on your local network to print from your favorite iOS or OS X app.
+AirPrint is an Apple™ technology that helps you create full-quality printed output without the need to download or install drivers. AirPrint is built in to many printer models from most popular printer manufacturers. Just select an AirPrint printer on your local network to print from your favorite iOS or OS X app.<br>
 AirPrint printers are available for these devices when using the latest version of iOS available for them:
  - iPad (all models)
  - iPhone (3GS or later)
