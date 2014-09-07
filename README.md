@@ -69,7 +69,7 @@ More informations can be found [here][PGB_plugin].
 ### Removing the Plugin
 Through the [Command-line Interface][CLI]:
 ```bash
-cordova plugin rm de.appplant.cordova.plugin.printer
+cordova plugin rm de.appplant.cordova.plugin.cloudprint
 ```
 
 
