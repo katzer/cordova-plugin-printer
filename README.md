@@ -69,7 +69,7 @@ The plugin can either be installed from git repository, from local file system t
 From master:
 ```bash
 # ~~ from master ~~
-cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
+cordova plugin add https://github.com/katzer/cordova-plugin-cloudprint.git
 ```
 from a local folder:
 ```bash
