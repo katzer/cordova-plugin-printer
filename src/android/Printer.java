@@ -1,5 +1,5 @@
 /*
-    Copyright 2013 appPlant UG
+    Copyright 2013-2014 appPlant UG
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -17,42 +17,67 @@
     KIND, either express or implied.  See the License for the
     specific language governing permissions and limitations
     under the License.
-*/
+ */
 
 package de.appplant.cordova.plugin.printer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
-
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Looper;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
 import android.print.PrintManager;
-import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 @TargetApi(19)
 public class Printer extends CordovaPlugin {
 
+    private WebView view;
+
+    private CallbackContext command;
+
+    private static final String DEFAULT_DOC_NAME = "unknown";
+
+    /**
+     * Executes the request.
+     *
+     * This method is called from the WebView thread.
+     * To do a non-trivial amount of work, use:
+     *     cordova.getThreadPool().execute(runnable);
+     *
+     * To run on the UI thread, use:
+     *     cordova.getActivity().runOnUiThread(runnable);
+     *
+     * @param action          The action to execute.
+     * @param rawArgs         The exec() arguments in JSON form.
+     * @param callbackContext The callback context used when calling back into JavaScript.
+     * @return                Whether the action was valid.
+     */
     @Override
-    public boolean execute (String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        // Es soll überprüft werden, ob ein Dienst zum Ausdrucken von Inhalten zur Verfügung steht
+    public boolean execute (String action, JSONArray args,
+            CallbackContext callbackContext) throws JSONException {
+
+        command = callbackContext;
+
         if (action.equalsIgnoreCase("isAvailable")) {
-            isAvailable(callbackContext);
+            isAvailable();
 
             return true;
         }
 
-        // Etwas soll ausgedruckt werden
         if (action.equalsIgnoreCase("print")) {
-            print(args, callbackContext);
+            print(args);
 
             return true;
         }
@@ -62,69 +87,95 @@ public class Printer extends CordovaPlugin {
     }
 
     /**
-     * Überprüft, ob ein Drucker zur Verfügung steht.
+     * Informs if the device is able to print documents.
+     * A Internet connection is required to load the cloud print dialog.
      */
-    private void isAvailable (CallbackContext ctx) {
+    private void isAvailable () {
         Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
-        ctx.sendPluginResult(result);
+        command.sendPluginResult(result);
     }
 
     /**
-     * Druckt den HTML Content aus.
+     * Loads the HTML content into the web view and invokes the print manager.
+     *
+     * @param args
+     *      The exec arguments as JSON
      */
-    private void print (final JSONArray args, CallbackContext ctx) {
-        final Printer self = this;
+    private void print (final JSONArray args) {
+        final String content   = args.optString(0, "<html></html>");
+        final JSONObject props = args.optJSONObject(1);;
 
         cordova.getActivity().runOnUiThread( new Runnable() {
+            @Override
             public void run() {
-                String content     = args.optString(0, "<html></html>");
-                WebView controller = self.getPrintController();
-
-                self.loadContentIntoPrintController(content, controller);
-
-                self.startPrinterApp(controller);
+                initWebView(content, props);
+                loadContent(content);
             }
         });
     }
 
     /**
-     * Erstellt den Print-View.
+     * Loads the content into the web view.
+     *
+     * @param content
+     *      Either an HTML string or URI
      */
-    private WebView getPrintController () {
-        WebView webview = new WebView(cordova.getActivity());
+    private void loadContent(String content) {
+        if (content.startsWith("http") || content.startsWith("file:")) {
+            view.loadUrl(content);
+        } else {
+            //Set base URI to the assets/www folder
+            String baseURL = webView.getUrl();
+            baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
 
-        webview.setVisibility(View.INVISIBLE);
-        webview.getSettings().setJavaScriptEnabled(false);
-
-        return webview;
+            view.loadDataWithBaseURL(baseURL, content, "text/html", "UTF-8", null);
+        }
     }
 
     /**
-     * Lädt den zu druckenden Content in ein WebView, welcher vom Drucker ausgedruckt werden soll.
+     * Configures the WebView components which will call the Google Cloud Print
+     * Service.
+     *
+     * @param content
+     *      HTML encoded string
+     * @param props
+     *      The JSON object with the containing page properties
      */
-    private void loadContentIntoPrintController (String content, WebView webview) {
-        //Set base URI to the assets/www folder
-        String baseURL = webView.getUrl();
-        baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
+    private void initWebView (String content, JSONObject props) {
+        Activity ctx = cordova.getActivity();
+        view         = new WebView(ctx);
 
-        webview.loadDataWithBaseURL(baseURL, content, "text/html", "UTF-8", null);
+        view.getSettings().setDatabaseEnabled(true);
+
+        setWebViewClient(content, props);
     }
 
     /**
-     * Öffnet die Printer App, damit der Content ausgedruckt werden kann.
+     * Creates the web view client which sets the print document.
+     *
+     * @param content
+     *      HTML encoded string
+     * @param props
+     *      The JSON object with the containing page properties
      */
-    private void startPrinterApp (WebView webview) {
-        webview.setWebViewClient (new WebViewClient() {
+    private void setWebViewClient (final String content, JSONObject props) {
+        final String docName = props.optString("name", DEFAULT_DOC_NAME);
+        final boolean landscape = props.optBoolean("landscape", false);
+        final boolean graystyle = props.optBoolean("graystyle", false);
+
+        view.setWebViewClient(new WebViewClient() {
+            @Override
             public boolean shouldOverrideUrlLoading (WebView view, String url) {
                 return false;
             }
 
-            public void onPageFinished (WebView webview, String url) {
+            @Override
+            public void onPageFinished (WebView webView, String url) {
                 // Get a PrintManager instance
                 PrintManager printManager = (PrintManager) cordova.getActivity()
-                    .getSystemService(Context.PRINT_SERVICE);
+                        .getSystemService(Context.PRINT_SERVICE);
 
                 // Get a print adapter instance
                 PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter();
@@ -132,10 +183,43 @@ public class Printer extends CordovaPlugin {
                 // Get a print builder instance
                 PrintAttributes.Builder builder = new PrintAttributes.Builder();
 
+                // The page does itself set its own margins
                 builder.setMinMargins(PrintAttributes.Margins.NO_MARGINS);
 
+                builder.setColorMode(graystyle ? PrintAttributes.COLOR_MODE_MONOCHROME
+                        : PrintAttributes.COLOR_MODE_COLOR);
+
+                builder.setMediaSize(landscape ? PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE
+                        : PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
+
                 // Create a print job with name and adapter instance
-                printManager.print("Print Document", printAdapter, builder.build());
+                PrintJob job = printManager.print(docName, printAdapter, builder.build());
+
+                invokeCallbackOnceCompletedOrCanceled(job);
+
+                view = null;
+            }
+        });
+    }
+
+    /**
+     * Invokes the callback once the print job is complete or was canceled.
+     *
+     * @param job
+     *      The reference to the print job
+     */
+    private void invokeCallbackOnceCompletedOrCanceled (final PrintJob job) {
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                for (;;) {
+                    if (job.isCancelled() || job.isCompleted() || job.isFailed()) {
+                        command.success();
+                        break;
+                    }
+                }
             }
         });
     }
