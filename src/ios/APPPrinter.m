@@ -155,13 +155,20 @@
 
     [self adjustWebView:page andPrintPageRenderer:renderer];
 
-    // Set the base URL to be the www directory.
-    NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                            ofType:nil];
-    NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
+    if ([NSURL URLWithString:content]) {
+        NSURL *url = [NSURL URLWithString:content];
+
+        [page loadRequest:[NSURLRequest requestWithURL:url]];
+    }
+    else {
+        // Set the base URL to be the www directory.
+        NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
+                                                                ofType:nil];
+        NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
 
 
-    [page loadHTMLString:content baseURL:baseURL];
+        [page loadHTMLString:content baseURL:baseURL];
+    }
 
     controller.printPageRenderer = renderer;
 }
