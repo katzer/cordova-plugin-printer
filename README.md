@@ -96,8 +96,10 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 #### Version 0.7.0 (not yet released)
 - AirPrint support
 - Android Printing Framework support
-- [__change__:] Renamed `isServiceAvailable` to `isAvailable`.
-- [enhancement:] New print options like `name`, `landscape` or `duplex`.
+- [__change__:] Renamed `isServiceAvailable` to `isAvailable`
+- [enhancement:] New print options like `name`, `landscape` or `duplex`
+- [enhancement:] Ability to print remote content via URI
+- [enhancement:] Callback support
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
@@ -146,7 +148,7 @@ cordova.plugins.printer.isAvailable(
 
 ### Send content to a printer
 Content can be send to a printer through the `printer.print` interface.<br>
-The method takes a string or a HTML DOM node. Optional parameters allows to specify the name of the document and a callback. The callback will be called if the user cancels or completes the print job.
+The method takes a string or a HTML DOM node. The string can contain HTML content or an URI pointing to another web page. Optional parameters allows to specify the name of the document and a callback. The callback will be called if the user cancels or completes the print job.
 
 #### Available Options
 | Name | Description | Type | Support |
@@ -160,6 +162,7 @@ The method takes a string or a HTML DOM node. Optional parameters allows to spec
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
 - All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
+- The string can contain HTML content or an URI pointing to another web page.
 - See the [examples][examples] to get an overview on how to use the plugin.
 
 ```javascript
@@ -185,15 +188,25 @@ __NOTE:__ All CSS rules needs to be embedded or accessible via absolute URLs in 
 
 #### 1. Print the whole HTML page
 ```javascript
-// Either a DOM node or a string
-var page = document.body;
+// URI for the index.html
+var page = location.href;
 
 cordova.plugins.printer.print(page, 'Document.html', function () {
     alert('printing finished or canceled')
 });
 ```
 
-#### 2. Print custom specific content
+#### 1. Print the content of a part of the page
+```javascript
+// Either a DOM node or a string
+var page = document.getElementById('legal-notice');
+
+cordova.plugins.printer.print(page, 'Document.html', function () {
+    alert('printing finished or canceled')
+});
+```
+
+#### 3. Print custom specific content
 ```javascript
 // Either a DOM node or a string
 var page = '<h1>Hello Document</h1>';
@@ -203,7 +216,14 @@ cordova.plugins.printer.print(page, 'Document.html', function () {
 });
 ```
 
-#### 3. Adjust the page
+#### 4. Print remote web page
+```javascript
+cordova.plugins.printer.print('http://blackberry.de', 'BB!!!', function () {
+    alert('printing finished or canceled')
+});
+```
+
+#### 5. Adjust the page
 ```javascript
 cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, function () {
     alert('printing finished or canceled')
