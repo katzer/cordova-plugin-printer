@@ -1,6 +1,6 @@
 
 <p align="right">
-    <b><a href="#">master</a><b/>
+    <b><a href="#">master</a></b>
     <span>&nbsp;</span>
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print">v0.6</a>
     <span>&nbsp;</span>
