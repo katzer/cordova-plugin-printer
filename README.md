@@ -106,6 +106,8 @@ cordova plugin rm de.appplant.cordova.plugin.cloudprint
 - Google Cloud Print support
 - [__change__:] Renamed `isServiceAvailable` to `isAvailable`.
 - [enhancement:] New print options like `name`, `landscape` or `duplex`.
+- [enhancement:] Ability to print remote content via URI (iOS only)
+- [enhancement:] Callback support
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
