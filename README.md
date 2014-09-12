@@ -10,7 +10,7 @@
 Cordova Print Plugin
 ====================
 
-[Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Google Cloud Print][GCP].
+[Cordova][cordova] plugin to print HTML documents using [__AirPrint__][AirPrint]  and [__Google Cloud Print__][GCP].
 
 :bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
 
