@@ -97,7 +97,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
-#### Version 0.6.0 (not yet released)
+#### Version 0.6.0 (12.09.2014)
 - Google Cloud Print support
 - [__change__:] Renamed `isServiceAvailable` to `isAvailable`.
 - [enhancement:] New print options like `name`, `landscape` or `duplex`.
