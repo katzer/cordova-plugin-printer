@@ -155,7 +155,11 @@ The callback function will be called with a second argument which is an array, i
 ```javascript
 window.plugin.printer.isServiceAvailable(
     function (isAvailable, installedAppIds) {
-        alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
+        if (installedAppIds && installedAppIds.length > 0) {
+            alert('The following print apps are installed on your device: ' + installedAppIds.join(', '));
+        } else {
+            alert('There are no print apps available!');
+        }
     }
 );
 ```
