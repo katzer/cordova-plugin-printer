@@ -6,3 +6,4 @@
 - [enhancement:] New print options like `name`, `landscape` or `duplex`
 - [enhancement:] Ability to print remote content via URI
 - [enhancement:] Callback support
+- [bugfix:] `isAvailable` does not block the main thread anymore.

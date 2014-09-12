@@ -100,6 +100,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 - [enhancement:] New print options like `name`, `landscape` or `duplex`
 - [enhancement:] Ability to print remote content via URI
 - [enhancement:] Callback support
+- [bugfix:] `isAvailable` does not block the main thread anymore.
 
 #### Further informations
 - See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
