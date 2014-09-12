@@ -1,0 +1,14 @@
+objc[1177]: Class AXEmojiUtilities is implemented in both /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/System/Library/PrivateFrameworks/AccessibilityUtilities.framework/AccessibilityUtilities and /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/usr/lib/libAXSpeechManager.dylib. One of the two will be used. Which one is undefined.
+2014-09-12 15:32:34.552 PrinterExample[1177:70b] Cannot find executable for CFBundle 0xa88d080 </Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/System/Library/AccessibilityBundles/CertUIFramework.axbundle> (not loaded)
+2014-09-12 15:32:34.558 PrinterExample[1177:70b] Cannot find executable for CFBundle 0xa68fcd0 </Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk/System/Library/AccessibilityBundles/GeoServices.axbundle> (not loaded)
+2014-09-12 15:32:34.610 PrinterExample[1177:70b] Multi-tasking -> Device: YES, App: YES
+2014-09-12 15:32:34.628 PrinterExample[1177:70b] Unlimited access to network resources
+2014-09-12 15:32:34.630 PrinterExample[1177:70b] 
+
+Started backup to iCloud! Please be careful.
+Your application might rejected by Apple if you store too much data.
+For more information please read "iOS Data Storage Guidelines"
+You could find it at the following address https://developer.apple.com/icloud/documentation/data-storage/ .
+
+2014-09-12 15:32:34.941 PrinterExample[1177:70b] Resetting plugins due to page load.
+2014-09-12 15:32:35.024 PrinterExample[1177:70b] Finished load of: file:///Users/sebastian/Library/Application%20Support/iPhone%20Simulator/7.1/Applications/0F938001-299E-4A91-AF47-53CA82BFB40F/PrinterExample.app/www/index.html

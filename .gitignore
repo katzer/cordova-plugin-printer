@@ -1,0 +1,5 @@
+/platforms/ios/build
+/platforms/android/ant-gen
+/platforms/android/bin
+/platforms/android/gen
+/platforms/android/ant-build

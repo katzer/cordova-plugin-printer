@@ -1,0 +1,26 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Printer\"><param name=\"android-package\" value=\"de.appplant.cordova.plugin.printer.Printer\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "installed_plugins": {
+        "de.appplant.cordova.plugin.printer": {
+            "PACKAGE_NAME": "de.appplant.cordova.plugin.printer.example"
+        }
+    },
+    "dependent_plugins": {}
+}
