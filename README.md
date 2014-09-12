@@ -47,6 +47,13 @@ Dont forget to install a PDF viewer like [MuPDF][mupdf], otherwise Android will 
 ![android][android_screens]
 
 
+## License
+
+This software is released under the [Apache 2.0 License][apache2_license].
+
+© 2013-2014 appPlant UG, Inc. All rights reserved
+
+
 [cordova]: https://cordova.apache.org
 [APF]: http://www.techotopia.com/index.php/Printing_with_the_Android_Printing_Framework
 [AirPrint]: http://support.apple.com/kb/ht4356
@@ -55,3 +62,4 @@ Dont forget to install a PDF viewer like [MuPDF][mupdf], otherwise Android will 
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
 [zip]: https://github.com/katzer/cordova-plugin-printer/archive/master.zip
 [mupdf]: http://www.mupdf.com
+[apache2_license]: http://opensource.org/licenses/Apache-2.0
