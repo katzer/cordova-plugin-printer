@@ -3,3 +3,7 @@
 /platforms/android/bin
 /platforms/android/gen
 /platforms/android/ant-build
+/platforms/android/CordovaLib/ant-gen
+/platforms/android/CordovaLib/bin
+/platforms/android/CordovaLib/gen
+/platforms/android/CordovaLib/ant-build
