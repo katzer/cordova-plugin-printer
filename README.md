@@ -14,7 +14,7 @@ Cordova Print Plugin
 
 :bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
 
-The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one. This is the _master_ branch.
+The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one.
 
 - [master Branch][master_branch] for iOS and Android >= 4.4 (>= v0.7.x)
 - [google-cloud-print Branch][google-cloud-print_branch] for Android <= 4.3 (~> v0.6.x)
