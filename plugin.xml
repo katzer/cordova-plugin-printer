@@ -5,7 +5,7 @@
         id="de.appplant.cordova.plugin.printer"
         version="0.7.0">
 
-    <name>AirPrint and Android Printing Framework Plugin</name>
+    <name>Printer</name>
 
     <description>
         Cordova plugin to print HTML documents using AirPrint
