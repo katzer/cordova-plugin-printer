@@ -5,6 +5,8 @@
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print">v0.6</a>
     <span>&nbsp;</span>
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/network-printer">v0.5</a>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <i><a href="https://github.com/katzer/cordova-plugin-printer/tree/example">EXAMPLE :point_right:</a></i>
 </p>
 
 Cordova Print Plugin
@@ -232,9 +234,6 @@ cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, f
 
 
 ## Quirks
-
-### Testing in the iOS Simulator
-There's no need to waste lots of paper when testing - if you're using the iOS simulator, select _File -> Open Printer Simulator_ to open some dummy printers (print outs will appear as PDF files).
 
 ### Adding Page Breaks to Printouts
 Use the 'page-break-before' property to specify a page break, e.g.
