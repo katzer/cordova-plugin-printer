@@ -21,20 +21,12 @@
 
 #import "APPPrinter.h"
 
-@interface APPPrinter (Private)
+@interface APPPrinter ()
 
-// Retrieves an instance of shared print controller
-- (UIPrintInteractionController*) printController;
-// Adjusts the settings for the print controller
-- (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller;
-// Loads the content into the print controller
-- (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller;
-// Opens the print controller so that the user can choose between available iPrinters
-- (void) informAboutResult:(int)code callbackId:(NSString*)callbackId;
-// Checks either the printing service is avaible or not
-- (BOOL) isPrintingAvailable;
+@property (retain) NSString* callbackId;
 
 @end
+
 
 @implementation APPPrinter
 
@@ -44,16 +36,18 @@
  * @param {Function} callback
  *      A callback function to be called with the result
  */
-- (void) isServiceAvailable:(CDVInvokedUrlCommand*)command
+- (void) isAvailable:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult;
-    BOOL isAvailable = [self isPrintingAvailable];
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* pluginResult;
+        BOOL isAvailable = [self isPrintingAvailable];
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                       messageAsBool:isAvailable];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                           messageAsBool:isAvailable];
 
-    [self.commandDelegate sendPluginResult:pluginResult
-                                callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:pluginResult
+                                    callbackId:command.callbackId];
+    }];
 }
 
 /**
@@ -68,17 +62,17 @@
         return;
     }
 
-    NSArray*  arguments  = [command arguments];
-    NSString* content    = [arguments objectAtIndex:0];
+    _callbackId = command.callbackId;
+
+    NSArray*  arguments           = [command arguments];
+    NSString* content             = [arguments objectAtIndex:0];
+    NSMutableDictionary* settings = [arguments objectAtIndex:1];
 
     UIPrintInteractionController* controller = [self printController];
 
-    [self adjustSettingsForPrintController:controller];
+    [self adjustPrintController:controller withSettings:settings];
     [self loadContent:content intoPrintController:controller];
-
-    [self openPrintController:controller];
-
-    [self commandDelegate];
+    [self presentPrintController:controller];
 }
 
 /**
@@ -100,17 +94,52 @@
  * @return {UIPrintInteractionController} controller
  *      The modified print controller instance
  */
-- (UIPrintInteractionController*) adjustSettingsForPrintController:(UIPrintInteractionController*)controller
+- (UIPrintInteractionController*) adjustPrintController:(UIPrintInteractionController*)controller
+                                           withSettings:(NSMutableDictionary*)settings
 {
-    UIPrintInfo* printInfo = [UIPrintInfo printInfo];
+    UIPrintInfo* printInfo             = [UIPrintInfo printInfo];
+    UIPrintInfoOrientation orientation = UIPrintInfoOrientationPortrait;
+    UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
 
-    printInfo.outputType  = UIPrintInfoOutputGeneral;
-    printInfo.orientation = UIPrintInfoOrientationPortrait;
+    if ([[settings objectForKey:@"landscape"] boolValue]) {
+        orientation = UIPrintInfoOrientationLandscape;
+    }
+
+    if ([[settings objectForKey:@"graystyle"] boolValue]) {
+        outputType = UIPrintInfoOutputGrayscale;
+    }
+
+    printInfo.outputType  = outputType;
+    printInfo.orientation = orientation;
+    printInfo.jobName     = [settings objectForKey:@"name"];
+    printInfo.duplex      = [[settings objectForKey:@"duplex"] boolValue];
+    printInfo.printerID   = [settings objectForKey:@"printerId"];
 
     controller.printInfo      = printInfo;
-    controller.showsPageRange = YES;
+    controller.showsPageRange = NO;
 
     return controller;
+}
+
+/**
+ * Adjusts the web view and page renderer.
+ */
+- (void) adjustWebView:(UIWebView*)page
+     andPrintPageRenderer:(UIPrintPageRenderer*)renderer
+{
+    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
+    // margin not required - done in web page
+    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
+
+    renderer.headerHeight = -30.0f;
+    renderer.footerHeight = -30.0f;
+    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+
+    page.scalesPageToFit        = YES;
+    page.dataDetectorTypes      = UIDataDetectorTypeNone;
+    page.userInteractionEnabled = NO;
+    page.autoresizingMask       = (UIViewAutoresizingFlexibleWidth |
+                                   UIViewAutoresizingFlexibleHeight);
 }
 
 /**
@@ -123,24 +152,25 @@
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
-    // Set the base URL to be the www directory.
-    NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                            ofType:nil];
-
-    NSURL*    baseURL     = [NSURL fileURLWithPath:wwwFilePath];
-    // Load page into a webview and use its formatter to print the page
-    UIWebView* webPage    = [[UIWebView alloc] init];
-
-    [webPage loadHTMLString:content baseURL:baseURL];
-
-    // Get formatter for web (note: margin not required - done in web page)
-    UIViewPrintFormatter* formatter = [webPage viewPrintFormatter];
-    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
-
+    UIWebView* page               = [[UIWebView alloc] init];
     UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
-    renderer.headerHeight = -30.0f;
-    renderer.footerHeight = -30.0f;
-    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+
+    [self adjustWebView:page andPrintPageRenderer:renderer];
+
+    if ([NSURL URLWithString:content]) {
+        NSURL *url = [NSURL URLWithString:content];
+
+        [page loadRequest:[NSURLRequest requestWithURL:url]];
+    }
+    else {
+        // Set the base URL to be the www directory.
+        NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
+                                                                ofType:nil];
+        NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
+
+
+        [page loadHTMLString:content baseURL:baseURL];
+    }
 
     controller.printPageRenderer = renderer;
 }
@@ -152,9 +182,16 @@
  * @param {UIPrintInteractionController} controller
  *      The prepared print controller with a content
  */
-- (void) openPrintController:(UIPrintInteractionController*)controller
+- (void) presentPrintController:(UIPrintInteractionController*)controller
 {
-    [controller presentAnimated:YES completionHandler:NULL];
+    [controller presentAnimated:YES completionHandler:
+     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+        CDVPluginResult* pluginResult =
+        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+        [self.commandDelegate sendPluginResult:pluginResult
+                                    callbackId:_callbackId];
+    }];
 }
 
 /**
