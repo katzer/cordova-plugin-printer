@@ -38,14 +38,16 @@
  */
 - (void) isAvailable:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult;
-    BOOL isAvailable = [self isPrintingAvailable];
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* pluginResult;
+        BOOL isAvailable = [self isPrintingAvailable];
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                       messageAsBool:isAvailable];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                           messageAsBool:isAvailable];
 
-    [self.commandDelegate sendPluginResult:pluginResult
-                                callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:pluginResult
+                                    callbackId:command.callbackId];
+    }];
 }
 
 /**
