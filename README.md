@@ -264,7 +264,7 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [ios_guide]: http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html
 [CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
 [PGB]: http://docs.build.phonegap.com/en_US/index.html
-[PGB_plugin]: https://build.phonegap.com/plugins/
+[PGB_plugin]: https://build.phonegap.com/plugins/1059
 [changelog]: CHANGELOG.md
 [available]: #find-out-if-printing-is-available-on-the-device
 [print]: #send-content-to-a-printer
