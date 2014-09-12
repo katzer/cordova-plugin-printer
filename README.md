@@ -94,7 +94,6 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 ## ChangeLog
 #### Version 0.7.0 (not yet released)
-- AirPrint support
 - Android Printing Framework support
 - [__change__:] Renamed `isServiceAvailable` to `isAvailable`
 - [enhancement:] New print options like `name`, `landscape` or `duplex`
