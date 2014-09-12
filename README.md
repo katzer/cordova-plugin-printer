@@ -14,7 +14,7 @@ Cordova Print Plugin
 
 :bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
 
-The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one. This is the _google-cloud-print_ branch.
+The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one.
 
 - [master Branch][master_branch] for iOS and Android >= 4.4 (>= v0.7.x)
 - [google-cloud-print Branch][google-cloud-print_branch] for Android <= 4.3 (~> v0.6.x)
@@ -68,35 +68,31 @@ The plugin can either be installed from git repository, from local file system t
 ### Local development environment
 From master:
 ```bash
-# ~~ from master ~~
+# ~~ from google-cloud-print branch ~~
 cordova plugin add https://github.com/katzer/cordova-plugin-cloudprint.git
 ```
 from a local folder:
 ```bash
 # ~~ local folder ~~
-cordova plugin add de.appplant.cordova.plugin.cloudprint --searchpath path/to/plugin
+cordova plugin add de.appplant.cordova.plugin.printer --searchpath path/to/plugin
 ```
 or to use the last stable version:
 ```bash
 # ~~ stable version ~~
-cordova plugin add de.appplant.cordova.plugin.cloudprint
+cordova plugin add de.appplant.cordova.plugin.printer@0.6.0
 ```
 
 ### PhoneGap Build
 Add the following xml to your config.xml to always use the latest version of this plugin:
 ```xml
-<gap:plugin name="de.appplant.cordova.plugin.cloudprint" />
-```
-or to use an specific version:
-```xml
-<gap:plugin name="de.appplant.cordova.plugin.cloudprint" version="0.6.0" />
+<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.6.0" />
 ```
 More informations can be found [here][PGB_plugin].
 
 ### Removing the Plugin
 Through the [Command-line Interface][CLI]:
 ```bash
-cordova plugin rm de.appplant.cordova.plugin.cloudprint
+cordova plugin rm de.appplant.cordova.plugin.printer
 ```
 
 

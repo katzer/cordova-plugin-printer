@@ -19,7 +19,7 @@
     under the License.
  */
 
-package de.appplant.cordova.plugin.cloudprint;
+package de.appplant.cordova.plugin.printer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;

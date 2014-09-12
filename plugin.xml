@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="de.appplant.cordova.plugin.cloudprint"
+        id="de.appplant.cordova.plugin.printer"
         version="0.6.0-dev">
 
     <name>AirPrint and Google Cloud Print Plugin</name>
@@ -50,7 +50,7 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Printer">
-                <param name="android-package" value="de.appplant.cordova.plugin.cloudprint.Printer"/>
+                <param name="android-package" value="de.appplant.cordova.plugin.printer.Printer"/>
             </feature>
         </config-file>
 
@@ -59,6 +59,6 @@
             <uses-permission android:name="android.permission.INTERNET" />
         </config-file>
 
-        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/cloudprint" />
+        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 </plugin>
