@@ -10,7 +10,7 @@
 Cordova Print Plugin
 ====================
 
-[Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
+[Cordova][cordova] plugin to print HTML documents using [__AirPrint__][AirPrint] and [__Android Printing Framework__][APF].
 
 :bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
 
