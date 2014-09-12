@@ -2,14 +2,14 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="de.appplant.cordova.plugin.network-printer"
-        version="0.5.4-dev">
+        id="de.appplant.cordova.plugin.printer"
+        version="0.5.3">
 
     <name>Printer</name>
 
     <description>A bunch of printig plugins for Cordova 3.x.x</description>
-    <repo>https://github.com/katzer/cordova-plugin-printer.git</repo>
-    <keywords>print, printer, ios, android, windows 8</keywords>
+    <repo>https://github.com/katzer/cordova-plugin-printer/tree/network-printer</repo>
+    <keywords>print, printer, ios, android</keywords>
     <license>Apache 2.0</license>
 
     <author>Sebastián Katzer</author>
@@ -40,10 +40,10 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Printer">
-                <param name="android-package" value="de.appplant.cordova.plugin.networkprinter.Printer"/>
+                <param name="android-package" value="de.appplant.cordova.plugin.printer.Printer"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/networkprinter" />
+        <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 </plugin>

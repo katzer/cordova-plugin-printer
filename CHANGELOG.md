@@ -1,8 +1,4 @@
 ##ChangeLog
-#### Version 0.6.0 (not yet released)
-- [feature]: Added Windows8 support<br>
-  *Thanks to* ***pirvudoru***
-
 #### Version 0.5.3 (13.07.2014)
 - [bugfix]: Printing wasn't possible because `isServiceAvailable` returns False IOS
 - [bugfix]: Using plugin prevents openDatabase() on Android

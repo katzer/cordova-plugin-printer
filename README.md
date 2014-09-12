@@ -1,9 +1,25 @@
-Cordova Printer-Plugin
-======================
 
-A bunch of printing plugins for Cordova 3.x.x
+<p align="right">
+    <a href="https://github.com/katzer/cordova-plugin-printer">master</a>
+    <span>&nbsp;</span>
+    <a href="https://github.com/katzer/cordova-plugin-printer/tree/google-cloud-print">v0.6</a>
+    <span>&nbsp;</span>
+    <b><a href="#">v0.5</a></b>
+</p>
 
-by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
+Cordova Print Plugin
+====================
+
+__This branch is deprecated and will not be supported anymore.__ Please consider to upgrade your plugin by using the master branch.
+
+:bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
+
+The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one.
+
+- [master Branch][master_branch] for iOS and Android >= 4.4 (>= v0.7.x)
+- [google-cloud-print Branch][google-cloud-print_branch] for Android <= 4.3 (~> v0.6.x)
+- __Deprecated__ [network-printer Branch][network-printer_branch] for Android <= 4.3 (<= v0.5.x)
+
 
 ## Supported Platforms
 - **iOS** *(Print from iOS devices to AirPrint compatible printers)*<br>
@@ -20,27 +36,23 @@ Or cloud based through [PhoneGap Build][PGB].
 From master:
 ```bash
 # ~~ from master ~~
-cordova plugin add https://github.com/katzer/cordova-plugin-printer.git && cordova prepare
+cordova plugin add https://github.com/katzer/cordova-plugin-printer/tree/network-printer
 ```
 from a local folder:
 ```bash
 # ~~ local folder ~~
-cordova plugin add de.appplant.cordova.plugin.printer --searchpath path/to/plugin && cordova prepare
+cordova plugin add de.appplant.cordova.plugin.printer --searchpath path/to/plugin
 ```
 or to use the last stable version:
 ```bash
 # ~~ stable version ~~
-cordova plugin add de.appplant.cordova.plugin.printer && cordova prepare
+cordova plugin add de.appplant.cordova.plugin.printer@0.5.3
 ```
 
 ### PhoneGap Build
 Add the following xml to your config.xml to always use the latest version of this plugin:
 ```xml
-<gap:plugin name="de.appplant.cordova.plugin.printer" />
-```
-or to use an specific version:
-```xml
-<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.2" />
+<gap:plugin name="de.appplant.cordova.plugin.printer" version="0.5.3" />
 ```
 More informations can be found [here][PGB_plugin].
 
@@ -52,10 +64,6 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
-#### Version 0.6.0 (not yet released)
-- [feature]: Added Windows8 support<br>
-  *Thanks to* ***pirvudoru***
-
 #### Version 0.5.3 (13.07.2014)
 - [bugfix]: Printing wasn't possible because `isServiceAvailable` returns False IOS
 - [bugfix]: Using plugin prevents openDatabase() on Android
@@ -204,7 +212,7 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [cordova]: https://cordova.apache.org
 [CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
 [PGB]: http://docs.build.phonegap.com/en_US/3.3.0/index.html
-[PGB_plugin]: https://build.phonegap.com/plugins/676
+[PGB_plugin]: https://build.phonegap.com/plugins/916
 [changelog]: CHANGELOG.md
 [available]: #find-out-if-printing-is-available-on-the-device
 [print]: #send-content-to-a-printer
