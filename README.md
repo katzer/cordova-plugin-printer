@@ -10,9 +10,9 @@
 Cordova Print Plugin
 ====================
 
-[Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] for iOS and [Android Printing Framework][APF] for Android KitKat and above.
+[Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
 
-__Choose the right branch for you!__
+:bangbang:&nbsp;__Choose the right branch for you!__&nbsp;:bangbang:
 
 The plugin provides multiple branches to support different printer types and android versions while _AirPrint_ is supported with each one. This is the _master_ branch.
 
@@ -55,7 +55,7 @@ See [Drawing and Printing Guide for iOS][ios_guide] for detailed informations an
 
 
 ## Installation
-The plugin can either be installed from git repository, from local file system through the [Command-line Interface][CLI] or cloud based through [PhoneGap Build][PGB].
+The plugin can either be installed from git repository, from local file system through the [Command-line Interface][CLI]. Or cloud based through [PhoneGap Build][PGB].
 
 ### Local development environment
 From master:
@@ -196,7 +196,7 @@ cordova.plugins.printer.print(page, 'Document.html', function () {
 });
 ```
 
-#### 1. Print the content of a part of the page
+#### 2. Print the content from a part of the page
 ```javascript
 // Either a DOM node or a string
 var page = document.getElementById('legal-notice');
