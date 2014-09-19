@@ -21,16 +21,11 @@
 
 package de.appplant.cordova.plugin.printer;
 
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -39,6 +34,12 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.FileOutputStream;
 
@@ -109,10 +110,8 @@ public class Printer extends CordovaPlugin {
      */
     private void print (JSONArray args) {
         final String content = args.optString(0, "<html></html>");
-        final String docName = args.optJSONObject(1)
+        final String title = args.optJSONObject(1)
                                    .optString("name", DEFAULT_DOC_NAME);
-
-        final CordovaPlugin self = this;
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -122,14 +121,13 @@ public class Printer extends CordovaPlugin {
                 new ContentClient(content, browser) {
                     @Override
                     void onContentReady(Uri contentFile) {
-                        Intent intent = new Intent(
-                                cordova.getActivity(), CloudPrintDialog.class);
-
-                        intent.setDataAndType(contentFile, "text/html");
-                        intent.putExtra("title", docName);
-
-                        cordova.setActivityResultCallback(self);
-                        cordova.startActivityForResult(self, intent, 0);
+                        if (hasGoogleCloudPrintApp()) {
+                            printViaGoogleCloudPrintApp(
+                                    contentFile, title);
+                        } else {
+                            printViaGoogleCloudPrintDialog(
+                                    contentFile, title);
+                        }
                     }
                 };
             }
@@ -152,6 +150,60 @@ public class Printer extends CordovaPlugin {
         NetworkInfo netInfo = conMGr.getActiveNetworkInfo();
 
         return netInfo != null && netInfo.isConnected();
+    }
+
+    /**
+     * Ask the package manager if the google cloud print app
+     * is installed on the device.
+     *
+     * @return
+     *      true if yes otherwise false
+     */
+    private boolean hasGoogleCloudPrintApp() {
+        PackageManager pm = cordova.getActivity().getPackageManager();
+
+        try {
+            pm.getPackageInfo("com.google.android.apps.cloudprint", 0);
+            return true;
+        } catch(PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Uses the native cloud print app to print the content.
+     *
+     * @param contentFile
+     *      The URI pointing to the content
+     * @param title
+     *      The title for the print job
+     */
+    private void printViaGoogleCloudPrintApp(Uri contentFile, String title) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+
+        intent.setPackage("com.google.android.apps.cloudprint");
+        intent.setDataAndType(contentFile, "image/*");
+        intent.putExtra(Intent.EXTRA_TITLE, title);
+
+        cordova.startActivityForResult(this, intent, 0);
+    }
+
+    /**
+     * Uses the cloud print web dialog to print the content.
+     *
+     * @param contentFile
+     *      The URI pointing to the content
+     * @param title
+     *      The title for the print job
+     */
+    private void printViaGoogleCloudPrintDialog(Uri contentFile, String title) {
+        Intent intent = new Intent(
+                cordova.getActivity(), CloudPrintDialog.class);
+
+        intent.setDataAndType(contentFile, "text/html");
+        intent.putExtra(Intent.EXTRA_TITLE, title);
+
+        cordova.startActivityForResult(this, intent, 0);
     }
 
     @Override

@@ -98,6 +98,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 ## ChangeLog
 #### Version 0.6.1 (not yet released)
+- [enhancement:] Use native Google Cloud Print App if available
 - [bugfix:] Keyboard input was ignored
 
 #### Further informations
