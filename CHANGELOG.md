@@ -1,4 +1,7 @@
 ##ChangeLog
+#### Version 0.6.1 (not yet released)
+- [bugfix:] Keyboard input was ignored
+
 #### Version 0.6.0 (12.09.2014)
 - Google Cloud Print support
 - [_change_:] Renamed `isServiceAvailable` to `isAvailable`.

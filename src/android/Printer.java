@@ -27,18 +27,20 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
+import android.net.Uri;
+import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.io.FileOutputStream;
 
 /**
  * This plug in brings up a native overlay to print HTML documents using
@@ -46,22 +48,9 @@ import android.webkit.WebViewClient;
  */
 public class Printer extends CordovaPlugin {
 
-    private WebView view;
     private CallbackContext command;
 
-    private static final String PRINT_DIALOG_URL =
-            "https://www.google.com/cloudprint/dialog.html";
-
-    private static final String JS_INTERFACE = "Printer";
-
     private static final String DEFAULT_DOC_NAME = "unknown";
-
-    /**
-     * Post message that is sent by Print Dialog web
-     * page when the printing dialog needs to be closed.
-     */
-    static final
-    private String CLOSE_POST_MESSAGE_NAME = "cp-dialog-on-close";
 
     /**
      * Executes the request.
@@ -74,7 +63,7 @@ public class Printer extends CordovaPlugin {
      *     cordova.getActivity().runOnUiThread(runnable);
      *
      * @param action          The action to execute.
-     * @param rawArgs         The exec() arguments in JSON form.
+     * @param args            The exec() arguments in JSON form.
      * @param callbackContext The callback context used when calling back into JavaScript.
      * @return                Whether the action was valid.
      */
@@ -112,120 +101,8 @@ public class Printer extends CordovaPlugin {
     }
 
     /**
-     * Configures the WebView components which will call the Google Cloud Print
-     * Service.
-     *
-     * @param content
-     *      HTML encoded string
-     * @param docName
-     *      The name for the document
-     */
-    private void initWebView (String content, String docName) {
-        Activity ctx = cordova.getActivity();
-        view         = new WebView(ctx);
-        WebSettings settings = view.getSettings();
-
-        view.setVisibility(View.INVISIBLE);
-        view.setVerticalScrollBarEnabled(false);
-        view.setHorizontalScrollBarEnabled(false);
-        view.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        view.setScrollbarFadingEnabled(false);
-
-        settings.setLoadWithOverviewMode(true);
-        settings.setUseWideViewPort(true);
-        settings.setJavaScriptEnabled(true);
-
-        ctx.addContentView(view, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT)
-                );
-
-        setWebViewClient(content, docName);
-        setJavascriptInterface();
-        setKeyListener();
-    }
-
-    /**
-     * Creates the web view client which sets the print document.
-     *
-     * @param content
-     *      HTML encoded string
-     * @param docName
-     *      The name for the document
-     */
-    private void setWebViewClient (final String content, final String docName) {
-        view.setWebViewClient( new WebViewClient() {
-            @Override
-            public void onPageFinished(final WebView view, String url) {
-                StringBuffer js = new StringBuffer();
-
-                if (!url.equals(PRINT_DIALOG_URL)) {
-                    return;
-                }
-
-                js.append("javascript:printDialog.setPrintDocument(");
-                js.append("printDialog.createPrintDocument(");
-                js.append("'text/html',");
-                js.append("'" + docName + "',");
-                js.append("'" + content + "'");
-                js.append("))");
-
-                // Submit print document
-                view.loadUrl(js.toString());
-
-                js.delete(0,  js.length());
-
-                js.append("javascript:window.addEventListener('message',");
-                js.append("function(evt){");
-                js.append(JS_INTERFACE);
-                js.append(".onPostMessage(evt.data)}, false)");
-
-                // Add post messages listener
-                view.loadUrl(js.toString());
-            }
-        });
-    }
-
-    /**
-     * JS interface to get informed when the job is finished and the view should
-     * be closed.
-     */
-    private void setJavascriptInterface () {
-        view.addJavascriptInterface(new Object() {
-            @JavascriptInterface
-            public void onPostMessage (String message) {
-                if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
-                    removeView();
-                    command.success();
-                }
-            }
-        }, JS_INTERFACE);
-    }
-
-    /**
-     * Key listener to get informed when the user has pressed the back button to
-     * remove the view from the screen.
-     */
-    private void setKeyListener () {
-        view.setOnKeyListener(new OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        removeView();
-                    }
-
-                    return true;
-                }
-
-                return false;
-            }
-        });
-    }
-
-    /**
-     * Loads the Google Cloud Print Dialog page and opens them with the called
-     * content.
+     * Create an intent with the content to print out
+     * and sends that to the cloud print activity.
      *
      * @param args
      *      The exec arguments as JSON
@@ -235,19 +112,33 @@ public class Printer extends CordovaPlugin {
         final String docName = args.optJSONObject(1)
                                    .optString("name", DEFAULT_DOC_NAME);
 
+        final CordovaPlugin self = this;
+
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                initWebView(content, docName);
+                WebView browser = new WebView(cordova.getActivity());
 
-                view.loadUrl(PRINT_DIALOG_URL);
-                view.setVisibility(View.VISIBLE);
+                new ContentClient(content, browser) {
+                    @Override
+                    void onContentReady(Uri contentFile) {
+                        Intent intent = new Intent(
+                                cordova.getActivity(), CloudPrintDialog.class);
+
+                        intent.setDataAndType(contentFile, "text/html");
+                        intent.putExtra("title", docName);
+
+                        cordova.setActivityResultCallback(self);
+                        cordova.startActivityForResult(self, intent, 0);
+                    }
+                };
             }
         });
     }
 
     /**
-     * Checks if the device is connected to the Internet.
+     * Checks if the device is connected
+     * to the Internet.
      *
      * @return
      *      true if online otherwise false
@@ -263,18 +154,146 @@ public class Printer extends CordovaPlugin {
         return netInfo != null && netInfo.isConnected();
     }
 
-    /**
-     * Removes the view from the layout.
-     */
-    public void removeView () {
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ViewGroup vg = (ViewGroup)view.getParent();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        command.success();
+        command = null;
+    }
 
-                view.stopLoading();
-                vg.removeView(view);
+    /**
+     * Holds HTML content passed from WebView.
+     */
+    private class ContentHolder {
+
+        String htmlContent;
+
+        /**
+         * @return
+         *      If the content is available or not.
+         */
+        public boolean isContentReady() {
+            return htmlContent != null;
+        }
+
+        /**
+         * Sets HTML content to hold.
+         */
+        @JavascriptInterface
+        @SuppressWarnings("UnusedDeclaration")
+        public void setContent(String htmlContent) {
+            this.htmlContent = htmlContent;
+        }
+
+        /**
+         * @return
+         *      URI of temporary file which
+         *      contains HTML content.
+         */
+        public Uri getContentAsFile() {
+            String tmpFileName = "print_page_tmp.html";
+
+            try {
+                // Create a file to save the give string
+                FileOutputStream fos = cordova.getActivity().openFileOutput(
+                        tmpFileName, Activity.MODE_PRIVATE);
+
+                // Write string into the file and flush the output stream
+                fos.write(htmlContent.getBytes());
+                fos.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
-        });
+
+            // Get URI of the created file.
+            return Uri.fromFile(
+                    cordova.getActivity().getFileStreamPath(tmpFileName));
+        }
+    }
+
+    /**
+     * Custom web browser client to easily get
+     * the HTML content as an URI.
+     */
+    abstract class ContentClient extends WebViewClient {
+
+        private WebView browser;
+
+        private final ContentHolder contentHolder =
+                new ContentHolder();
+
+        ContentClient(String content, WebView webView) {
+            this.browser = webView;
+
+            initWebView();
+            loadContent(content);
+        }
+
+        /**
+         * Configures the WebView components which
+         * will hold the print content.
+         */
+        @SuppressLint("AddJavascriptInterface")
+        private void initWebView () {
+            WebSettings settings = browser.getSettings();
+
+            settings.setLoadWithOverviewMode(true);
+            settings.setUseWideViewPort(true);
+            settings.setJavaScriptEnabled(true);
+
+            browser.addJavascriptInterface(
+                    contentHolder, "ContentHolder");
+
+            browser.setWebViewClient(this);
+        }
+
+        /**
+         * Loads the content into the web view.
+         *
+         * @param content
+         *      Either an HTML string or URI
+         */
+        private void loadContent(String content) {
+            if (content.startsWith("http") || content.startsWith("file:")) {
+                browser.loadUrl(content);
+            } else {
+                //Set base URI to the assets/www folder
+                String baseURL = webView.getUrl();
+                baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
+
+                browser.loadDataWithBaseURL(
+                        baseURL, content, "text/html", "UTF-8", null);
+            }
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            view.loadUrl("javascript:window.ContentHolder.setContent(" +
+                    "new XMLSerializer().serializeToString(document));");
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+
+                    for (;;)
+                        if (contentHolder.isContentReady()) {
+                            onContentReady(contentHolder.getContentAsFile());
+                            break;
+                        }
+                }
+            });
+        }
+
+        /**
+         * Called after onPageFinished when the content
+         * has been set through the client.
+         *
+         * @param contentFile
+         *      URI of temporary file which
+         *      contains HTML content
+         */
+        abstract void onContentReady(Uri contentFile);
     }
 }
