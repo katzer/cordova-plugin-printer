@@ -23,7 +23,6 @@ package de.appplant.cordova.plugin.printer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
@@ -32,9 +31,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 /**
  * Custom activity to open the web based
@@ -152,7 +148,7 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getTitle() {
-            return intent.getExtras().getString(Intent.EXTRA_TITLE);
+            return intent.getStringExtra(Intent.EXTRA_TITLE);
         }
 
         /**
@@ -162,33 +158,9 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getContent() {
-            try {
-                ContentResolver contentResolver;
-                InputStream in;
-                ByteArrayOutputStream out;
+            byte[] data = intent.getStringExtra(Intent.EXTRA_TEXT).getBytes();
 
-                contentResolver = getContentResolver();
-                in = contentResolver.openInputStream(intent.getData());
-                out = new ByteArrayOutputStream();
-
-                byte[] buffer = new byte[4096];
-                int n = in.read(buffer);
-
-                while (n >= 0) {
-                    out.write(buffer, 0, n);
-                    n = in.read(buffer);
-                }
-
-                in.close();
-                out.flush();
-
-                return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return "";
+            return Base64.encodeToString(data, Base64.DEFAULT);
         }
 
         /**
