@@ -91,6 +91,7 @@
     <property name="options.searchVisible" value="true" />
     <property name="recentsLimit" value="5" />
     <property name="show.migrate.to.gradle.popup" value="false" />
+    <property name="restartRequiresConfirmation" value="true" />
   </component>
   <component name="RunManager" selected="Android Application.android">
     <configuration default="true" type="Remote" factoryName="Remote">
@@ -177,8 +178,8 @@
       <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
       <option name="USE_LAST_SELECTED_DEVICE" value="false" />
       <option name="PREFERRED_AVD" value="" />
-      <option name="USE_COMMAND_LINE" value="true" />
-      <option name="COMMAND_LINE" value="" />
+      <option name="USE_COMMAND_LINE" value="false" />
+      <option name="COMMAND_LINE" value="-scale 0.7 -dpi-device 235 -onion-alpha 100 -onion $USER_HOME$/.android/sdk/platforms/android-19/skins/NEXUS-S/overlay.png" />
       <option name="WIPE_USER_DATA" value="false" />
       <option name="DISABLE_BOOT_ANIMATION" value="false" />
       <option name="NETWORK_SPEED" value="full" />
