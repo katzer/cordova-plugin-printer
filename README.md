@@ -5,7 +5,7 @@ Cordova Print Plugin - Example
 [Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
 
 ## Instructions
-[Download][zip] the _example_ branch and run the following command.
+[Download][zip] the _example_ branch and run the following command:
 
 ```bash
 cordova emulate [ios|android]
@@ -25,6 +25,8 @@ cordova.plugins.printer.print(page, { landscape:false }, function () {
     alert('done');
 });
 ```
+
+Its also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
 
 Please read the plugin's [README][readme] for further requirements and informations.
 
@@ -61,5 +63,7 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [ios_screens]: images/ios.tiff
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
 [zip]: https://github.com/katzer/cordova-plugin-printer/archive/master.zip
+[studio]: https://developer.android.com/sdk/installing/studio.html
+[eclipse]: https://developer.android.com/sdk/index.html
 [mupdf]: http://www.mupdf.com
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
