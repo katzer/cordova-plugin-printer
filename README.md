@@ -2,7 +2,7 @@
 Cordova Print Plugin - Example
 ==============================
 
-[Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
+[Cordova][cordova] plugin to print HTML documents using [__AirPrint__][AirPrint]  and [__Google Cloud Print__][GCP].
 
 ## Instructions
 [Download][zip] the _example_ branch and run the following command:
@@ -57,12 +57,12 @@ This software is released under the [Apache 2.0 License][apache2_license].
 
 
 [cordova]: https://cordova.apache.org
-[APF]: http://www.techotopia.com/index.php/Printing_with_the_Android_Printing_Framework
+[GCP]: http://www.google.com/cloudprint/learn/index.html
 [AirPrint]: http://support.apple.com/kb/ht4356
 [android_screens]: images/android.tiff
 [ios_screens]: images/ios.tiff
-[readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
-[zip]: https://github.com/katzer/cordova-plugin-printer/archive/master.zip
+[readme]: https://github.com/katzer/cordova-plugin-printer/blob/google-cloud-print/README.md
+[zip]: https://github.com/katzer/cordova-plugin-printer/archive/google-cloud-print.zip
 [studio]: https://developer.android.com/sdk/installing/studio.html
 [eclipse]: https://developer.android.com/sdk/index.html
 [mupdf]: http://www.mupdf.com

@@ -21,29 +21,32 @@
 
 package de.appplant.cordova.plugin.printer;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Context;
-import android.os.Build;
-import android.os.Looper;
-import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
-import android.print.PrintJob;
-import android.print.PrintManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import java.io.FileOutputStream;
 
-@TargetApi(19)
+/**
+ * This plug in brings up a native overlay to print HTML documents using
+ * AirPrint for iOS and Google Cloud Print for Android.
+ */
 public class Printer extends CordovaPlugin {
-
-    private WebView view;
 
     private CallbackContext command;
 
@@ -60,7 +63,7 @@ public class Printer extends CordovaPlugin {
      *     cordova.getActivity().runOnUiThread(runnable);
      *
      * @param action          The action to execute.
-     * @param rawArgs         The exec() arguments in JSON form.
+     * @param args            The exec() arguments in JSON form.
      * @param callbackContext The callback context used when calling back into JavaScript.
      * @return                Whether the action was valid.
      */
@@ -91,136 +94,267 @@ public class Printer extends CordovaPlugin {
      * A Internet connection is required to load the cloud print dialog.
      */
     private void isAvailable () {
-        Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        Boolean supported   = isOnline();
         PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
         command.sendPluginResult(result);
     }
 
     /**
-     * Loads the HTML content into the web view and invokes the print manager.
+     * Create an intent with the content to print out
+     * and sends that to the cloud print activity.
      *
      * @param args
      *      The exec arguments as JSON
      */
-    private void print (final JSONArray args) {
-        final String content   = args.optString(0, "<html></html>");
-        final JSONObject props = args.optJSONObject(1);;
+    private void print (JSONArray args) {
+        final String content = args.optString(0, "<html></html>");
+        final String title = args.optJSONObject(1)
+                                 .optString("name", DEFAULT_DOC_NAME);
 
-        cordova.getActivity().runOnUiThread( new Runnable() {
+        cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                initWebView(content, props);
-                loadContent(content);
+                WebView browser = new WebView(cordova.getActivity());
+
+                new ContentClient(content, browser) {
+                    @Override
+                    void onContentReady(Uri contentFile) {
+                        if (hasGoogleCloudPrintApp()) {
+                            printViaGoogleCloudPrintApp(
+                                    contentFile, title);
+                        } else {
+                            printViaGoogleCloudPrintDialog(
+                                    contentFile, title);
+                        }
+                    }
+                };
             }
         });
     }
 
     /**
-     * Loads the content into the web view.
+     * Checks if the device is connected
+     * to the Internet.
      *
-     * @param content
-     *      Either an HTML string or URI
+     * @return
+     *      true if online otherwise false
      */
-    private void loadContent(String content) {
-        if (content.startsWith("http") || content.startsWith("file:")) {
-            view.loadUrl(content);
-        } else {
-            //Set base URI to the assets/www folder
-            String baseURL = webView.getUrl();
-            baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
+    private Boolean isOnline () {
+        Activity activity = cordova.getActivity();
+        ConnectivityManager conMGr =
+                (ConnectivityManager) activity.getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
 
-            view.loadDataWithBaseURL(baseURL, content, "text/html", "UTF-8", null);
+        NetworkInfo netInfo = conMGr.getActiveNetworkInfo();
+
+        return netInfo != null && netInfo.isConnected();
+    }
+
+    /**
+     * Ask the package manager if the google cloud print app
+     * is installed on the device.
+     *
+     * @return
+     *      true if yes otherwise false
+     */
+    private boolean hasGoogleCloudPrintApp() {
+        PackageManager pm = cordova.getActivity().getPackageManager();
+
+        try {
+            pm.getPackageInfo("com.google.android.apps.cloudprint", 0);
+            return true;
+        } catch(PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 
     /**
-     * Configures the WebView components which will call the Google Cloud Print
-     * Service.
+     * Uses the native cloud print app to print the content.
      *
-     * @param content
-     *      HTML encoded string
-     * @param props
-     *      The JSON object with the containing page properties
+     * @param contentFile
+     *      The URI pointing to the content
+     * @param title
+     *      The title for the print job
      */
-    private void initWebView (String content, JSONObject props) {
-        Activity ctx = cordova.getActivity();
-        view         = new WebView(ctx);
+    private void printViaGoogleCloudPrintApp(Uri contentFile, String title) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
 
-        view.getSettings().setDatabaseEnabled(true);
+        intent.setPackage("com.google.android.apps.cloudprint");
+        intent.setDataAndType(contentFile, "image/*");
+        intent.putExtra(Intent.EXTRA_TITLE, title);
 
-        setWebViewClient(content, props);
+        cordova.startActivityForResult(this, intent, 0);
     }
 
     /**
-     * Creates the web view client which sets the print document.
+     * Uses the cloud print web dialog to print the content.
      *
-     * @param content
-     *      HTML encoded string
-     * @param props
-     *      The JSON object with the containing page properties
+     * @param contentFile
+     *      The URI pointing to the content
+     * @param title
+     *      The title for the print job
      */
-    private void setWebViewClient (final String content, JSONObject props) {
-        final String docName = props.optString("name", DEFAULT_DOC_NAME);
-        final boolean landscape = props.optBoolean("landscape", false);
-        final boolean graystyle = props.optBoolean("graystyle", false);
+    private void printViaGoogleCloudPrintDialog(Uri contentFile, String title) {
+        Intent intent = new Intent(
+                cordova.getActivity(), CloudPrintDialog.class);
 
-        view.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading (WebView view, String url) {
-                return false;
-            }
+        intent.setDataAndType(contentFile, "text/html");
+        intent.putExtra(Intent.EXTRA_TITLE, title);
 
-            @Override
-            public void onPageFinished (WebView webView, String url) {
-                // Get a PrintManager instance
-                PrintManager printManager = (PrintManager) cordova.getActivity()
-                        .getSystemService(Context.PRINT_SERVICE);
-
-                // Get a print adapter instance
-                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter();
-
-                // Get a print builder instance
-                PrintAttributes.Builder builder = new PrintAttributes.Builder();
-
-                // The page does itself set its own margins
-                builder.setMinMargins(PrintAttributes.Margins.NO_MARGINS);
-
-                builder.setColorMode(graystyle ? PrintAttributes.COLOR_MODE_MONOCHROME
-                        : PrintAttributes.COLOR_MODE_COLOR);
-
-                builder.setMediaSize(landscape ? PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE
-                        : PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
-
-                // Create a print job with name and adapter instance
-                PrintJob job = printManager.print(docName, printAdapter, builder.build());
-
-                invokeCallbackOnceCompletedOrCanceled(job);
-
-                view = null;
-            }
-        });
+        cordova.startActivityForResult(null, intent, 0);
+        cordova.setActivityResultCallback(this);
     }
 
     /**
-     * Invokes the callback once the print job is complete or was canceled.
+     * Called when an activity you launched exits, giving you the requestCode you started it with,
+     * the resultCode it returned, and any additional data from it.
      *
-     * @param job
-     *      The reference to the print job
+     * @param requestCode       The request code originally supplied to startActivityForResult(),
+     *                          allowing you to identify who this result came from.
+     * @param resultCode        The integer result code returned by the child activity through its
+     *                          setResult().
+     * @param intent            An Intent, which can return result data to the caller
+     *                          (various data can be attached to Intent "extras").
      */
-    private void invokeCallbackOnceCompletedOrCanceled (final PrintJob job) {
-        cordova.getThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        command.success();
+        command = null;
+    }
 
-                for (;;) {
-                    if (job.isCancelled() || job.isCompleted() || job.isFailed()) {
-                        command.success();
-                        break;
-                    }
+    /**
+     * Holds HTML content passed from WebView.
+     */
+    private class ContentHolder {
+
+        String htmlContent;
+
+        /**
+         * @return
+         *      If the content is available or not.
+         */
+        public boolean isContentReady() {
+            return htmlContent != null;
+        }
+
+        /**
+         * Sets HTML content to hold.
+         */
+        @JavascriptInterface
+        @SuppressWarnings("UnusedDeclaration")
+        public void setContent(String htmlContent) {
+            this.htmlContent = htmlContent;
+        }
+
+        /**
+         * @return
+         *      URI of temporary file which
+         *      contains HTML content.
+         */
+        public Uri getContentAsFile() {
+            String tmpFileName = "print_page_tmp.html";
+
+            try {
+                // Create a file to save the give string
+                FileOutputStream fos = cordova.getActivity().openFileOutput(
+                        tmpFileName, Activity.MODE_PRIVATE);
+
+                // Write string into the file and flush the output stream
+                fos.write(htmlContent.getBytes());
+                fos.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+
+            // Get URI of the created file.
+            return Uri.fromFile(
+                    cordova.getActivity().getFileStreamPath(tmpFileName));
+        }
+    }
+
+    /**
+     * Custom web browser client to easily get
+     * the HTML content as an URI.
+     */
+    abstract class ContentClient extends WebViewClient {
+
+        private WebView browser;
+
+        private final ContentHolder contentHolder =
+                new ContentHolder();
+
+        ContentClient(String content, WebView webView) {
+            this.browser = webView;
+
+            initWebView();
+            loadContent(content);
+        }
+
+        /**
+         * Configures the WebView components which
+         * will hold the print content.
+         */
+        @SuppressLint("AddJavascriptInterface")
+        private void initWebView () {
+            WebSettings settings = browser.getSettings();
+
+            settings.setLoadWithOverviewMode(true);
+            settings.setUseWideViewPort(true);
+            settings.setJavaScriptEnabled(true);
+
+            browser.addJavascriptInterface(
+                    contentHolder, "ContentHolder");
+
+            browser.setWebViewClient(this);
+        }
+
+        /**
+         * Loads the content into the web view.
+         *
+         * @param content
+         *      Either an HTML string or URI
+         */
+        private void loadContent(String content) {
+            if (content.startsWith("http") || content.startsWith("file:")) {
+                browser.loadUrl(content);
+            } else {
+                //Set base URI to the assets/www folder
+                String baseURL = webView.getUrl();
+                baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
+
+                browser.loadDataWithBaseURL(
+                        baseURL, content, "text/html", "UTF-8", null);
+            }
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            view.loadUrl("javascript:window.ContentHolder.setContent(" +
+                    "new XMLSerializer().serializeToString(document));");
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (;;)
+                        if (contentHolder.isContentReady()) {
+                            onContentReady(contentHolder.getContentAsFile());
+                            break;
+                        }
                 }
-            }
-        });
+            });
+        }
+
+        /**
+         * Called after onPageFinished when the content
+         * has been set through the client.
+         *
+         * @param contentFile
+         *      URI of temporary file which
+         *      contains HTML content
+         */
+        abstract void onContentReady(Uri contentFile);
     }
 }

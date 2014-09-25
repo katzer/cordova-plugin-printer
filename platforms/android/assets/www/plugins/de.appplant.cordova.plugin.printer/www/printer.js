@@ -96,4 +96,5 @@ exports._createCallbackFn = function (callbackFn, scope) {
         callbackFn.apply(scope || this, arguments);
     };
 };
+
 });
