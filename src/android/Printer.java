@@ -29,7 +29,6 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -111,7 +110,7 @@ public class Printer extends CordovaPlugin {
     private void print (JSONArray args) {
         final String content = args.optString(0, "<html></html>");
         final String title = args.optJSONObject(1)
-                                   .optString("name", DEFAULT_DOC_NAME);
+                                 .optString("name", DEFAULT_DOC_NAME);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -203,9 +202,21 @@ public class Printer extends CordovaPlugin {
         intent.setDataAndType(contentFile, "text/html");
         intent.putExtra(Intent.EXTRA_TITLE, title);
 
-        cordova.startActivityForResult(this, intent, 0);
+        cordova.startActivityForResult(null, intent, 0);
+        cordova.setActivityResultCallback(this);
     }
 
+    /**
+     * Called when an activity you launched exits, giving you the requestCode you started it with,
+     * the resultCode it returned, and any additional data from it.
+     *
+     * @param requestCode       The request code originally supplied to startActivityForResult(),
+     *                          allowing you to identify who this result came from.
+     * @param resultCode        The integer result code returned by the child activity through its
+     *                          setResult().
+     * @param intent            An Intent, which can return result data to the caller
+     *                          (various data can be attached to Intent "extras").
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
