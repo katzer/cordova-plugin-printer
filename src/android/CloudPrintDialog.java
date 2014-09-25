@@ -200,7 +200,6 @@ public class CloudPrintDialog extends Activity {
         public void onPostMessage(String message) {
             if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
                 finish();
-                //finishActivity(0);
             }
         }
     }
