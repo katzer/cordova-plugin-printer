@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -39,8 +38,6 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import java.io.FileOutputStream;
 
 /**
  * This plug in brings up a native overlay to print HTML documents using
@@ -64,12 +61,13 @@ public class Printer extends CordovaPlugin {
      *
      * @param action          The action to execute.
      * @param args            The exec() arguments in JSON form.
-     * @param callbackContext The callback context used when calling back into JavaScript.
+     * @param callbackContext The callback context used when calling
+     *                        back into JavaScript.
      * @return                Whether the action was valid.
      */
     @Override
     public boolean execute (String action, JSONArray args,
-            CallbackContext callbackContext) throws JSONException {
+                            CallbackContext callbackContext) throws JSONException {
 
         command = callbackContext;
 
@@ -94,8 +92,8 @@ public class Printer extends CordovaPlugin {
      * A Internet connection is required to load the cloud print dialog.
      */
     private void isAvailable () {
-        Boolean supported   = isOnline();
-        PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
+        Boolean support   = isOnline();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, support);
 
         command.sendPluginResult(result);
     }
@@ -110,7 +108,7 @@ public class Printer extends CordovaPlugin {
     private void print (JSONArray args) {
         final String content = args.optString(0, "<html></html>");
         final String title = args.optJSONObject(1)
-                                 .optString("name", DEFAULT_DOC_NAME);
+                .optString("name", DEFAULT_DOC_NAME);
 
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -119,13 +117,13 @@ public class Printer extends CordovaPlugin {
 
                 new ContentClient(content, browser) {
                     @Override
-                    void onContentReady(Uri contentFile) {
+                    void onContentReady(String content) {
                         if (hasGoogleCloudPrintApp()) {
                             printViaGoogleCloudPrintApp(
-                                    contentFile, title);
+                                    content, title);
                         } else {
                             printViaGoogleCloudPrintDialog(
-                                    contentFile, title);
+                                    content, title);
                         }
                     }
                 };
@@ -172,17 +170,19 @@ public class Printer extends CordovaPlugin {
     /**
      * Uses the native cloud print app to print the content.
      *
-     * @param contentFile
-     *      The URI pointing to the content
+     * @param content
+     *      The HTML encoded content
      * @param title
      *      The title for the print job
      */
-    private void printViaGoogleCloudPrintApp(Uri contentFile, String title) {
+    private void printViaGoogleCloudPrintApp(String content, String title) {
         Intent intent = new Intent(Intent.ACTION_SEND);
 
         intent.setPackage("com.google.android.apps.cloudprint");
-        intent.setDataAndType(contentFile, "image/*");
+
+        intent.setType("text/html");
         intent.putExtra(Intent.EXTRA_TITLE, title);
+        intent.putExtra(Intent.EXTRA_TEXT, content);
 
         cordova.startActivityForResult(this, intent, 0);
     }
@@ -190,36 +190,37 @@ public class Printer extends CordovaPlugin {
     /**
      * Uses the cloud print web dialog to print the content.
      *
-     * @param contentFile
-     *      The URI pointing to the content
+     * @param content
+     *      The HTML encoded content
      * @param title
      *      The title for the print job
      */
-    private void printViaGoogleCloudPrintDialog(Uri contentFile, String title) {
+    private void printViaGoogleCloudPrintDialog(String content, String title) {
         Intent intent = new Intent(
                 cordova.getActivity(), CloudPrintDialog.class);
 
-        intent.setDataAndType(contentFile, "text/html");
+        intent.setType("text/html");
         intent.putExtra(Intent.EXTRA_TITLE, title);
+        intent.putExtra(Intent.EXTRA_TEXT, content);
 
         cordova.startActivityForResult(null, intent, 0);
         cordova.setActivityResultCallback(this);
     }
 
     /**
-     * Called when an activity you launched exits, giving you the requestCode you started it with,
-     * the resultCode it returned, and any additional data from it.
+     * Called when an activity you launched exits, giving you the reqCode you
+     * started it with, the resCode it returned, and any additional data from it.
      *
-     * @param requestCode       The request code originally supplied to startActivityForResult(),
-     *                          allowing you to identify who this result came from.
-     * @param resultCode        The integer result code returned by the child activity through its
-     *                          setResult().
-     * @param intent            An Intent, which can return result data to the caller
-     *                          (various data can be attached to Intent "extras").
+     * @param reqCode     The request code originally supplied to startActivityForResult(),
+     *                    allowing you to identify who this result came from.
+     * @param resCode     The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param intent      An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
+    public void onActivityResult(int reqCode, int resCode, Intent intent) {
+        super.onActivityResult(reqCode, resCode, intent);
         command.success();
         command = null;
     }
@@ -232,15 +233,7 @@ public class Printer extends CordovaPlugin {
         String htmlContent;
 
         /**
-         * @return
-         *      If the content is available or not.
-         */
-        public boolean isContentReady() {
-            return htmlContent != null;
-        }
-
-        /**
-         * Sets HTML content to hold.
+         * Setter for the HTML content.
          */
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
@@ -250,28 +243,18 @@ public class Printer extends CordovaPlugin {
 
         /**
          * @return
-         *      URI of temporary file which
-         *      contains HTML content.
+         *      HTML encoded string
          */
-        public Uri getContentAsFile() {
-            String tmpFileName = "print_page_tmp.html";
+        public String getContent() {
+            return htmlContent;
+        }
 
-            try {
-                // Create a file to save the give string
-                FileOutputStream fos = cordova.getActivity().openFileOutput(
-                        tmpFileName, Activity.MODE_PRIVATE);
-
-                // Write string into the file and flush the output stream
-                fos.write(htmlContent.getBytes());
-                fos.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            // Get URI of the created file.
-            return Uri.fromFile(
-                    cordova.getActivity().getFileStreamPath(tmpFileName));
+        /**
+         * @return
+         *      If the content is available or not.
+         */
+        public boolean isContentReady() {
+            return htmlContent != null;
         }
     }
 
@@ -283,7 +266,7 @@ public class Printer extends CordovaPlugin {
 
         private WebView browser;
 
-        private final ContentHolder contentHolder =
+        private final ContentHolder holder =
                 new ContentHolder();
 
         ContentClient(String content, WebView webView) {
@@ -297,7 +280,7 @@ public class Printer extends CordovaPlugin {
          * Configures the WebView components which
          * will hold the print content.
          */
-        @SuppressLint("AddJavascriptInterface")
+        @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
         private void initWebView () {
             WebSettings settings = browser.getSettings();
 
@@ -306,7 +289,7 @@ public class Printer extends CordovaPlugin {
             settings.setJavaScriptEnabled(true);
 
             browser.addJavascriptInterface(
-                    contentHolder, "ContentHolder");
+                    holder, "ContentHolder");
 
             browser.setWebViewClient(this);
         }
@@ -339,8 +322,8 @@ public class Printer extends CordovaPlugin {
                 @Override
                 public void run() {
                     for (;;)
-                        if (contentHolder.isContentReady()) {
-                            onContentReady(contentHolder.getContentAsFile());
+                        if (holder.isContentReady()) {
+                            onContentReady(holder.getContent());
                             break;
                         }
                 }
@@ -351,10 +334,10 @@ public class Printer extends CordovaPlugin {
          * Called after onPageFinished when the content
          * has been set through the client.
          *
-         * @param contentFile
-         *      URI of temporary file which
-         *      contains HTML content
+         * @param content
+         *      The HTML encoded content
+         *      from the web view
          */
-        abstract void onContentReady(Uri contentFile);
+        abstract void onContentReady(String content);
     }
 }
