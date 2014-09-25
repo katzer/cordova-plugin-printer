@@ -11,7 +11,7 @@ Cordova Print Plugin - Example
 cordova emulate [ios|android]
 ```
 
-These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. 
+These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. Its also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
 
 A click on the _PRINT SOME STUFF_ link opens the native print dialog to print out an HTML snippet.
 
@@ -25,8 +25,6 @@ cordova.plugins.printer.print(page, { landscape:false }, function () {
     alert('done');
 });
 ```
-
-Its also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
 
 Please read the plugin's [README][readme] for further requirements and informations.
 
