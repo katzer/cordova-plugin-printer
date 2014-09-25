@@ -181,7 +181,7 @@ public class Printer extends CordovaPlugin {
         Intent intent = new Intent(Intent.ACTION_SEND);
 
         intent.setPackage("com.google.android.apps.cloudprint");
-        intent.setDataAndType(contentFile, "image/*");
+        intent.setDataAndType(contentFile, "text/html");
         intent.putExtra(Intent.EXTRA_TITLE, title);
 
         cordova.startActivityForResult(this, intent, 0);

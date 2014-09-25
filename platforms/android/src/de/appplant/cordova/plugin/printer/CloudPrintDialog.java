@@ -64,7 +64,7 @@ public class CloudPrintDialog extends Activity {
     /**
      * Intent that started the action.
      */
-    Intent cloudPrintIntent;
+    Intent intent;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -77,12 +77,12 @@ public class CloudPrintDialog extends Activity {
      * Initializes the activity.
      * Creates the web view and its client + JS interface.
      */
-    @SuppressLint("AddJavascriptInterface")
+    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     private void init() {
         WebView webView = new WebView(this);
         WebSettings settings = webView.getSettings();
 
-        cloudPrintIntent = this.getIntent();
+        intent = this.getIntent();
 
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);
@@ -122,7 +122,8 @@ public class CloudPrintDialog extends Activity {
                 "printDialog.createPrintDocument(" +
                 "window." + JS_INTERFACE + ".getType()," +
                 "window." + JS_INTERFACE + ".getTitle()," +
-                "window." + JS_INTERFACE + ".getContent()))");
+                "window." + JS_INTERFACE + ".getContent()," +
+                "window." + JS_INTERFACE + ".getEncoding()))");
 
             // Add post messages listener.
             view.loadUrl("javascript:window.addEventListener('message'," +
@@ -139,13 +140,19 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getType() {
-            return "dataUrl";
+            return intent.getType();
+        }
+
+        @JavascriptInterface
+        @SuppressWarnings("UnusedDeclaration")
+        public String getEncoding() {
+            return "base64";
         }
 
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getTitle() {
-            return cloudPrintIntent.getExtras().getString("title");
+            return intent.getExtras().getString(Intent.EXTRA_TITLE);
         }
 
         /**
@@ -161,7 +168,7 @@ public class CloudPrintDialog extends Activity {
                 ByteArrayOutputStream out;
 
                 contentResolver = getContentResolver();
-                in = contentResolver.openInputStream(cloudPrintIntent.getData());
+                in = contentResolver.openInputStream(intent.getData());
                 out = new ByteArrayOutputStream();
 
                 byte[] buffer = new byte[4096];
@@ -175,11 +182,7 @@ public class CloudPrintDialog extends Activity {
                 in.close();
                 out.flush();
 
-                String contentBase64 =
-                        Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
-
-                return "data:" + cloudPrintIntent.getType() +
-                       ";base64," + contentBase64;
+                return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
 
             } catch (Exception e) {
                 e.printStackTrace();
