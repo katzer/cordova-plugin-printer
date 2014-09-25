@@ -1,5 +1,5 @@
 ##ChangeLog
-#### Version 0.6.1 (not yet released)
+#### Version 0.6.1 (25.09.2014)
 - [enhancement:] Use native Google Cloud Print App if available
 - [bugfix:] Keyboard input was ignored
 
