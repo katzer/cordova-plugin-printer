@@ -5,6 +5,8 @@
     <b><a href="#">v0.6</a></b>
     <span>&nbsp;</span>
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/network-printer">v0.5</a>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <i><a href="https://github.com/katzer/cordova-plugin-printer/tree/example-google-cloud-print">EXAMPLE :point_right:</a></i>
 </p>
 
 Cordova Print Plugin
