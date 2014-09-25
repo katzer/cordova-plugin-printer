@@ -327,8 +327,6 @@ public class Printer extends CordovaPlugin {
             cordova.getThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
-                    Looper.prepare();
-
                     for (;;)
                         if (contentHolder.isContentReady()) {
                             onContentReady(contentHolder.getContentAsFile());
