@@ -36,7 +36,7 @@ Or cloud based through [PhoneGap Build][PGB].
 From master:
 ```bash
 # ~~ from master ~~
-cordova plugin add https://github.com/katzer/cordova-plugin-printer/tree/network-printer
+cordova plugin add https://github.com/katzer/cordova-plugin-printer.git#network-printer
 ```
 from a local folder:
 ```bash
