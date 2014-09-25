@@ -5,7 +5,7 @@ Cordova Print Plugin - Example
 [Cordova][cordova] plugin to print HTML documents using [__AirPrint__][AirPrint]  and [__Google Cloud Print__][GCP].
 
 ## Instructions
-[Download][zip] the _example_ branch and run the following command:
+[Download][zip] the _example-google-cloud-print_ branch and run the following command:
 
 ```bash
 cordova emulate [ios|android]
