@@ -91,10 +91,15 @@ public class Printer extends CordovaPlugin {
      * A Internet connection is required to load the cloud print dialog.
      */
     private void isAvailable () {
-        Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-        PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+                PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
-        command.sendPluginResult(result);
+                command.sendPluginResult(result);
+            }
+        });
     }
 
     /**
