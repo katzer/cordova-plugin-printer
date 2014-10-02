@@ -29,17 +29,15 @@
     </head>
     <body>
         <div class="app">
-            <h1>Plugin Examples</h1>
+            <h1>Printer Plugin</h1>
             <div id="deviceready" class="blink">
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
             </div>
 
-            <br>
-
-            <a style="line-height:300%;" href="#" onclick="isAvailable();">Find out if printing is available</a>
-
-            <a style="line-height:300%;" href="#" onclick="printPage();">Print some stuff</a>
+            <a href="#" class="button" onclick="isAvailable()">Is Printing available<br/><span class="hint">cordova.plugins.printer.
+            isAvailable()</span></a>
+            <a href="#" class="button" onclick="printPage()">Print a sample page<br/><span class="hint">cordova.plugins.printer.print()</span></a>
         </div>
 
         <script type="text/javascript" src="cordova.js"></script>

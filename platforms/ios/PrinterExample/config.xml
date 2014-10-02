@@ -19,9 +19,6 @@
     <feature name="LocalStorage">
         <param name="ios-package" value="CDVLocalStorage" />
     </feature>
-    <feature name="Printer">
-        <param name="ios-package" value="APPPrinter" />
-    </feature>
     <name>PrinterExample</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -31,4 +28,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <feature name="Printer">
+        <param name="ios-package" value="APPPrinter" />
+    </feature>
 </widget>

@@ -59,16 +59,16 @@ public class Printer extends CordovaPlugin {
      * To run on the UI thread, use:
      *     cordova.getActivity().runOnUiThread(runnable);
      *
-     * @param action          The action to execute.
-     * @param rawArgs         The exec() arguments in JSON form.
-     * @param callbackContext The callback context used when calling back into JavaScript.
-     * @return                Whether the action was valid.
+     * @param action   The action to execute.
+     * @param args     The exec() arguments in JSON form.
+     * @param callback The callback context used when calling back into JavaScript.
+     * @return         Whether the action was valid.
      */
     @Override
     public boolean execute (String action, JSONArray args,
-            CallbackContext callbackContext) throws JSONException {
+            CallbackContext callback) throws JSONException {
 
-        command = callbackContext;
+        command = callback;
 
         if (action.equalsIgnoreCase("isAvailable")) {
             isAvailable();
@@ -91,10 +91,15 @@ public class Printer extends CordovaPlugin {
      * A Internet connection is required to load the cloud print dialog.
      */
     private void isAvailable () {
-        Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-        PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+                PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
-        command.sendPluginResult(result);
+                command.sendPluginResult(result);
+            }
+        });
     }
 
     /**
@@ -105,12 +110,12 @@ public class Printer extends CordovaPlugin {
      */
     private void print (final JSONArray args) {
         final String content   = args.optString(0, "<html></html>");
-        final JSONObject props = args.optJSONObject(1);;
+        final JSONObject props = args.optJSONObject(1);
 
         cordova.getActivity().runOnUiThread( new Runnable() {
             @Override
             public void run() {
-                initWebView(content, props);
+                initWebView(props);
                 loadContent(content);
             }
         });
@@ -138,29 +143,25 @@ public class Printer extends CordovaPlugin {
      * Configures the WebView components which will call the Google Cloud Print
      * Service.
      *
-     * @param content
-     *      HTML encoded string
      * @param props
      *      The JSON object with the containing page properties
      */
-    private void initWebView (String content, JSONObject props) {
+    private void initWebView (JSONObject props) {
         Activity ctx = cordova.getActivity();
         view         = new WebView(ctx);
 
         view.getSettings().setDatabaseEnabled(true);
 
-        setWebViewClient(content, props);
+        setWebViewClient(props);
     }
 
     /**
      * Creates the web view client which sets the print document.
      *
-     * @param content
-     *      HTML encoded string
      * @param props
      *      The JSON object with the containing page properties
      */
-    private void setWebViewClient (final String content, JSONObject props) {
+    private void setWebViewClient (JSONObject props) {
         final String docName = props.optString("name", DEFAULT_DOC_NAME);
         final boolean landscape = props.optBoolean("landscape", false);
         final boolean graystyle = props.optBoolean("graystyle", false);
@@ -212,8 +213,6 @@ public class Printer extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                Looper.prepare();
-
                 for (;;) {
                     if (job.isCancelled() || job.isCompleted() || job.isFailed()) {
                         command.success();
