@@ -59,17 +59,17 @@ public class Printer extends CordovaPlugin {
      * To run on the UI thread, use:
      *     cordova.getActivity().runOnUiThread(runnable);
      *
-     * @param action          The action to execute.
-     * @param args            The exec() arguments in JSON form.
-     * @param callbackContext The callback context used when calling
-     *                        back into JavaScript.
-     * @return                Whether the action was valid.
+     * @param action   The action to execute.
+     * @param args     The exec() arguments in JSON form.
+     * @param callback The callback context used when calling
+     *                 back into JavaScript.
+     * @return         Whether the action was valid.
      */
     @Override
     public boolean execute (String action, JSONArray args,
-                            CallbackContext callbackContext) throws JSONException {
+                            CallbackContext callback) throws JSONException {
 
-        command = callbackContext;
+        command = callback;
 
         if (action.equalsIgnoreCase("isAvailable")) {
             isAvailable();
