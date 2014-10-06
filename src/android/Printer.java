@@ -92,10 +92,21 @@ public class Printer extends CordovaPlugin {
      * A Internet connection is required to load the cloud print dialog.
      */
     private void isAvailable () {
-        Boolean support   = isOnline();
-        PluginResult result = new PluginResult(PluginResult.Status.OK, support);
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Boolean supported = isOnline();
+                PluginResult result;
 
-        command.sendPluginResult(result);
+                if (!supported) {
+                    supported = hasGoogleCloudPrintApp();
+                }
+
+                result = new PluginResult(PluginResult.Status.OK, supported);
+
+                command.sendPluginResult(result);
+            }
+        });
     }
 
     /**
