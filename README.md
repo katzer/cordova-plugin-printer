@@ -13,7 +13,7 @@ cordova emulate [ios|android]
 
 These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. Its also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
 
-A click on the _PRINT SOME STUFF_ link opens the native print dialog to print out an HTML snippet.
+A click on the _PRINT SAMPLE PAGE_ link opens the native print dialog to print out an HTML snippet.
 
 ```javascript
 page = '';
