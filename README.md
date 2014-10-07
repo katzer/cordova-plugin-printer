@@ -95,6 +95,10 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
+#### Version 0.7.1 (not yet released)
+- [bugfix:] `isAvailable` does not block the main thread anymore.
+- [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
+
 #### Version 0.7.0 (12.09.2014)
 - Android Printing Framework support
 - [__change__:] Renamed `isServiceAvailable` to `isAvailable`
