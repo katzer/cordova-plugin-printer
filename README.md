@@ -165,7 +165,7 @@ The method takes a string or a HTML DOM node. Optional parameters allows to spec
 | duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided (duplex:true) or single-sided (duplex:false).<br>Double-sided by default. | Boolean | iOS |
 | landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | iOS |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | iOS |
-| bounds | The Size & position of the print view | Array | iPad |
+| bounds | The Size and position of the print view | Array | iPad |
 
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
@@ -225,7 +225,7 @@ cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, f
 // Option one
 cordova.plugins.printer.print('123', { bounds:[40, 30, 0, 0] });
 // Option two
-cordova.plugins.printer.print('123', { bounds:{ left:40, top:30, width:0 height: 0} });
+cordova.plugins.printer.print('123', { bounds:{ left:40, top:30, width:0 height:0 } });
 ```
 
 
