@@ -98,6 +98,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 #### Version 0.7.1 (not yet released)
 - [bugfix:] `isAvailable` does not block the main thread anymore.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
+- [enhancement:] Print-View positioning on iPad
 
 #### Version 0.7.0 (12.09.2014)
 - Android Printing Framework support
@@ -164,6 +165,7 @@ The method takes a string or a HTML DOM node. The string can contain HTML conten
 | duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided (duplex:true) or single-sided (duplex:false).<br>Double-sided by default. | Boolean | iOS |
 | landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | all |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | all |
+| bounds | The Size & position of the print view | Array | iPad |
 
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
@@ -234,6 +236,14 @@ cordova.plugins.printer.print('http://blackberry.de', 'BB!!!', function () {
 cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, function () {
     alert('printing finished or canceled')
 });
+```
+
+#### 6. Custom size and position on iPad
+```javascript
+// Option one
+cordova.plugins.printer.print('123', { bounds:[40, 30, 0, 0] });
+// Option two
+cordova.plugins.printer.print('123', { bounds:{ left:40, top:30, width:0 height: 0} });
 ```
 
 
