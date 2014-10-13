@@ -20,6 +20,7 @@
  */
 
 #import "APPPrinter.h"
+#import <Cordova/CDVAvailability.h>
 
 @interface APPPrinter ()
 
@@ -184,14 +185,28 @@
  */
 - (void) presentPrintController:(UIPrintInteractionController*)controller
 {
-    [controller presentAnimated:YES completionHandler:
-     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-        CDVPluginResult* pluginResult =
-        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    if(CDV_IsIPad()) {
+        CGRect rect = CGRectMake(40, 30, 0, 0);
 
-        [self.commandDelegate sendPluginResult:pluginResult
-                                    callbackId:_callbackId];
-    }];
+        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
+         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+             CDVPluginResult* pluginResult =
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+             [self.commandDelegate sendPluginResult:pluginResult
+                                         callbackId:_callbackId];
+         }];
+    }
+    else {
+        [controller presentAnimated:YES completionHandler:
+         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+             CDVPluginResult* pluginResult =
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+             [self.commandDelegate sendPluginResult:pluginResult
+                                         callbackId:_callbackId];
+         }];
+    }
 }
 
 /**

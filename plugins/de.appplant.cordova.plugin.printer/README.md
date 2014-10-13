@@ -5,6 +5,8 @@
     <b><a href="#">v0.6</a></b>
     <span>&nbsp;</span>
     <a href="https://github.com/katzer/cordova-plugin-printer/tree/network-printer">v0.5</a>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <i><a href="https://github.com/katzer/cordova-plugin-printer/tree/example-google-cloud-print">EXAMPLE :point_right:</a></i>
 </p>
 
 Cordova Print Plugin
@@ -69,7 +71,7 @@ The plugin can either be installed from git repository, from local file system t
 From master:
 ```bash
 # ~~ from google-cloud-print branch ~~
-cordova plugin add https://github.com/katzer/cordova-plugin-cloudprint.git
+cordova plugin add https://github.com/katzer/cordova-plugin-printer.git#google-cloud-print
 ```
 from a local folder:
 ```bash
@@ -97,7 +99,11 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
-#### Version 0.6.1 (not yet released)
+#### Version 0.6.2 (not yet released)
+- [bugfix:] `isAvailable` did not check if a native Google Cloud Print App is available.
+- [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
+
+#### Version 0.6.1 (25.09.2014)
 - [enhancement:] Use native Google Cloud Print App if available
 - [bugfix:] Keyboard input was ignored
 

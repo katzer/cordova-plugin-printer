@@ -23,7 +23,6 @@ package de.appplant.cordova.plugin.printer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
@@ -32,9 +31,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 /**
  * Custom activity to open the web based
@@ -64,7 +60,7 @@ public class CloudPrintDialog extends Activity {
     /**
      * Intent that started the action.
      */
-    Intent cloudPrintIntent;
+    Intent intent;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -77,12 +73,12 @@ public class CloudPrintDialog extends Activity {
      * Initializes the activity.
      * Creates the web view and its client + JS interface.
      */
-    @SuppressLint("AddJavascriptInterface")
+    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     private void init() {
         WebView webView = new WebView(this);
         WebSettings settings = webView.getSettings();
 
-        cloudPrintIntent = this.getIntent();
+        intent = this.getIntent();
 
         webView.setVerticalScrollBarEnabled(false);
         webView.setHorizontalScrollBarEnabled(false);
@@ -122,7 +118,8 @@ public class CloudPrintDialog extends Activity {
                 "printDialog.createPrintDocument(" +
                 "window." + JS_INTERFACE + ".getType()," +
                 "window." + JS_INTERFACE + ".getTitle()," +
-                "window." + JS_INTERFACE + ".getContent()))");
+                "window." + JS_INTERFACE + ".getContent()," +
+                "window." + JS_INTERFACE + ".getEncoding()))");
 
             // Add post messages listener.
             view.loadUrl("javascript:window.addEventListener('message'," +
@@ -139,13 +136,19 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getType() {
-            return "dataUrl";
+            return intent.getType();
+        }
+
+        @JavascriptInterface
+        @SuppressWarnings("UnusedDeclaration")
+        public String getEncoding() {
+            return "base64";
         }
 
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getTitle() {
-            return cloudPrintIntent.getExtras().getString("title");
+            return intent.getStringExtra(Intent.EXTRA_TITLE);
         }
 
         /**
@@ -155,37 +158,10 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getContent() {
-            try {
-                ContentResolver contentResolver;
-                InputStream in;
-                ByteArrayOutputStream out;
+            byte[] data = intent.getStringExtra(Intent.EXTRA_TEXT)
+                                .getBytes();
 
-                contentResolver = getContentResolver();
-                in = contentResolver.openInputStream(cloudPrintIntent.getData());
-                out = new ByteArrayOutputStream();
-
-                byte[] buffer = new byte[4096];
-                int n = in.read(buffer);
-
-                while (n >= 0) {
-                    out.write(buffer, 0, n);
-                    n = in.read(buffer);
-                }
-
-                in.close();
-                out.flush();
-
-                String contentBase64 =
-                        Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
-
-                return "data:" + cloudPrintIntent.getType() +
-                       ";base64," + contentBase64;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return "";
+            return Base64.encodeToString(data, Base64.DEFAULT);
         }
 
         /**

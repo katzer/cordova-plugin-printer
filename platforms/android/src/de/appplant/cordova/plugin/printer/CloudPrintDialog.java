@@ -158,7 +158,8 @@ public class CloudPrintDialog extends Activity {
         @JavascriptInterface
         @SuppressWarnings("UnusedDeclaration")
         public String getContent() {
-            byte[] data = intent.getStringExtra(Intent.EXTRA_TEXT).getBytes();
+            byte[] data = intent.getStringExtra(Intent.EXTRA_TEXT)
+                                .getBytes();
 
             return Base64.encodeToString(data, Base64.DEFAULT);
         }

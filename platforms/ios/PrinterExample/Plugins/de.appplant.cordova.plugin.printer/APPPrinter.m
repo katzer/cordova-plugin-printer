@@ -20,6 +20,7 @@
  */
 
 #import "APPPrinter.h"
+#import <Cordova/CDVAvailability.h>
 
 @interface APPPrinter ()
 
@@ -70,9 +71,11 @@
 
     UIPrintInteractionController* controller = [self printController];
 
+    CGRect rect = [self convertIntoRect:[settings objectForKey:@"bounds"]];
+    
     [self adjustPrintController:controller withSettings:settings];
     [self loadContent:content intoPrintController:controller];
-    [self presentPrintController:controller];
+    [self presentPrintController:controller fromRect:rect];
 }
 
 /**
@@ -117,7 +120,7 @@
 
     controller.printInfo      = printInfo;
     controller.showsPageRange = NO;
-
+    
     return controller;
 }
 
@@ -183,15 +186,45 @@
  *      The prepared print controller with a content
  */
 - (void) presentPrintController:(UIPrintInteractionController*)controller
+                       fromRect:(CGRect)rect
 {
-    [controller presentAnimated:YES completionHandler:
-     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-        CDVPluginResult* pluginResult =
-        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    if(CDV_IsIPad()) {
+        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
+         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+             CDVPluginResult* pluginResult =
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 
-        [self.commandDelegate sendPluginResult:pluginResult
-                                    callbackId:_callbackId];
-    }];
+             [self.commandDelegate sendPluginResult:pluginResult
+                                         callbackId:_callbackId];
+         }];
+    }
+    else {
+        [controller presentAnimated:YES completionHandler:
+         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+             CDVPluginResult* pluginResult =
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+             [self.commandDelegate sendPluginResult:pluginResult
+                                         callbackId:_callbackId];
+         }];
+    }
+}
+
+/**
+ * Convert Array into Rect object.
+ *
+ * @param bounds
+ *      The bounds
+ *
+ * @return
+ *      A converted Rect object
+ */
+- (CGRect) convertIntoRect:(NSArray*)bounds
+{
+    return CGRectMake([[bounds objectAtIndex:0] floatValue],
+                      [[bounds objectAtIndex:1] floatValue],
+                      [[bounds objectAtIndex:2] floatValue],
+                      [[bounds objectAtIndex:3] floatValue]);
 }
 
 /**

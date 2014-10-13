@@ -12,7 +12,7 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "de.appplant.cordova.plugin.printer": "0.6.1-dev"
+    "de.appplant.cordova.plugin.printer": "0.6.2-dev"
 }
 // BOTTOM OF METADATA
 });
