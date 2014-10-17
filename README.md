@@ -57,10 +57,10 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [cordova]: https://cordova.apache.org
 [GCP]: http://www.google.com/cloudprint/learn/index.html
 [AirPrint]: http://support.apple.com/kb/ht4356
-[android_screens]: images/android.tiff
-[ios_screens]: images/ios.tiff
+[android_screens]: images/android.png
+[ios_screens]: images/ios.png
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/google-cloud-print/README.md
-[zip]: https://github.com/katzer/cordova-plugin-printer/archive/google-cloud-print.zip
+[zip]: https://github.com/katzer/cordova-plugin-printer/archive/example-google-cloud-print.zip
 [studio]: https://developer.android.com/sdk/installing/studio.html
 [eclipse]: https://developer.android.com/sdk/index.html
 [mupdf]: http://www.mupdf.com
