@@ -11,7 +11,7 @@ Cordova Print Plugin - Example
 cordova emulate [ios|android]
 ```
 
-These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. Its also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
+These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
 
 A click on the _PRINT SAMPLE PAGE_ link opens the native print dialog to print out an HTML snippet.
 
@@ -57,10 +57,10 @@ This software is released under the [Apache 2.0 License][apache2_license].
 [cordova]: https://cordova.apache.org
 [APF]: http://www.techotopia.com/index.php/Printing_with_the_Android_Printing_Framework
 [AirPrint]: http://support.apple.com/kb/ht4356
-[android_screens]: images/android.tiff
-[ios_screens]: images/ios.tiff
+[android_screens]: images/android.png
+[ios_screens]: images/ios.png
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
-[zip]: https://github.com/katzer/cordova-plugin-printer/archive/master.zip
+[zip]: https://github.com/katzer/cordova-plugin-printer/archive/example.zip
 [studio]: https://developer.android.com/sdk/installing/studio.html
 [eclipse]: https://developer.android.com/sdk/index.html
 [mupdf]: http://www.mupdf.com
