@@ -130,8 +130,7 @@ public class Printer extends CordovaPlugin {
      */
     private void print (JSONArray args){
         if(Build.VERSION.SDK_INT >= 19){
-            AndroidPrinter printer = new AndroidPrinter(cordova.getActivity(),command,
-                    webView.getUrl(),cordova.getThreadPool());
+            AndroidPrinter printer = new AndroidPrinter(command,this);
             printer.printAndroid(args);
         } else {
             printCloud(args);

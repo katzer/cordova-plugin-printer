@@ -33,7 +33,6 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.cordova.CallbackContext;
 
@@ -41,22 +40,16 @@ import org.apache.cordova.CallbackContext;
 public class AndroidPrinter {
     private WebView view;
 
-    private Activity activity;
-
     private CallbackContext command;
 
-    private String baseURL;
-
-    private ExecutorService threadPool;
+    private Printer printer;
 
     /**
      * Constructor of AndroidPrinter
      */
-    AndroidPrinter(Activity activity,CallbackContext command,String baseURL,ExecutorService threadPool ) {
-        this.activity = activity;
+    AndroidPrinter(CallbackContext command,Printer printer) {
         this.command = command;
-        this.baseURL = baseURL;
-        this.threadPool = threadPool;
+        this.printer = printer;
     }
 
     /**
@@ -69,7 +62,7 @@ public class AndroidPrinter {
         final String content   = args.optString(0, "<html></html>");
         final JSONObject props = args.optJSONObject(1);
 
-        activity.runOnUiThread(new Runnable() {
+        printer.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 initWebView(props);
@@ -89,6 +82,7 @@ public class AndroidPrinter {
             view.loadUrl(content);
         } else {
             //Set base URI to the assets/www folder
+            String baseURL = printer.webView.getUrl();
             baseURL        = baseURL.substring(0, baseURL.lastIndexOf('/') + 1);
 
             view.loadDataWithBaseURL(baseURL, content, "text/html", "UTF-8", null);
@@ -103,7 +97,7 @@ public class AndroidPrinter {
      *      The JSON object with the containing page properties
      */
     private void initWebView (JSONObject props) {
-        Activity ctx = activity;
+        Activity ctx = printer.cordova.getActivity();
         view         = new WebView(ctx);
 
         view.getSettings().setDatabaseEnabled(true);
@@ -134,7 +128,7 @@ public class AndroidPrinter {
                     // Get a PrintManager instance
                     String PRINT_SERVICE = (String) Context.class.getDeclaredField("PRINT_SERVICE").get(null);
                     @SuppressWarnings("all")
-                    Object printManager = activity.getSystemService(PRINT_SERVICE);
+                    Object printManager = printer.cordova.getActivity().getSystemService(PRINT_SERVICE);
 
                     // Get a print adapter instance
                     Class<?> printDocumentAdapterClass = Class.forName("android.print.PrintDocumentAdapter");
@@ -144,7 +138,7 @@ public class AndroidPrinter {
                     // Get a print builder instance
                     Class<?> printAttributesBuilderClass = Class.forName("android.print.PrintAttributes$Builder");
                     Constructor<?> ctor = printAttributesBuilderClass.getConstructor();
-                    Object printAttributes = ctor.newInstance(new Object());
+                    Object printAttributes = ctor.newInstance();
 
 
                     // The page does itself set its own margins
@@ -199,7 +193,7 @@ public class AndroidPrinter {
      *      The reference to the print job
      */
     private void invokeCallbackOnceCompletedOrCanceled (final Object job) {
-        threadPool.execute(new Runnable() {
+        printer.cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
                 for (; ; ) {
