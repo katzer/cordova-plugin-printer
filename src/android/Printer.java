@@ -292,9 +292,9 @@ public class Printer extends CordovaPlugin {
                         Method isCompleted = job.getClass().getMethod("isCompleted");
                         Method isFailed = job.getClass().getMethod("isFailed");
 
-                        Boolean cancelled = (Boolean) isCancelled.invoke(null);
-                        Boolean completed = (Boolean) isCompleted.invoke(null);
-                        Boolean failed = (Boolean) isFailed.invoke(null);
+                        Boolean cancelled = (Boolean) isCancelled.invoke(job);
+                        Boolean completed = (Boolean) isCompleted.invoke(job);
+                        Boolean failed = (Boolean) isFailed.invoke(job);
 
                         if (cancelled || completed || failed ) {
                             command.success();
