@@ -46,6 +46,10 @@ public class AndroidPrinter {
 
     /**
      * Constructor of AndroidPrinter
+     *
+     * @param command CallbackContext from execute-method
+     *
+     * @param printer Instance of MainClass to call cordova and webView
      */
     AndroidPrinter(CallbackContext command,Printer printer) {
         this.command = command;
