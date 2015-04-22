@@ -161,7 +161,7 @@ The method takes a string or a HTML DOM node. The string can contain HTML conten
 | Name | Description | Type | Support |
 | ---- | ----------- |:----:| -------:|
 | name | The name of the print job and of the document | String | all |
-| printerId| An identifier of the printer to use for the print job. | String | iOS |
+| printerId| The network URL to the printer. | String | iOS |
 | duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided (duplex:true) or single-sided (duplex:false).<br>Double-sided by default. | Boolean | iOS |
 | landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | all |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | all |
