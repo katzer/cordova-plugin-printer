@@ -103,6 +103,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 - [bugfix:] `isAvailable` did not check if a native Google Cloud Print App is available.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
 - [enhancement:] Print-View positioning on iPad
+- [enhancement:] Send direct to printer when printerId: is specified.
 
 #### Version 0.6.1 (25.09.2014)
 - [enhancement:] Use native Google Cloud Print App if available
