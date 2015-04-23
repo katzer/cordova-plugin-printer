@@ -80,13 +80,15 @@ exports.print = function (content, options, callback, scope) {
         return;
     }
 
-    if (typeof params == 'string')
+    if (typeof params == 'string') {
         params = { name: params };
+    }
 
     params = this.mergeWithDefaults(params);
 
-    if ([null, undefined, ''].indexOf(params.name) > -1)
+    if ([null, undefined, ''].indexOf(params.name) > -1) {
         params.name = this.DEFAULT_DOC_NAME;
+    }
 
     exec(fn, null, 'Printer', 'print', [page, params]);
 };

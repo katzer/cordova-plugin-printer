@@ -14,12 +14,6 @@
                         }
                     ]
                 }
-            },
-            "AndroidManifest.xml": {
-                "parents": {
-                    "/manifest/application": [],
-                    "/manifest": []
-                }
             }
         }
     },

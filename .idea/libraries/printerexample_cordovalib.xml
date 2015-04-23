@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="printerexample-cordovalib">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/platforms/android/CordovaLib/bin/printerexample-cordovalib.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
