@@ -1,5 +1,5 @@
 ##ChangeLog
-#### Version 0.6.2 (not yet released)
+#### Version 0.6.2 (23.04.2015)
 - [bugfix:] `isAvailable` did not check if a native Google Cloud Print App is available.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
 - [enhancement:] Print-View positioning on iPad
