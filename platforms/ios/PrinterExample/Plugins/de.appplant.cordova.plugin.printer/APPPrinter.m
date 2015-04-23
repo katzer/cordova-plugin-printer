@@ -71,11 +71,9 @@
 
     UIPrintInteractionController* controller = [self printController];
 
-    CGRect rect = [self convertIntoRect:[settings objectForKey:@"bounds"]];
-    
     [self adjustPrintController:controller withSettings:settings];
     [self loadContent:content intoPrintController:controller];
-    [self presentPrintController:controller fromRect:rect];
+    [self presentPrintController:controller];
 }
 
 /**
@@ -120,7 +118,7 @@
 
     controller.printInfo      = printInfo;
     controller.showsPageRange = NO;
-    
+
     return controller;
 }
 
@@ -186,9 +184,10 @@
  *      The prepared print controller with a content
  */
 - (void) presentPrintController:(UIPrintInteractionController*)controller
-                       fromRect:(CGRect)rect
 {
     if(CDV_IsIPad()) {
+        CGRect rect = CGRectMake(40, 30, 0, 0);
+
         [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
          ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
              CDVPluginResult* pluginResult =
@@ -208,23 +207,6 @@
                                          callbackId:_callbackId];
          }];
     }
-}
-
-/**
- * Convert Array into Rect object.
- *
- * @param bounds
- *      The bounds
- *
- * @return
- *      A converted Rect object
- */
-- (CGRect) convertIntoRect:(NSArray*)bounds
-{
-    return CGRectMake([[bounds objectAtIndex:0] floatValue],
-                      [[bounds objectAtIndex:1] floatValue],
-                      [[bounds objectAtIndex:2] floatValue],
-                      [[bounds objectAtIndex:3] floatValue]);
 }
 
 /**
