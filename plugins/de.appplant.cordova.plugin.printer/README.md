@@ -99,9 +99,11 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
-#### Version 0.6.2 (not yet released)
+#### Version 0.6.2 (23.04.2015)
 - [bugfix:] `isAvailable` did not check if a native Google Cloud Print App is available.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
+- [enhancement:] Print-View positioning on iPad
+- [enhancement:] Send direct to printer when printerId: is specified.
 
 #### Version 0.6.1 (25.09.2014)
 - [enhancement:] Use native Google Cloud Print App if available
@@ -164,6 +166,7 @@ The method takes a string or a HTML DOM node. Optional parameters allows to spec
 | duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided (duplex:true) or single-sided (duplex:false).<br>Double-sided by default. | Boolean | iOS |
 | landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | iOS |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | iOS |
+| bounds | The Size and position of the print view | Array | iPad |
 
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.
@@ -216,6 +219,14 @@ cordova.plugins.printer.print(page, 'Document.html', function () {
 cordova.plugins.printer.print('123', { name:'Document.html', landscape:true }, function () {
     alert('printing finished or canceled')
 });
+```
+
+#### 4. Custom size and position on iPad
+```javascript
+// Option one
+cordova.plugins.printer.print('123', { bounds:[40, 30, 0, 0] });
+// Option two
+cordova.plugins.printer.print('123', { bounds:{ left:40, top:30, width:0 height:0 } });
 ```
 
 

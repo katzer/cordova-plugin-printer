@@ -71,9 +71,19 @@
 
     UIPrintInteractionController* controller = [self printController];
 
+    NSString* printerId = [settings objectForKey:@"printerId"];
+
     [self adjustPrintController:controller withSettings:settings];
     [self loadContent:content intoPrintController:controller];
-    [self presentPrintController:controller];
+
+    if (printerId) {
+        [self sendToPrinter:controller printer:printerId];
+    }
+    else {
+        CGRect rect = [self convertIntoRect:[settings objectForKey:@"bounds"]];
+
+        [self presentPrintController:controller fromRect:rect];
+    }
 }
 
 /**
@@ -114,7 +124,6 @@
     printInfo.orientation = orientation;
     printInfo.jobName     = [settings objectForKey:@"name"];
     printInfo.duplex      = [[settings objectForKey:@"duplex"] boolValue];
-    printInfo.printerID   = [settings objectForKey:@"printerId"];
 
     controller.printInfo      = printInfo;
     controller.showsPageRange = NO;
@@ -126,7 +135,7 @@
  * Adjusts the web view and page renderer.
  */
 - (void) adjustWebView:(UIWebView*)page
-     andPrintPageRenderer:(UIPrintPageRenderer*)renderer
+  andPrintPageRenderer:(UIPrintPageRenderer*)renderer
 {
     UIViewPrintFormatter* formatter = [page viewPrintFormatter];
     // margin not required - done in web page
@@ -184,10 +193,9 @@
  *      The prepared print controller with a content
  */
 - (void) presentPrintController:(UIPrintInteractionController*)controller
+                       fromRect:(CGRect)rect
 {
     if(CDV_IsIPad()) {
-        CGRect rect = CGRectMake(40, 30, 0, 0);
-
         [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
          ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
              CDVPluginResult* pluginResult =
@@ -207,6 +215,47 @@
                                          callbackId:_callbackId];
          }];
     }
+}
+
+/**
+ * Sends the content directly to the specified printer.
+ *
+ * @param controller
+ *      The prepared print controller with the content
+ * @param printer
+ *      The printer specified by its URL
+ */
+- (void) sendToPrinter:(UIPrintInteractionController*)controller
+               printer:(NSString*)printerId
+{
+    NSURL* url         = [NSURL URLWithString:printerId];
+    UIPrinter* printer = [UIPrinter printerWithURL:url];
+
+    [controller printToPrinter:printer completionHandler:
+     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+         CDVPluginResult* pluginResult =
+         [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+         [self.commandDelegate sendPluginResult:pluginResult
+                                     callbackId:_callbackId];
+     }];
+}
+
+/**
+ * Convert Array into Rect object.
+ *
+ * @param bounds
+ *      The bounds
+ *
+ * @return
+ *      A converted Rect object
+ */
+- (CGRect) convertIntoRect:(NSArray*)bounds
+{
+    return CGRectMake([[bounds objectAtIndex:0] floatValue],
+                      [[bounds objectAtIndex:1] floatValue],
+                      [[bounds objectAtIndex:2] floatValue],
+                      [[bounds objectAtIndex:3] floatValue]);
 }
 
 /**

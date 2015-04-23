@@ -27,6 +27,20 @@ var exec = require('cordova/exec');
 exports.DEFAULT_DOC_NAME = 'unknown';
 
 /**
+ * List of all available options with their default value.
+ *
+ * @return {Object}
+ */
+exports.getDefaults = function () {
+    return {
+        name:      exports.DEFAULT_DOC_NAME,
+        duplex:    true,
+        landscape: false,
+        bounds:    [40, 30, 0, 0]
+    };
+};
+
+/**
  * Checks if the printer service is avaible (iOS)
  * or if connected to the Internet (Android).
  *
@@ -66,13 +80,55 @@ exports.print = function (content, options, callback, scope) {
         return;
     }
 
-    if (typeof params == 'string')
+    if (typeof params == 'string') {
         params = { name: params };
+    }
 
-    if ([null, undefined, ''].indexOf(params.name) > -1)
+    params = this.mergeWithDefaults(params);
+
+    if ([null, undefined, ''].indexOf(params.name) > -1) {
         params.name = this.DEFAULT_DOC_NAME;
+    }
 
     exec(fn, null, 'Printer', 'print', [page, params]);
+};
+
+/**
+ * @private
+ *
+ * Merge settings with default values.
+ *
+ * @param {Object} options
+ *      The custom options
+ *
+ * @retrun {Object}
+ *      Default values merged
+ *      with custom values
+ */
+exports.mergeWithDefaults = function (options) {
+    var defaults = this.getDefaults();
+
+    if (options.bounds && !options.bounds.length) {
+        options.bounds = [
+            options.bounds.left   || defaults.bounds[0],
+            options.bounds.top    || defaults.bounds[1],
+            options.bounds.width  || defaults.bounds[2],
+            options.bounds.height || defaults.bounds[3],
+        ];
+    }
+
+    for (var key in defaults) {
+        if (!options.hasOwnProperty(key)) {
+            options[key] = defaults[key];
+            continue;
+        }
+
+        if (typeof options[key] != typeof defaults[key]) {
+            delete options[key];
+        }
+    }
+
+    return options;
 };
 
 /**
