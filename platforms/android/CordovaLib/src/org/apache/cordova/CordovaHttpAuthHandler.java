@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -18,22 +16,36 @@
        specific language governing permissions and limitations
        under the License.
 */
+package org.apache.cordova;
 
-var build = require('./build'),
-    spawn = require('./spawn'),
-    path  = require('path');
+import android.webkit.HttpAuthHandler;
 
-/*
- * Cleans the project using ant
- * Returns a promise.
+/**
+ * Specifies interface for HTTP auth handler object which is used to handle auth requests and
+ * specifying user credentials.
  */
-module.exports.run = function() {
-    var args = build.getAntArgs('clean');
-    return spawn('ant', args);
-}
+public class CordovaHttpAuthHandler implements ICordovaHttpAuthHandler {
 
-module.exports.help = function() {
-    console.log('Usage: ' + path.relative(process.cwd(), process.argv[1]));
-    console.log('Cleans the project directory.');
-    process.exit(0);
+    private final HttpAuthHandler handler;
+
+    public CordovaHttpAuthHandler(HttpAuthHandler handler) {
+        this.handler = handler;
+    }
+    
+    /**
+     * Instructs the WebView to cancel the authentication request.
+     */
+    public void cancel () {
+        this.handler.cancel();
+    }
+    
+    /**
+     * Instructs the WebView to proceed with the authentication with the given credentials.
+     * 
+     * @param username
+     * @param password
+     */
+    public void proceed (String username, String password) {
+        this.handler.proceed(username, password);
+    }
 }

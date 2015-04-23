@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.telephony.TelephonyManager;
+import android.view.KeyEvent;
 
 import java.util.HashMap;
 
@@ -40,21 +41,28 @@ import java.util.HashMap;
  */
 public class App extends CordovaPlugin {
 
+    public static final String PLUGIN_NAME = "App";
     protected static final String TAG = "CordovaApp";
     private BroadcastReceiver telephonyReceiver;
+    private CallbackContext messageChannel;
+
+    /**
+     * Send an event to be fired on the Javascript side.
+     *
+     * @param action The name of the event to be fired
+     */
+    public void fireJavascriptEvent(String action) {
+        sendEventMessage(action);
+    }
 
     /**
      * Sets the context of the Command. This can then be used to do things like
      * get file paths associated with the Activity.
-     *
-     * @param cordova The context of the main Activity.
-     * @param webView The CordovaWebView Cordova is running in.
      */
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
+    @Override
+    public void pluginInitialize() {
         this.initTelephonyReceiver();
     }
-
 
     /**
      * Executes the request and returns PluginResult.
@@ -103,6 +111,11 @@ public class App extends CordovaPlugin {
             else if (action.equals("exitApp")) {
                 this.exitApp();
             }
+			else if (action.equals("messageChannel")) {
+                messageChannel = callbackContext;
+                return true;
+            }
+
             callbackContext.sendPluginResult(new PluginResult(status, result));
             return true;
         } catch (JSONException e) {
@@ -190,7 +203,11 @@ public class App extends CordovaPlugin {
      * Clear page history for the app.
      */
     public void clearHistory() {
-        this.webView.clearHistory();
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                webView.clearHistory();
+            }
+        });
     }
 
     /**
@@ -213,7 +230,7 @@ public class App extends CordovaPlugin {
      */
     public void overrideBackbutton(boolean override) {
         LOG.i("App", "WARNING: Back Button Default Behavior will be overridden.  The backbutton event will be fired!");
-        webView.bindButton(override);
+        webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_BACK, override);
     }
 
     /**
@@ -225,7 +242,12 @@ public class App extends CordovaPlugin {
      */
     public void overrideButton(String button, boolean override) {
         LOG.i("App", "WARNING: Volume Button Default Behavior will be overridden.  The volume event will be fired!");
-        webView.bindButton(button, override);
+        if (button.equals("volumeup")) {
+            webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_VOLUME_UP, override);
+        }
+        else if (button.equals("volumedown")) {
+            webView.setButtonPlumbedToJs(KeyEvent.KEYCODE_VOLUME_DOWN, override);
+        }
     }
 
     /**
@@ -234,7 +256,7 @@ public class App extends CordovaPlugin {
      * @return boolean
      */
     public boolean isBackbuttonOverridden() {
-        return webView.isBackButtonBound();
+        return webView.isButtonPlumbedToJs(KeyEvent.KEYCODE_BACK);
     }
 
     /**
@@ -243,7 +265,7 @@ public class App extends CordovaPlugin {
     public void exitApp() {
         this.webView.postMessage("exit", null);
     }
-    
+
 
     /**
      * Listen for telephony events: RINGING, OFFHOOK and IDLE
@@ -281,7 +303,21 @@ public class App extends CordovaPlugin {
         };
 
         // Register the receiver
-        this.cordova.getActivity().registerReceiver(this.telephonyReceiver, intentFilter);
+        webView.getContext().registerReceiver(this.telephonyReceiver, intentFilter);
+    }
+
+    private void sendEventMessage(String action) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("action", action);
+        } catch (JSONException e) {
+            LOG.e(TAG, "Failed to create event message", e);
+        }
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, obj);
+        pluginResult.setKeepCallback(true);
+        if (messageChannel != null) {
+            messageChannel.sendPluginResult(pluginResult);
+        }
     }
 
     /*
@@ -290,6 +326,6 @@ public class App extends CordovaPlugin {
      */
     public void onDestroy()
     {
-        this.cordova.getActivity().unregisterReceiver(this.telephonyReceiver);
+        webView.getContext().unregisterReceiver(this.telephonyReceiver);
     }
 }

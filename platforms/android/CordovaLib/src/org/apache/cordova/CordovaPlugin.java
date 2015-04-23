@@ -32,20 +32,39 @@ import android.net.Uri;
  * Plugins must extend this class and override one of the execute methods.
  */
 public class CordovaPlugin {
+    @Deprecated // This is never set.
     public String id;
-    public CordovaWebView webView;					// WebView object
+    public CordovaWebView webView;
     public CordovaInterface cordova;
+    protected CordovaPreferences preferences;
 
     /**
-     * @param cordova The context of the main Activity.
-     * @param webView The associated CordovaWebView.
+     * Call this after constructing to initialize the plugin.
+     * Final because we want to be able to change args without breaking plugins.
      */
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+    public final void privateInitialize(CordovaInterface cordova, CordovaWebView webView, CordovaPreferences preferences) {
         assert this.cordova == null;
         this.cordova = cordova;
         this.webView = webView;
+        this.preferences = preferences;
+        initialize(cordova, webView);
+        pluginInitialize();
     }
 
+    /**
+     * Called after plugin construction and fields have been initialized.
+     * Prefer to use pluginInitialize instead since there is no value in
+     * having parameters on the initialize() function.
+     */
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+    }
+
+    /**
+     * Called after plugin construction and fields have been initialized.
+     */
+    protected void pluginInitialize() {
+    }
+    
     /**
      * Executes the request.
      *
@@ -178,5 +197,35 @@ public class CordovaPlugin {
      * Does nothing by default.
      */
     public void onReset() {
+    }
+    
+    /**
+     * Called when the system received an HTTP authentication request. Plugin can use
+     * the supplied HttpAuthHandler to process this auth challenge.
+     *
+     * @param view              The WebView that is initiating the callback
+     * @param handler           The HttpAuthHandler used to set the WebView's response
+     * @param host              The host requiring authentication
+     * @param realm             The realm for which authentication is required
+     * 
+     * @return                  Returns True if plugin will resolve this auth challenge, otherwise False
+     * 
+     */
+    public boolean onReceivedHttpAuthRequest(CordovaWebView view, ICordovaHttpAuthHandler handler, String host, String realm) {
+        return false;
+    }
+    
+    /**
+     * Called when he system received an SSL client certificate request.  Plugin can use
+     * the supplied ClientCertRequest to process this certificate challenge.
+     *
+     * @param view              The WebView that is initiating the callback
+     * @param request           The client certificate request
+     *
+     * @return                  Returns True if plugin will resolve this auth challenge, otherwise False
+     *
+     */
+    public boolean onReceivedClientCertRequest(CordovaWebView view, ICordovaClientCertRequest request) {
+        return false;
     }
 }

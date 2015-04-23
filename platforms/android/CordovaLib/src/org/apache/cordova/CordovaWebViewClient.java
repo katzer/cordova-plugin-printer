@@ -18,28 +18,23 @@
 */
 package org.apache.cordova;
 
-import java.io.ByteArrayInputStream;
 import java.util.Hashtable;
 
 import org.apache.cordova.CordovaInterface;
-
 import org.apache.cordova.LOG;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.net.http.SslError;
-import android.util.Log;
 import android.view.View;
+import android.webkit.ClientCertRequest;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -58,7 +53,6 @@ import android.webkit.WebViewClient;
 public class CordovaWebViewClient extends WebViewClient {
 
 	private static final String TAG = "CordovaWebViewClient";
-	private static final String CORDOVA_EXEC_URL_PREFIX = "http://cdv_exec/";
     CordovaInterface cordova;
     CordovaWebView appView;
     CordovaUriHelper helper;
@@ -68,11 +62,7 @@ public class CordovaWebViewClient extends WebViewClient {
     /** The authorization tokens. */
     private Hashtable<String, AuthenticationToken> authenticationTokens = new Hashtable<String, AuthenticationToken>();
 
-    /**
-     * Constructor.
-     *
-     * @param cordova
-     */
+    @Deprecated
     public CordovaWebViewClient(CordovaInterface cordova) {
         this.cordova = cordova;
     }
@@ -94,29 +84,11 @@ public class CordovaWebViewClient extends WebViewClient {
      *
      * @param view
      */
+    @Deprecated
     public void setWebView(CordovaWebView view) {
         this.appView = view;
         helper = new CordovaUriHelper(cordova, view);
     }
-
-
-    // Parses commands sent by setting the webView's URL to:
-    // cdvbrg:service/action/callbackId#jsonArgs
-	private void handleExecUrl(String url) {
-		int idx1 = CORDOVA_EXEC_URL_PREFIX.length();
-		int idx2 = url.indexOf('#', idx1 + 1);
-		int idx3 = url.indexOf('#', idx2 + 1);
-		int idx4 = url.indexOf('#', idx3 + 1);
-		if (idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1) {
-			Log.e(TAG, "Could not decode URL command: " + url);
-			return;
-		}
-		String service    = url.substring(idx1, idx2);
-		String action     = url.substring(idx2 + 1, idx3);
-		String callbackId = url.substring(idx3 + 1, idx4);
-		String jsonArgs   = url.substring(idx4 + 1);
-        appView.pluginManager.exec(service, action, callbackId, jsonArgs);
-	}
 
     /**
      * Give the host application a chance to take over the control when a new url
@@ -143,15 +115,45 @@ public class CordovaWebViewClient extends WebViewClient {
     @Override
     public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
 
-        // Get the authentication token
+        // Get the authentication token (if specified)
         AuthenticationToken token = this.getAuthenticationToken(host, realm);
         if (token != null) {
             handler.proceed(token.getUserName(), token.getPassword());
+            return;
         }
-        else {
-            // Handle 401 like we'd normally do!
-            super.onReceivedHttpAuthRequest(view, handler, host, realm);
+
+        // Check if there is some plugin which can resolve this auth challenge
+        PluginManager pluginManager = this.appView.pluginManager;
+        if (pluginManager != null && pluginManager.onReceivedHttpAuthRequest(this.appView, new CordovaHttpAuthHandler(handler), host, realm)) {
+            this.appView.loadUrlTimeout++;
+            return;
         }
+
+        // By default handle 401 like we'd normally do!
+        super.onReceivedHttpAuthRequest(view, handler, host, realm);
+    }
+    
+    /**
+     * On received client cert request.
+     * The method forwards the request to any running plugins before using the default implementation.
+     *
+     * @param view
+     * @param request
+     */
+    @Override
+    @TargetApi(21)
+    public void onReceivedClientCertRequest (WebView view, ClientCertRequest request)
+    {
+
+        // Check if there is some plugin which can resolve this certificate request
+        PluginManager pluginManager = this.appView.pluginManager;
+        if (pluginManager != null && pluginManager.onReceivedClientCertRequest(this.appView, new CordovaClientCertRequest(request))) {
+            this.appView.loadUrlTimeout++;
+            return;
+        }
+
+        // By default pass to WebViewClient
+        super.onReceivedClientCertRequest(view, request);
     }
 
     /**
@@ -169,7 +171,7 @@ public class CordovaWebViewClient extends WebViewClient {
         isCurrentlyLoading = true;
         LOG.d(TAG, "onPageStarted(" + url + ")");
         // Flush stale messages.
-        this.appView.jsMessageQueue.reset();
+        this.appView.bridge.reset(url);
 
         // Broadcast message that page has loaded
         this.appView.postMessage("onPageStarted", url);
@@ -191,8 +193,8 @@ public class CordovaWebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
-        // Ignore excessive calls.
-        if (!isCurrentlyLoading) {
+        // Ignore excessive calls, if url is not about:blank (CB-8317).
+        if (!isCurrentlyLoading && !url.startsWith("about:")) {
             return;
         }
         isCurrentlyLoading = false;
