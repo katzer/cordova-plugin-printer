@@ -95,7 +95,7 @@ cordova plugin rm de.appplant.cordova.plugin.printer
 
 
 ## ChangeLog
-#### Version 0.7.1 (not yet released)
+#### Version 0.7.1 (23.04.2015)
 - [bugfix:] `isAvailable` does not block the main thread anymore.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
 - [enhancement:] Print-View positioning on iPad
