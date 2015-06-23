@@ -58,6 +58,21 @@ exports.isAvailable = function (callback, scope) {
 };
 
 /**
+ * Displays system interface for selecting a printer (iOS only)
+ *
+ * @param {Function} callback
+ *      A callback function
+ * @param {Object} options
+ *       Options for the printer picker
+ */
+exports.printerPicker = function (callback, options) {
+    var fn = this._createCallbackFn(callback);
+    var params = options || {};
+    params = this.mergeWithDefaults(params);
+    exec(fn, null, 'Printer', 'printerPicker', [params]);
+};
+
+/**
  * Sends the content to the Google Cloud Print service.
  *
  * @param {String} content

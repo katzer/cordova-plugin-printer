@@ -87,6 +87,27 @@
 }
 
 /**
+ * Displays system interface for selecting a printer
+ *
+ * @param command
+ *      Contains the callback function and picker options if applicable
+ */
+- (void) printerPicker:(CDVInvokedUrlCommand*)command
+{
+    if (!self.isPrintingAvailable) {
+        return;
+    }
+    _callbackId = command.callbackId;
+    
+    NSArray*  arguments           = [command arguments];
+    NSMutableDictionary* settings = [arguments objectAtIndex:0];
+    
+    CGRect rect = [self convertIntoRect:[settings objectForKey:@"bounds"]];
+    
+    [self presentPrinterPicker:rect];
+}
+
+/**
  * Retrieves an instance of shared print controller.
  *
  * @return {UIPrintInteractionController*}
@@ -273,6 +294,56 @@
 
     return [self printController] && [UIPrintInteractionController
                                       isPrintingAvailable];
+}
+
+/**
+ * Displays system interface for selecting a printer
+ *
+ * @param rect
+ *      Rect object of where to display the interface
+ */
+- (void) presentPrinterPicker:(CGRect)rect
+{
+    UIPrinterPickerController* controller= [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:nil];
+    
+    if(CDV_IsIPad()) {
+        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
+         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
+            [self returnPrinterPickerResult:ctrl withUserDidSelect:&userDidSelect];
+         }];
+    }
+    else {
+        [controller presentAnimated:YES completionHandler:
+         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
+             [self returnPrinterPickerResult:ctrl withUserDidSelect:&userDidSelect];
+         }];
+    }
+}
+
+/**
+ * Calls the callback funtion with the result of the selected printer
+ *
+ * @param ctrl
+ *      The UIPrinterPickerController used to display the printer selector interface
+ * @param userDidSelect
+ *      True if the user selected a printer
+ */
+- (void) returnPrinterPickerResult:(UIPrinterPickerController*)ctrl
+                 withUserDidSelect:(BOOL*)userDidSelect
+{
+    if (userDidSelect)
+    {
+        [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:ctrl.selectedPrinter];
+        
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:ctrl.selectedPrinter.URL.absoluteString];
+        [self.commandDelegate sendPluginResult:pluginResult
+                                    callbackId:_callbackId];
+    }
+    else
+    {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:_callbackId];
+    }
 }
 
 @end

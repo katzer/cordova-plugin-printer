@@ -118,6 +118,7 @@ The plugin creates the object `cordova.plugins.printer` with the following metho
 
 1. [printer.isAvailable][available]
 2. [printer.print][print]
+3. [printer.print][printerPicker] (iOS only)
 
 ### Plugin initialization
 The plugin and its methods are not available before the *deviceready* event has been fired.
@@ -247,6 +248,40 @@ cordova.plugins.printer.print('123', { bounds:[40, 30, 0, 0] });
 cordova.plugins.printer.print('123', { bounds:{ left:40, top:30, width:0 height:0 } });
 ```
 
+### Display printer picker (iOS 8.0+ only)
+Displays a system interface allowing the user to select an available printer.  The callback function will return the network URL of the selected printer (null if no printer selected).  The URL can be passed into the print function (printerId option), allowing a page to be printed without prompting the user.  This feature is only available in iOS 8.0 and later.
+
+#### Available Options
+| Name | Description | Type | Support |
+| ---- | ----------- |:----:| -------:|
+| bounds | The Size and position of the printer picker view | Array | iPad |
+
+#### Examples
+
+##### 1. Display the picker
+```javascript
+cordova.plugins.printer.printerPicker(function (printerId) {
+    alert(printerId)
+});
+```
+
+##### 2. Display picker at particular point on the screen and print current page to the selected printer
+```javascript
+cordova.plugins.printer.printerPicker(function (printerId) {
+    if(printerId)
+    {
+        // URI for the index.html
+        var page = location.href;
+        cordova.plugins.printer.print(page, {name: 'Document.html', printerId: printerId }, function () {
+            alert('Printing finished?')
+        });
+    }
+    else
+    {
+        alert('Printer not selected');
+    }
+}, { bounds: { left:100, top:300, width:0, height: 0 } } );
+```
 
 ## Quirks
 
