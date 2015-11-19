@@ -1,0 +1,40 @@
+{
+  "name": "de.appplant.cordova.plugin.printer",
+  "version": "0.7.1-dev",
+  "description": "Cordova plugin to print HTML documents using AirPrint and Android Printing Framework.",
+  "cordova": {
+    "id": "de.appplant.cordova.plugin.printer",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/katzer/cordova-plugin-printer.git"
+  },
+  "keywords": [
+	"appplant",
+    "print",
+    "printer",
+    "ios",
+    "android",
+    "google cloud",
+    "air print",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "author": "Sebastián Katzer",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/katzer/cordova-plugin-printer/issues"
+  },
+  "homepage": "https://github.com/katzer/cordova-plugin-printer"
+}
