@@ -55,7 +55,13 @@
                 <param name="android-package" value="de.appplant.cordova.plugin.printer.Printer"/>
             </feature>
         </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        </config-file>
 
         <source-file src="src/android/Printer.java" target-dir="src/de/appplant/cordova/plugin/printer" />
+        <framework src="com.nostra13.universalimageloader:universal-image-loader:1.9.5" />
+        <framework src="com.android.support:support-v4:+" />
     </platform>
 </plugin>

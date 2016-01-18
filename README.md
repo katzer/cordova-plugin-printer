@@ -167,6 +167,8 @@ The method takes a string or a HTML DOM node. The string can contain HTML conten
 | landscape| The orientation of the printed content, portrait or landscape.<br>_Portrait_ by default. | Boolean | all |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>_False_ by default. | Boolean | all |
 | bounds | The Size and position of the print view | Array | iPad |
+| image | Wether URI is an image instead of an HTML page. False by default. | Boolean | Android |
+| scaleMode  | How to scale an image: 1 for fit, 2 for fill (see constants in android.support.v4.print.PrintHelper). Fit by default. | Int | Android |
 
 #### Further informations
 - See the [isAvailable][available] method to find out if printing is available on the device.

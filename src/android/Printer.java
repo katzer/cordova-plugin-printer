@@ -24,6 +24,15 @@ package de.appplant.cordova.plugin.printer;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import android.view.View;
+import android.graphics.Bitmap;
+import android.support.v4.print.PrintHelper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,12 +48,17 @@ import android.print.PrintManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.lang.Integer;
+import java.lang.String;
+
 @TargetApi(19)
 public class Printer extends CordovaPlugin {
 
     private WebView view;
 
     private CallbackContext command;
+
+    private ImageLoader imageLoader;
 
     private static final String DEFAULT_DOC_NAME = "unknown";
 
@@ -93,7 +107,7 @@ public class Printer extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                Boolean supported   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+                Boolean supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
                 PluginResult result = new PluginResult(PluginResult.Status.OK, supported);
 
                 command.sendPluginResult(result);
@@ -111,13 +125,46 @@ public class Printer extends CordovaPlugin {
         final String content   = args.optString(0, "<html></html>");
         final JSONObject props = args.optJSONObject(1);
 
-        cordova.getActivity().runOnUiThread( new Runnable() {
+        cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                initWebView(props);
-                loadContent(content);
+
+                Context context = cordova.getActivity().getApplicationContext();
+                ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+                ImageLoader.getInstance().init(config.build());
+
+                if (props.optBoolean("image", false)) {
+                    printImage(content, props);
+                } else {
+                    initWebView(props);
+                    loadContent(content);
+                }
             }
         });
+    }
+
+    /**
+     * Print the given image
+     *
+     * @param content
+     *      An URI of an image
+     * @param props
+     *      The JSON object with the containing page properties
+     */
+    private void printImage(String content, JSONObject props) {
+        final int mode = props.optInt("scaleMode", PrintHelper.SCALE_MODE_FIT);
+
+        imageLoader = ImageLoader.getInstance();
+        imageLoader.loadImage(content, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                PrintHelper photoPrinter = new PrintHelper(cordova.getActivity());
+                photoPrinter.setScaleMode(mode);
+                photoPrinter.printBitmap("Print", loadedImage);
+                command.success();
+            }
+        });
+
     }
 
     /**
