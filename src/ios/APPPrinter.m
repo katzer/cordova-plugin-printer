@@ -74,7 +74,7 @@
     NSString* printerId = [settings objectForKey:@"printerId"];
 
     [self adjustPrintController:controller withSettings:settings];
-    [self loadContent:content intoPrintController:controller];
+    [self loadContent:content intoPrintController:controller withSettings:settings];
 
     if (printerId) {
         [self sendToPrinter:controller printer:printerId];
@@ -116,7 +116,9 @@
         orientation = UIPrintInfoOrientationLandscape;
     }
 
-    if ([[settings objectForKey:@"graystyle"] boolValue]) {
+    if ([[settings objectForKey:@"image"] boolValue]) {
+        outputType = UIPrintInfoOutputPhoto;
+    } else if ([[settings objectForKey:@"graystyle"] boolValue]) {
         outputType = UIPrintInfoOutputGrayscale;
     }
 
@@ -161,28 +163,34 @@
  *      The print controller instance
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
+                                           withSettings:(NSMutableDictionary*)settings
 {
-    UIWebView* page               = [[UIWebView alloc] init];
-    UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
+    if ([[settings objectForKey:@"image"] boolValue]) {
+        controller.printingItem = [NSURL URLWithString:content];
+    } else {
+    
+        UIWebView* page               = [[UIWebView alloc] init];
+        UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
 
-    [self adjustWebView:page andPrintPageRenderer:renderer];
+        [self adjustWebView:page andPrintPageRenderer:renderer];
 
-    if ([NSURL URLWithString:content]) {
-        NSURL *url = [NSURL URLWithString:content];
+        if ([NSURL URLWithString:content]) {
+            NSURL *url = [NSURL URLWithString:content];
 
-        [page loadRequest:[NSURLRequest requestWithURL:url]];
+            [page loadRequest:[NSURLRequest requestWithURL:url]];
+        }
+        else {
+            // Set the base URL to be the www directory.
+            NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
+                                                                    ofType:nil];
+            NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
+
+
+            [page loadHTMLString:content baseURL:baseURL];
+        }
+
+        controller.printPageRenderer = renderer;
     }
-    else {
-        // Set the base URL to be the www directory.
-        NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                                ofType:nil];
-        NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
-
-
-        [page loadHTMLString:content baseURL:baseURL];
-    }
-
-    controller.printPageRenderer = renderer;
 }
 
 /**
