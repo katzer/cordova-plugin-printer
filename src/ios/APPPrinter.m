@@ -195,7 +195,7 @@
 - (void) presentPrintController:(UIPrintInteractionController*)controller
                        fromRect:(CGRect)rect
 {
-    if(CDV_IsIPad()) {
+    if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
          ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
              CDVPluginResult* pluginResult =
