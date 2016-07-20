@@ -1,5 +1,5 @@
 /*
- Copyright 2013-2014 appPlant UG
+ Copyright 2013-2016 appPlant GmbH
 
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -81,13 +81,13 @@
 {
     UIPrintInteractionController* controller = [self printController];
     NSString* printerId = [self.settings objectForKey:@"printerId"];
-    
+
     if (printerId) {
         [self sendToPrinter:controller printer:printerId];
     }
     else {
         CGRect rect = [self convertIntoRect:[self.settings objectForKey:@"bounds"]];
-        
+
         [self presentPrintController:controller fromRect:rect];
     }
 }
