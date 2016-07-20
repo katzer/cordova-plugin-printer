@@ -25,6 +25,7 @@
 @interface APPPrinter ()
 
 @property (retain) NSString* callbackId;
+@property (retain) NSMutableDictionary* settings;
 
 @end
 
@@ -67,21 +68,26 @@
 
     NSArray*  arguments           = [command arguments];
     NSString* content             = [arguments objectAtIndex:0];
-    NSMutableDictionary* settings = [arguments objectAtIndex:1];
+    self.settings = [arguments objectAtIndex:1];
 
     UIPrintInteractionController* controller = [self printController];
 
-    NSString* printerId = [settings objectForKey:@"printerId"];
-
-    [self adjustPrintController:controller withSettings:settings];
+    [self adjustPrintController:controller withSettings:self.settings];
     [self loadContent:content intoPrintController:controller];
 
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    UIPrintInteractionController* controller = [self printController];
+    NSString* printerId = [self.settings objectForKey:@"printerId"];
+    
     if (printerId) {
         [self sendToPrinter:controller printer:printerId];
     }
     else {
-        CGRect rect = [self convertIntoRect:[settings objectForKey:@"bounds"]];
-
+        CGRect rect = [self convertIntoRect:[self.settings objectForKey:@"bounds"]];
+        
         [self presentPrintController:controller fromRect:rect];
     }
 }
@@ -163,6 +169,7 @@
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
     UIWebView* page               = [[UIWebView alloc] init];
+    page.delegate = self;
     UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
 
     [self adjustWebView:page andPrintPageRenderer:renderer];
