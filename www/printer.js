@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2014 appPlant UG
+    Copyright 2013-2016 appPlant GmbH
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -22,20 +22,16 @@
 var exec = require('cordova/exec');
 
 /**
- * The default document/job name.
- */
-exports.DEFAULT_DOC_NAME = 'unknown';
-
-/**
  * List of all available options with their default value.
  *
  * @return {Object}
  */
 exports.getDefaults = function () {
     return {
-        name:      exports.DEFAULT_DOC_NAME,
-        duplex:    true,
+        name:      'unknown',
+        duplex:    'none',
         landscape: false,
+        graystyle: false,
         bounds:    [40, 30, 0, 0]
     };
 };
@@ -87,7 +83,7 @@ exports.print = function (content, options, callback, scope) {
     params = this.mergeWithDefaults(params);
 
     if ([null, undefined, ''].indexOf(params.name) > -1) {
-        params.name = this.DEFAULT_DOC_NAME;
+        params.name = this.getDefaults().name;
     }
 
     exec(fn, null, 'Printer', 'print', [page, params]);
@@ -115,6 +111,10 @@ exports.mergeWithDefaults = function (options) {
             options.bounds.width  || defaults.bounds[2],
             options.bounds.height || defaults.bounds[3],
         ];
+    }
+
+    if (options.duplex && typeof options.duplex == 'boolean') {
+        options.duplex = options.duplex ? 'long' : 'none';
     }
 
     for (var key in defaults) {

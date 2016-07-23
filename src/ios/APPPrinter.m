@@ -117,6 +117,7 @@
     UIPrintInfo* printInfo             = [UIPrintInfo printInfo];
     UIPrintInfoOrientation orientation = UIPrintInfoOrientationPortrait;
     UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
+    UIPrintInfoDuplex duplexMode       = UIPrintInfoDuplexNone;
 
     if ([[settings objectForKey:@"landscape"] boolValue]) {
         orientation = UIPrintInfoOrientationLandscape;
@@ -126,10 +127,17 @@
         outputType = UIPrintInfoOutputGrayscale;
     }
 
+    if ([[settings objectForKey:@"duplex"] isEqualToString:@"long"]) {
+        duplexMode = UIPrintInfoDuplexLongEdge;
+    } else
+    if ([[settings objectForKey:@"duplex"] isEqualToString:@"short"]) {
+        duplexMode = UIPrintInfoDuplexShortEdge;
+    }
+
     printInfo.outputType  = outputType;
     printInfo.orientation = orientation;
+    printInfo.duplex      = duplexMode;
     printInfo.jobName     = [settings objectForKey:@"name"];
-    printInfo.duplex      = [[settings objectForKey:@"duplex"] boolValue];
 
     controller.printInfo      = printInfo;
     controller.showsPageRange = NO;

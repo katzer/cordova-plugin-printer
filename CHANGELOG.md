@@ -5,7 +5,8 @@
 - [__change__:] `isAvailable` returns false if no enabled print services can be found (Android)
 - [enhancement:] `isAvailable` returns additional list of available print services (Android)
 - [enhancement:] `print` returns bool value to indicate the result
-- [enhancement:] Support `duplex` attribute (Android)
+- [enhancement:] Added missing `duplex` support (Android)
+- [__change__:] `duplex` requires a string (`none`, `long` or `short`)
 
 
 #### Version 0.7.1 (23.04.2015)
