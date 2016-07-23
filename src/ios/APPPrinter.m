@@ -132,7 +132,7 @@
     printInfo.duplex      = [[settings objectForKey:@"duplex"] boolValue];
 
     controller.printInfo      = printInfo;
-    controller.showsPageRange = NO;
+    controller.showsPageRange = [[settings objectForKey:@"showsPageRange"] boolValue];
 
     return controller;
 }
