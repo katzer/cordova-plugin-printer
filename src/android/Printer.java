@@ -229,7 +229,10 @@ public class Printer extends CordovaPlugin {
             public void run() {
                 for (;;) {
                     if (job.isCancelled() || job.isCompleted() || job.isFailed()) {
-                        command.success();
+                        PluginResult res = new PluginResult(
+                                PluginResult.Status.OK, job.isCompleted());
+
+                        command.sendPluginResult(res);
                         break;
                     }
                 }

@@ -206,7 +206,8 @@
         [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
          ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
              CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                 messageAsBool:ok];
 
              [self.commandDelegate sendPluginResult:pluginResult
                                          callbackId:_callbackId];
@@ -216,7 +217,8 @@
         [controller presentAnimated:YES completionHandler:
          ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
              CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                 messageAsBool:ok];
 
              [self.commandDelegate sendPluginResult:pluginResult
                                          callbackId:_callbackId];
@@ -241,7 +243,8 @@
     [controller printToPrinter:printer completionHandler:
      ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
          CDVPluginResult* pluginResult =
-         [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+         [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                             messageAsBool:ok];
 
          [self.commandDelegate sendPluginResult:pluginResult
                                      callbackId:_callbackId];

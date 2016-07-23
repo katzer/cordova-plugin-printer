@@ -4,6 +4,7 @@
 - [__change__:] Plugin requires Android KitKat or newer
 - [__change__:] `isAvailable` returns false if no enabled print services can be found (Android)
 - [enhancement:] `isAvailable` returns additional list of available print services (Android)
+- [enhancement:] `print` returns bool value to indicate the result
 - [enhancement:] Support `duplex` attribute (Android)
 
 
