@@ -1,4 +1,12 @@
 ## ChangeLog
+#### Version 0.7.2 (not yet released)
+- [__change__:] Changed plugin ID to `cordova-plugin-printer`
+- [__change__:] Plugin requires Android KitKat or newer
+- [__change__:] `isAvailable` returns false if no enabled print services can be found (Android)
+- [enhancement:] `isAvailable` returns additional list of available print services (Android)
+- [enhancement:] Support `duplex` attribute (Android)
+
+
 #### Version 0.7.1 (23.04.2015)
 - [bugfix:] `isAvailable` does not block the main thread anymore.
 - [bugfix:] iPad+iOS8 incompatibility (Thanks to __zmagyar__)
