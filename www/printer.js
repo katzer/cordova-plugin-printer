@@ -28,10 +28,16 @@ var exec = require('cordova/exec');
  */
 exports.getDefaults = function () {
     return {
+        // Platform independent
         name:      'unknown',
         duplex:    'none',
         landscape: false,
         graystyle: false,
+        // iOS specific
+        hidePageRange:      false,
+        hideNumberOfCopies: false,
+        hidePaperFormat:    false,
+        // iPad specific
         bounds:    [40, 30, 0, 0]
     };
 };

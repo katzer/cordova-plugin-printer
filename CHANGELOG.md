@@ -7,6 +7,7 @@
 - [enhancement:] `print` returns bool value to indicate the result
 - [enhancement:] Added missing `duplex` support (Android)
 - [__change__:] `duplex` requires a string (`none`, `long` or `short`)
+- [enhancement:] Support for `hidePageRange`, `hideNumberOfCopies` and `hidePaperFormat` (iOS specific)
 
 
 #### Version 0.7.1 (23.04.2015)

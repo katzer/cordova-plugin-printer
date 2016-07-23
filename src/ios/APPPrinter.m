@@ -140,7 +140,10 @@
     printInfo.jobName     = [settings objectForKey:@"name"];
 
     controller.printInfo      = printInfo;
-    controller.showsPageRange = NO;
+    
+    controller.showsPageRange = ![[settings objectForKey:@"hidePageRange"] boolValue];
+    controller.showsNumberOfCopies = ![[settings objectForKey:@"hideNumberOfCopies"] boolValue];
+    controller.showsPaperSelectionForLoadedPapers = ![[settings objectForKey:@"hidePaperFormat"] boolValue];
 
     return controller;
 }
