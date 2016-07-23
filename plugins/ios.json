@@ -4,21 +4,10 @@
         "uninstalled": []
     },
     "config_munge": {
-        "files": {
-            "config.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<feature name=\"Printer\"><param name=\"ios-package\" value=\"APPPrinter\" /></feature>",
-                            "count": 1
-                        }
-                    ]
-                }
-            }
-        }
+        "files": {}
     },
     "installed_plugins": {
-        "de.appplant.cordova.plugin.printer": {
+        "cordova-plugin-printer": {
             "PACKAGE_NAME": "de.appplant.cordova.plugin.printer.example"
         }
     },

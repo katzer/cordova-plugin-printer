@@ -1,8 +1,10 @@
 {
-    "de.appplant.cordova.plugin.printer": {
+    "cordova-plugin-printer": {
         "source": {
             "type": "local",
             "path": "/Users/sebastian/Documents/github/cordova-plugin-printer"
-        }
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

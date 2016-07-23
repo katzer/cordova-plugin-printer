@@ -1,28 +1,29 @@
 
-Cordova Print Plugin - Example
+Cordova Print Plugin - Sample App
 ==============================
+
+<img height="430px" align="right" hspace="10" vspace="5" src="images/overview.png">
 
 [Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
 
 ## Instructions
-[Download][zip] the _example_ branch and run the following command:
+Clone the _example_ branch:
 
-```bash
-cordova emulate [ios|android]
-```
+    git clone -b example https://github.com/katzer/cordova-plugin-printer.git
 
-These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio] or [Eclipse][eclipse].
+And then execute:
 
-A click on the _PRINT SAMPLE PAGE_ link opens the native print dialog to print out an HTML snippet.
+    cordova run [ios|android]
+
+These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio] or [Xcode][xcode].
+
+A click on the _PRINT PAGE_ opens the native print dialog.
 
 ```javascript
-page = '';
+page = '<style type="text/css">...</style><body>...</body>';
 
-page += '<h1>This is a main header<h1>';
-page += '<h2>Thats a sub category</h2>';
-
-cordova.plugins.printer.print(page, { landscape:false }, function () {
-    alert('done');
+cordova.plugins.printer.print(page, { duplex: 'short' }, function (done) {
+    alert(done ? 'done' : 'canceled');
 });
 ```
 
@@ -30,7 +31,7 @@ Please read the plugin's [README][readme] for further requirements and informati
 
 
 ### Testing in the iOS Simulator
-There's no need to waste lots of paper when testing - if you're using the iOS simulator, select _File -> Open Printer Simulator_ to open some dummy printers (print outs will appear as PDF files).
+There's no need to waste lots of paper when testing - if you're using the iOS simulator, install the [Hardware IO Tools for Xcode][xcode_io_tools] and select _Xcode -> Open Developer Tool -> Printer Simulator_ to open some dummy printers.
 
 
 ### Testing in the Android Simulator
@@ -38,30 +39,31 @@ There's no need to waste lots of paper when testing - if you're using the Androi
 
 Dont forget to install a PDF viewer like [MuPDF][mupdf], otherwise Android will not open the file. Note that you need to install the app for the right hardware architecture!
 
+## Screenshots
+The following screenshots give an overview of how the print dialog on each mobile platform does look like when invoking the plugin's _print_ method.
 
-## Screenshots iOS
-![ios][ios_screens]
-
-
-## Screenshots Android
-![android][android_screens]
+<p align="center">
+    <img width="49%" src="images/ios.png"></img>
+    &nbsp;
+    <img width="49%" src="images/android.png"></img>
+</p>
 
 
 ## License
 
 This software is released under the [Apache 2.0 License][apache2_license].
 
-© 2013-2014 appPlant UG, Inc. All rights reserved
+Made with :yum: from Leipzig
+
+© 2016 appPlant GmbH
 
 
 [cordova]: https://cordova.apache.org
 [APF]: http://www.techotopia.com/index.php/Printing_with_the_Android_Printing_Framework
 [AirPrint]: http://support.apple.com/kb/ht4356
-[android_screens]: images/android.png
-[ios_screens]: images/ios.png
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
-[zip]: https://github.com/katzer/cordova-plugin-printer/archive/example.zip
 [studio]: https://developer.android.com/sdk/installing/studio.html
-[eclipse]: https://developer.android.com/sdk/index.html
+[xcode]: https://developer.apple.com/xcode/
+[xcode_io_tools]: http://justabeech.com/2015/01/12/hardware-io-tools-for-xcode/
 [mupdf]: http://www.mupdf.com
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
