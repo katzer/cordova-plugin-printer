@@ -28,6 +28,8 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
+import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -156,10 +158,22 @@ public class Printer extends CordovaPlugin {
      *      The JSON object with the containing page properties
      */
     private void initWebView (JSONObject props) {
-        Activity ctx = cordova.getActivity();
-        view         = new WebView(ctx);
+        Activity ctx         = cordova.getActivity();
+        view                 = new WebView(ctx);
+        WebSettings settings = view.getSettings();
 
-        view.getSettings().setDatabaseEnabled(true);
+        settings.setDatabaseEnabled(true);
+        settings.setGeolocationEnabled(true);
+        settings.setSaveFormData(true);
+        settings.setUseWideViewPort(true);
+        view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            Method setMixedContentModeMethod = getMethod(settings.getClass(),
+                    "setMixedContentMode", int.class);
+
+            invokeMethod(settings, setMixedContentModeMethod, 2);
+        }
 
         setWebViewClient(props);
     }
