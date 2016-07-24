@@ -42,10 +42,11 @@
 {
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult;
-        BOOL isAvailable = [self isPrintingAvailable];
-
+        BOOL isAvailable   = [self isPrintingAvailable];
+        NSArray *multipart = @[[NSNumber numberWithBool:isAvailable], @[]];
+        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                           messageAsBool:isAvailable];
+                                      messageAsMultipart:multipart];
 
         [self.commandDelegate sendPluginResult:pluginResult
                                     callbackId:command.callbackId];
@@ -139,8 +140,8 @@
     printInfo.duplex      = duplexMode;
     printInfo.jobName     = [settings objectForKey:@"name"];
 
-    controller.printInfo      = printInfo;
-    
+    controller.printInfo  = printInfo;
+
     controller.showsPageRange = ![[settings objectForKey:@"hidePageRange"] boolValue];
     controller.showsNumberOfCopies = ![[settings objectForKey:@"hideNumberOfCopies"] boolValue];
     controller.showsPaperSelectionForLoadedPapers = ![[settings objectForKey:@"hidePaperFormat"] boolValue];
