@@ -47,12 +47,32 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Plugin to print HTML documents. Therefore it creates an invisible web view
+ * that loads the markup data. Once the page has been fully rendered it takes
+ * the print adapter of that web view and initializes a print job.
+ */
 public class Printer extends CordovaPlugin {
 
+    /**
+     * The web view that loads all the content.
+     */
     private WebView view;
 
+    /**
+     * Reference is necessary to invoke the callback in the onresume event.
+     * Without its not possible to determine the status of the job.
+     */
+    private PrintJob job;
+
+    /**
+     * Reference is necessary to invoke the callback in the onresume event.
+     */
     private CallbackContext command;
 
+    /**
+     * Default name of the printed document (PDF-Printer).
+     */
     private static final String DEFAULT_DOC_NAME = "unknown";
 
     /**
@@ -221,37 +241,24 @@ public class Printer extends CordovaPlugin {
                             longEdge ? 2 : 4);
                 }
 
-                PrintJob job = printManager.print(
-                        docName, adapter, builder.build());
-
-                invokeCallbackOnceCompletedOrCanceled(job);
-
+                job  = printManager.print(docName, adapter, builder.build());
                 view = null;
             }
         });
     }
 
     /**
-     * Invokes the callback once the print job is complete or was canceled.
-     *
-     * @param job
-     *      The reference to the print job
+     * Invokes the callback once the print job is complete or has been canceled.
      */
-    private void invokeCallbackOnceCompletedOrCanceled (final PrintJob job) {
-        cordova.getThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                for (;;) {
-                    if (job.isCancelled() || job.isCompleted() || job.isFailed()) {
-                        PluginResult res = new PluginResult(
-                                PluginResult.Status.OK, job.isCompleted());
+    @Override
+    public void onResume (boolean multitasking) {
+        PluginResult res = new PluginResult(
+                PluginResult.Status.OK, job.isStarted() || job.isCompleted());
 
-                        command.sendPluginResult(res);
-                        break;
-                    }
-                }
-            }
-        });
+        job = null;
+        command.sendPluginResult(res);
+
+        super.onResume(multitasking);
     }
 
     /**
