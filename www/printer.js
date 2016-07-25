@@ -67,11 +67,13 @@ exports.isAvailable = function (callback, scope) {
  * @param {Object} options
  *       Options for the printer picker
  */
-exports.printerPicker = function (callback, options) {
-    var fn = this._createCallbackFn(callback);
+exports.pick = function (callback, options) {
+    var fn     = this._createCallbackFn(callback);
     var params = options || {};
+
     params = this.mergeWithDefaults(params);
-    exec(fn, null, 'Printer', 'printerPicker', [params]);
+
+    exec(fn, null, 'Printer', 'pick', [params]);
 };
 
 /**

@@ -30,6 +30,6 @@
 // Find out whether printing is supported on this platform
 - (void) isAvailable:(CDVInvokedUrlCommand*)command;
 // Displays system interface for selecting a printer
-- (void) printerPicker:(CDVInvokedUrlCommand*)command;
+- (void) pick:(CDVInvokedUrlCommand*)command;
 
 @end
