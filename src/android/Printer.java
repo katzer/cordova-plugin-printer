@@ -23,6 +23,7 @@ package de.appplant.cordova.plugin.printer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
@@ -252,13 +253,16 @@ public class Printer extends CordovaPlugin {
      */
     @Override
     public void onResume (boolean multitasking) {
+        super.onResume(multitasking);
+
+        if (job == null || command == null)
+            return;
+
         PluginResult res = new PluginResult(
                 PluginResult.Status.OK, job.isStarted() || job.isCompleted());
 
         job = null;
         command.sendPluginResult(res);
-
-        super.onResume(multitasking);
     }
 
     /**
