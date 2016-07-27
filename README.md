@@ -1,8 +1,8 @@
 
 Cordova Print Plugin - Sample App
-==============================
+=================================
 
-<img height="430px" align="right" hspace="10" vspace="5" src="images/overview.png">
+<img height="430px" align="right" src="images/overview.png">
 
 [Cordova][cordova] plugin to print HTML documents using [AirPrint][AirPrint] and [Android Printing Framework][APF].
 
@@ -17,7 +17,7 @@ And then execute:
 
 These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio] or [Xcode][xcode].
 
-A click on the _PRINT PAGE_ opens the native print dialog.
+A click on the _PRINT_ opens the native print dialog.
 
 ```javascript
 page = '<style type="text/css">...</style><body>...</body>';
@@ -40,13 +40,22 @@ There's no need to waste lots of paper when testing - if you're using the Androi
 Dont forget to install a PDF viewer like [MuPDF][mupdf], otherwise Android will not open the file. Note that you need to install the app for the right hardware architecture!
 
 ## Screenshots
-The following screenshots give an overview of how the print dialog on each mobile platform does look like when invoking the plugin's _print_ method.
+The plugin comes with a native UI for
+ - print dialog when invoking the plugin's _print_ method
 
-<p align="center">
-    <img width="49%" src="images/ios.png"></img>
-    &nbsp;
-    <img width="49%" src="images/android.png"></img>
-</p>
+    <p align="center">
+        <img width="49%" src="images/print-ios.png"></img>
+        &nbsp;
+        <img width="49%" src="images/print-android.png"></img>
+    </p>
+
+ - picker dialog when invoking the plugin's _pick_ method
+
+    <p align="center">
+        <img width="49%" src="images/pick-ios.png"></img>
+        &nbsp;
+        <img width="49%" src="images/pick-android.png"></img>
+    </p>
 
 
 ## License

@@ -1,6 +1,6 @@
 cordova.define("cordova-plugin-printer.Printer", function(require, exports, module) {
 /*
-    Copyright 2013-2014 appPlant UG
+    Copyright 2013-2016 appPlant GmbH
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -23,20 +23,22 @@ cordova.define("cordova-plugin-printer.Printer", function(require, exports, modu
 var exec = require('cordova/exec');
 
 /**
- * The default document/job name.
- */
-exports.DEFAULT_DOC_NAME = 'unknown';
-
-/**
  * List of all available options with their default value.
  *
  * @return {Object}
  */
 exports.getDefaults = function () {
     return {
-        name:      exports.DEFAULT_DOC_NAME,
-        duplex:    true,
+        // Platform independent
+        name:      'unknown',
+        duplex:    'none',
         landscape: false,
+        graystyle: false,
+        // iOS specific
+        hidePageRange:      false,
+        hideNumberOfCopies: false,
+        hidePaperFormat:    false,
+        // iPad specific
         bounds:    [40, 30, 0, 0]
     };
 };
@@ -56,6 +58,23 @@ exports.isAvailable = function (callback, scope) {
     var fn = this._createCallbackFn(callback);
 
     exec(fn, null, 'Printer', 'isAvailable', []);
+};
+
+/**
+ * Displays system interface for selecting a printer (iOS only)
+ *
+ * @param {Function} callback
+ *      A callback function
+ * @param {Object} options
+ *       Options for the printer picker
+ */
+exports.pick = function (callback, options) {
+    var fn     = this._createCallbackFn(callback);
+    var params = options || {};
+
+    params = this.mergeWithDefaults(params);
+
+    exec(fn, null, 'Printer', 'pick', [params]);
 };
 
 /**
@@ -88,7 +107,7 @@ exports.print = function (content, options, callback, scope) {
     params = this.mergeWithDefaults(params);
 
     if ([null, undefined, ''].indexOf(params.name) > -1) {
-        params.name = this.DEFAULT_DOC_NAME;
+        params.name = this.getDefaults().name;
     }
 
     exec(fn, null, 'Printer', 'print', [page, params]);
@@ -116,6 +135,10 @@ exports.mergeWithDefaults = function (options) {
             options.bounds.width  || defaults.bounds[2],
             options.bounds.height || defaults.bounds[3],
         ];
+    }
+
+    if (options.duplex && typeof options.duplex == 'boolean') {
+        options.duplex = options.duplex ? 'long' : 'none';
     }
 
     for (var key in defaults) {

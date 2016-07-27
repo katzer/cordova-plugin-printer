@@ -52,7 +52,7 @@ body {
     _background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
     position:absolute;             /* position in the center of the screen */
     left:50%;
-    top:40%;
+    top:35%;
     height:50px;                   /* text area height */
     width:225px;                   /* text area width */
     text-align:center;
@@ -119,7 +119,7 @@ h1 {
 .container {
     width: 100%;
     text-align: center;
-    margin-top: 40px;
+    margin-top: 35px;
 }
 
 .button {
@@ -133,7 +133,7 @@ h1 {
     text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom:35px;
+    margin-bottom:30px;
     border-radius: 5px;
     -webkit-border-radius: 5px;
     text-shadow:0px 1px 0px rgba(0,0,0,0.5);

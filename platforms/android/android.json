@@ -14,6 +14,16 @@
                         }
                     ]
                 }
+            },
+            "AndroidManifest.xml": {
+                "parents": {
+                    "/manifest/application": [
+                        {
+                            "xml": "<activity android:exported=\"false\" android:label=\"All printers\" android:name=\"de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity\" android:theme=\"@android:style/Theme.Material.Settings\"></activity>",
+                            "count": 1
+                        }
+                    ]
+                }
             }
         }
     },
