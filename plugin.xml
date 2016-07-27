@@ -44,6 +44,7 @@
     <engines>
         <engine name="cordova" version=">=3.0.0" />
         <engine name="android-sdk" version=">=19" />
+        <engine name="apple-ios" version=">=8.0" />
     </engines>
 
     <!-- interface -->
