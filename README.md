@@ -42,20 +42,17 @@ Dont forget to install a PDF viewer like [MuPDF][mupdf], otherwise Android will 
 ## Screenshots
 The plugin comes with a native UI for
  - print dialog when invoking the plugin's _print_ method
-
-    <p align="center">
-        <img width="49%" src="images/print-ios.png"></img>
-        &nbsp;
-        <img width="49%" src="images/print-android.png"></img>
-    </p>
-
  - picker dialog when invoking the plugin's _pick_ method
 
-    <p align="center">
-        <img width="49%" src="images/pick-ios.png"></img>
-        &nbsp;
-        <img width="49%" src="images/pick-android.png"></img>
-    </p>
+<p align="center">
+    <img width="23.8%" src="images/print-ios.png"></img>
+    &nbsp;
+    <img width="23.8%" src="images/pick-ios.png"></img>
+    &nbsp;
+    <img width="23.8%" src="images/print-android.png"></img>
+    &nbsp;
+    <img width="23.8%" src="images/pick-android.png"></img>
+</p>
 
 
 ## License
