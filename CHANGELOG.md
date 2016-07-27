@@ -2,8 +2,9 @@
 #### Version 0.7.2 (not yet released)
 - [__change__:] Changed plugin ID to `cordova-plugin-printer`
 - [__change__:] Plugin requires Android KitKat or newer
-- [__change__:] `isAvailable` returns false if no enabled print services can be found (Android)
-- [enhancement:] `isAvailable` returns additional list of available print services (Android)
+- [__change__:] `isAvailable` returns false if no enabled service can be found (Android)
+- [feature:] New `pick` interface to pick a printer for future usage
+- [enhancement:] `isAvailable` returns count of available services (Android)
 - [enhancement:] `print` returns bool value to indicate the result
 - [enhancement:] Added missing `duplex` support (Android)
 - [__change__:] `duplex` requires a string (`none`, `long` or `short`)

@@ -46,7 +46,8 @@
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult;
         BOOL isAvailable   = [self isPrintingAvailable];
-        NSArray *multipart = @[[NSNumber numberWithBool:isAvailable], @[]];
+        NSArray *multipart = @[[NSNumber numberWithBool:isAvailable],
+                               [NSNumber numberWithInt:-1]];
 
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                       messageAsMultipart:multipart];

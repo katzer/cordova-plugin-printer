@@ -22,13 +22,12 @@
 package de.appplant.cordova.plugin.printer;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
-import android.print.PrintManager;
+import android.print.PrinterId;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -41,12 +40,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import de.appplant.cordova.plugin.printer.ext.PrintManager;
+import de.appplant.cordova.plugin.printer.ext.PrintServiceInfo;
+import de.appplant.cordova.plugin.printer.reflect.Meta;
+import de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity;
+
+import static de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity.EXTRA_PRINTER_ID;
 
 /**
  * Plugin to print HTML documents. Therefore it creates an invisible web view
@@ -102,6 +105,11 @@ public class Printer extends CordovaPlugin {
             return true;
         }
 
+        if (action.equalsIgnoreCase("pick")) {
+            pick();
+            return true;
+        }
+
         if (action.equalsIgnoreCase("print")) {
             print(args);
             return true;
@@ -118,13 +126,14 @@ public class Printer extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                List<String> ids  = getEnabledPrintServiceIds();
-                Boolean available = ids.size() > 1;
+                PrintManager pm = new PrintManager(cordova.getActivity());
+                List<PrintServiceInfo> services  = pm.getEnabledPrintServices();
+                Boolean available = services.size() > 0;
 
                 PluginResult res1 = new PluginResult(
                         PluginResult.Status.OK, available);
                 PluginResult res2 = new PluginResult(
-                        PluginResult.Status.OK, new JSONArray(ids));
+                        PluginResult.Status.OK, services.size());
                 PluginResult res  = new PluginResult(
                         PluginResult.Status.OK, Arrays.asList(res1, res2));
 
@@ -150,6 +159,17 @@ public class Printer extends CordovaPlugin {
                 loadContent(content);
             }
         });
+    }
+
+    /**
+     * Presents a list with all enabled print services and invokes the
+     * callback with the selected one.
+     */
+    private void pick () {
+        Intent intent = new Intent(
+            cordova.getActivity(), SelectPrinterActivity.class);
+
+        cordova.startActivityForResult(this, intent, 0);
     }
 
     /**
@@ -190,10 +210,10 @@ public class Printer extends CordovaPlugin {
         view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         if (Build.VERSION.SDK_INT >= 21) {
-            Method setMixedContentModeMethod = getMethod(settings.getClass(),
-                    "setMixedContentMode", int.class);
+            Method setMixedContentModeMethod = Meta.getMethod(
+                    settings.getClass(), "setMixedContentMode", int.class);
 
-            invokeMethod(settings, setMixedContentModeMethod, 2);
+            Meta.invokeMethod(settings, setMixedContentModeMethod, 2);
         }
 
         setWebViewClient(props);
@@ -219,7 +239,7 @@ public class Printer extends CordovaPlugin {
 
             @Override
             public void onPageFinished (WebView webView, String url) {
-                PrintManager printManager       = getPrintMgr();
+                PrintManager pm = new PrintManager(cordova.getActivity());
                 PrintAttributes.Builder builder = new PrintAttributes.Builder();
                 PrintDocumentAdapter adapter    = getAdapter(webView, docName);
 
@@ -235,14 +255,14 @@ public class Printer extends CordovaPlugin {
 
                 if (!duplex.equals("none") && Build.VERSION.SDK_INT >= 23) {
                     boolean longEdge = duplex.equals("long");
-                    Method setDuplexModeMethod = getMethod(builder.getClass(),
-                            "setDuplexMode", int.class);
+                    Method setDuplexModeMethod = Meta.getMethod(
+                            builder.getClass(), "setDuplexMode", int.class);
 
-                    invokeMethod(builder, setDuplexModeMethod,
+                    Meta.invokeMethod(builder, setDuplexModeMethod,
                             longEdge ? 2 : 4);
                 }
 
-                job  = printManager.print(docName, adapter, builder.build());
+                job  = pm.getInstance().print(docName, adapter, builder.build());
                 view = null;
             }
         });
@@ -265,14 +285,24 @@ public class Printer extends CordovaPlugin {
         command.sendPluginResult(res);
     }
 
-    /**
-     * Get a PrintManager instance.
-     *
-     * @return A PrintManager instance.
-     */
-    private PrintManager getPrintMgr () {
-        return (PrintManager) cordova.getActivity()
-                .getSystemService(Context.PRINT_SERVICE);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (command == null)
+            return;
+
+        String url = null;
+
+        if (intent != null) {
+            PrinterId printerId = intent.getParcelableExtra(EXTRA_PRINTER_ID);
+            url = printerId.toString();
+        }
+
+        PluginResult res = new PluginResult(
+                PluginResult.Status.OK, url);
+
+        command.sendPluginResult(res);
     }
 
     /**
@@ -290,99 +320,14 @@ public class Printer extends CordovaPlugin {
      */
     private PrintDocumentAdapter getAdapter (WebView webView, String docName) {
         if (Build.VERSION.SDK_INT >= 21) {
-            Method createPrintDocumentAdapterMethod = getMethod(
+            Method createPrintDocumentAdapterMethod = Meta.getMethod(
                     WebView.class, "createPrintDocumentAdapter", String.class);
 
-            return (PrintDocumentAdapter) invokeMethod(
+            return (PrintDocumentAdapter) Meta.invokeMethod(
                     webView, createPrintDocumentAdapterMethod, docName);
         } else {
-            Method createPrintDocumentAdapterMethod = getMethod(
-                    WebView.class, "createPrintDocumentAdapter");
-
-            return (PrintDocumentAdapter) invokeMethod(
-                    webView, createPrintDocumentAdapterMethod);
+            return (PrintDocumentAdapter) Meta.invokeMethod(webView,
+                    "createPrintDocumentAdapterMethod");
         }
-    }
-
-    /**
-     * Get a list of ids of all installed and enabled print services. For
-     * that it uses reflections to call public but hidden methods from the
-     * PrintManager.
-     *
-     * @return A list of found print service ids.
-     */
-    private List<String> getEnabledPrintServiceIds () {
-        try {
-            PrintManager printMgr = getPrintMgr();
-            Class<?> printerCls = Class.forName(
-                    "android.printservice.PrintServiceInfo");
-            Method getPrinterMethod = getMethod(printMgr.getClass(),
-                    "getEnabledPrintServices");
-            Method getIdMethod = getMethod(printerCls,
-                    "getId");
-
-            List printers = (List) invokeMethod(printMgr, getPrinterMethod);
-            ArrayList<String> printerIds = new ArrayList<String>();
-
-            printerIds.add("android.print.pdf");
-
-            if (printers == null)
-                return printerIds;
-
-            for (Object printer : printers) {
-                String printerId = (String) invokeMethod(printer, getIdMethod);
-                printerIds.add(printerId);
-            }
-
-            return printerIds;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return Collections.emptyList();
-    }
-
-    /**
-     * Finds the method with given name and set of arguments.
-     *
-     * @param cls
-     *      The class in where to look for the method declaration.
-     * @param name
-     *      The name of the method.
-     * @param params
-     *      The arguments of the method.
-     * @return
-     *      The found method or null.
-     */
-    private Method getMethod (Class<?> cls, String name, Class<?>... params) {
-        try {
-            return cls.getDeclaredMethod(name, params);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Invokes the method on the given object with the specified arguments.
-     *
-     * @param obj
-     *      An object which class defines the method.
-     * @param method
-     *      The method to invoke.
-     * @param args
-     *      Set of arguments.
-     * @return
-     *      The returned object or null.
-     */
-    private Object invokeMethod (Object obj, Method method, Object... args) {
-        try {
-            return method.invoke(obj, args);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

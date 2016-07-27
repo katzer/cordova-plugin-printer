@@ -73,7 +73,37 @@
             </feature>
         </config-file>
 
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity
+                android:name="de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity"
+                android:label="Printer"
+                android:theme="@android:style/Theme.Material.Settings"
+                android:exported="false">
+            </activity>
+        </config-file>
+
         <source-file src="src/android/Printer.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
+
+        <source-file src="src/android/ui/SelectPrinterActivity.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ui" />
+
+        <source-file src="src/android/reflect/Meta.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/reflect" />
+
+        <source-file src="src/android/ext/PrinterDiscoverySession.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <source-file src="src/android/ext/PrintManager.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <source-file src="src/android/ext/PrintServiceInfo.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <resource-file src="res/android/layout/printer_list_item.xml"
+            target="res/layout/printer_list_item.xml" />
+
+        <resource-file src="res/android/layout/select_printer_activity.xml"
+            target="res/layout/select_printer_activity.xml" />
     </platform>
 </plugin>
