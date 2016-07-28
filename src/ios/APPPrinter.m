@@ -301,7 +301,9 @@
     if ([[settings objectForKey:@"graystyle"] boolValue]) {
         outputType = UIPrintInfoOutputGrayscale;
     }
-
+    
+    outputType += [[settings objectForKey:@"border"] boolValue] ? 0 : 1;
+    
     if ([[settings objectForKey:@"duplex"] isEqualToString:@"long"]) {
         duplexMode = UIPrintInfoDuplexLongEdge;
     } else
@@ -324,27 +326,6 @@
 }
 
 /**
- * Adjusts the web view and page renderer.
- */
-- (void) adjustWebView:(UIWebView*)page
-  andPrintPageRenderer:(UIPrintPageRenderer*)renderer
-{
-    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
-    // margin not required - done in web page
-    formatter.contentInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
-
-    renderer.headerHeight = -30.0f;
-    renderer.footerHeight = -30.0f;
-    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
-
-    page.scalesPageToFit        = YES;
-    page.dataDetectorTypes      = UIDataDetectorTypeNone;
-    page.userInteractionEnabled = NO;
-    page.autoresizingMask       = (UIViewAutoresizingFlexibleWidth |
-                                   UIViewAutoresizingFlexibleHeight);
-}
-
-/**
  * Loads the content into the print controller.
  *
  * @param {NSString} content
@@ -354,11 +335,13 @@
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
-    UIWebView* page               = [[UIWebView alloc] init];
-    page.delegate = self;
-    UIPrintPageRenderer* renderer = [[UIPrintPageRenderer alloc] init];
+    UIWebView* page                 = [[UIWebView alloc] init];
+    UIPrintPageRenderer* renderer   = [[UIPrintPageRenderer alloc] init];
+    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
 
-    [self adjustWebView:page andPrintPageRenderer:renderer];
+    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
+    
+    page.delegate = self;
 
     if ([NSURL URLWithString:content]) {
         NSURL *url = [NSURL URLWithString:content];
@@ -366,7 +349,6 @@
         [page loadRequest:[NSURLRequest requestWithURL:url]];
     }
     else {
-        // Set the base URL to be the www directory.
         NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
                                                                 ofType:nil];
         NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];

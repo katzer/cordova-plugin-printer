@@ -34,6 +34,7 @@ exports.getDefaults = function () {
         landscape: false,
         graystyle: false,
         // iOS specific
+        border:    true,
         hidePageRange:      false,
         hideNumberOfCopies: false,
         hidePaperFormat:    false,
