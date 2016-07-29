@@ -13,9 +13,9 @@ Clone the _example_ branch:
 
 And then execute:
 
-    cordova run [ios|android]
+    cordova run [ios|android|windows]
 
-These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio] or [Xcode][xcode].
+These will lunch the simulator or any plugged in device and start the example application as seen below in the screenshots. It is also possible to open the project with [Android Studio][studio], [Xcode][xcode] or [Visual Studio][vs].
 
 A click on the _PRINT_ opens the native print dialog.
 
@@ -70,6 +70,7 @@ Made with :yum: from Leipzig
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
 [studio]: https://developer.android.com/sdk/installing/studio.html
 [xcode]: https://developer.apple.com/xcode/
+[vs]: https://www.visualstudio.com
 [xcode_io_tools]: http://justabeech.com/2015/01/12/hardware-io-tools-for-xcode/
 [mupdf]: http://www.mupdf.com
 [apache2_license]: http://opensource.org/licenses/Apache-2.0

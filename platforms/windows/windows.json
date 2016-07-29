@@ -1,0 +1,37 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-printer": {
+            "PACKAGE_NAME": "PrinterExample"
+        }
+    },
+    "dependent_plugins": {},
+    "modules": [
+        {
+            "id": "cordova-plugin-printer.Printer",
+            "file": "plugins/cordova-plugin-printer/www/printer.js",
+            "pluginId": "cordova-plugin-printer",
+            "clobbers": [
+                "plugin.printer",
+                "cordova.plugins.printer"
+            ]
+        },
+        {
+            "id": "cordova-plugin-printer.PrinterProxy",
+            "file": "plugins/cordova-plugin-printer/src/windows/PrinterProxy.js",
+            "pluginId": "cordova-plugin-printer",
+            "merges": [
+                ""
+            ]
+        }
+    ],
+    "plugin_metadata": {
+        "cordova-plugin-printer": "0.7.2-dev"
+    }
+}
