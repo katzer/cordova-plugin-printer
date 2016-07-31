@@ -45,7 +45,7 @@ exports.getDefaults = function () {
 
 /**
  * Checks if the printer service is avaible (iOS)
- * or if connected to the Internet (Android).
+ * or if services are available (Android).
  *
  * @param {Function} callback
  *      A callback function
@@ -61,7 +61,7 @@ exports.isAvailable = function (callback, scope) {
 };
 
 /**
- * Displays system interface for selecting a printer (iOS only)
+ * Displays system interface for selecting a printer.
  *
  * @param {Function} callback
  *      A callback function
@@ -78,7 +78,7 @@ exports.pick = function (callback, options) {
 };
 
 /**
- * Sends the content to the Google Cloud Print service.
+ * Sends the content to the Printing Framework.
  *
  * @param {String} content
  *      HTML string or DOM node

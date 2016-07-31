@@ -1,44 +1,99 @@
-PrinterProxy = {
-  printDocumentSource: null,
+/* globals Windows: true */
 
-  isAvailable: function (successCallback, failCallback, args) {
-    successCallback(true, 0);
-  },
+/*
+    Copyright 2013-2016 appPlant GmbH
 
-  print: function (successCallback, failCallback, args) {
-    var documentFragment = document.createDocumentFragment();
-    var content = document.createElement("html");
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-    window.printContent = args[0];
-    content.innerHTML = window.printContent;
-    documentFragment.appendChild(content);
-    PrinterProxy.getPrintDocumentSource(documentFragment).then(function(source) {
-      PrinterProxy.printDocumentSource = source;
-      Windows.Graphics.Printing.PrintManager.showPrintUIAsync();
-    });
-  },
+     http://www.apache.org/licenses/LICENSE-2.0
 
-  getPrintDocumentSource: function(documentFragment) {
-    var promise;
-    if(MSApp.getHtmlPrintDocumentSourceAsync) {
-      promise = MSApp.getHtmlPrintDocumentSourceAsync(documentFragment);
-    } else {
-      promise = new WinJS.Promise(function(completeDispatch) {
-        completeDispatch(MSApp.getHtmlPrintDocumentSource(documentFragment));
-      });
-    }
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+*/
 
-    return promise;
-  },
+var PrintManager = Windows.Graphics.Printing.PrintManager;
 
-  printTaskRequested: function (printEvent) {
-    printEvent.request.createPrintTask("Print", function (args) {
-      args.setSource(PrinterProxy.printDocumentSource);
-    });
-  }
+/**
+ * Verifies if printing is supported on the device.
+ *
+ * @param {Function} success
+ *      Success callback function
+ * @param {Function} error
+ *      Error callback function
+ * @param {Array} args
+ *      Interface arguments
+ */
+exports.isAvailable = function (success, fail, args) {
+    success(MSApp.hasOwnProperty('getHtmlPrintDocumentSourceAsync'), 0);
 };
 
-var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
-printManager.onprinttaskrequested = PrinterProxy.printTaskRequested;
+/**
+ * Displays system interface for selecting a printer.
+ *
+ * @param {Function} success
+ *      Success callback function
+ * @param {Function} error
+ *      Error callback function
+ * @param {Array} args
+ *      Interface arguments
+ */
+exports.pick = function (success, fail, args) {
+    success(); // Not supported :(
+};
 
-require("cordova/exec/proxy").add("Printer", PrinterProxy);
+/**
+ * Sends the content to the Printing Framework.
+ *
+ * @param {Function} success
+ *      Success callback function
+ * @param {Function} error
+ *      Error callback function
+ * @param {Array} args
+ *      Interface arguments
+ */
+exports.print = function (success, fail, args) {
+    var page    = document.createDocumentFragment(),
+        content = document.createElement('html');
+
+    content.innerHTML = args[0];
+    page.appendChild(content);
+
+    exports._func = success;
+    exports._args = args[1];
+
+    MSApp.getHtmlPrintDocumentSourceAsync(page).then(function (source) {
+        exports._page = source;
+        PrintManager.showPrintUIAsync();
+    });
+};
+
+/**
+ * Raised when a request to print has occurred.
+ * Create, configure and schedule the print task.
+ *
+ * @param {PrintTaskRequestedEventArgs} event
+ *      Event arguments associated with the request.
+ */
+exports.onPrintTaskRequested = function (event) {
+    var config = exports._args,
+        task;
+
+    task = event.request.createPrintTask(config.name, function (args) {
+        args.setSource(exports._page);
+    });
+};
+
+PrintManager.getForCurrentView()
+    .onprinttaskrequested = exports.onPrintTaskRequested;
+
+require('cordova/exec/proxy').add('Printer', exports);
