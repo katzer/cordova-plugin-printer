@@ -21,7 +21,8 @@
     under the License.
 */
 
-var PrintManager = Windows.Graphics.Printing.PrintManager;
+var Printing     = Windows.Graphics.Printing,
+    PrintManager = Windows.Graphics.Printing.PrintManager;
 
 /**
  * Verifies if printing is supported on the device.
@@ -91,6 +92,29 @@ exports.onPrintTaskRequested = function (event) {
     task = event.request.createPrintTask(config.name, function (args) {
         args.setSource(exports._page);
     });
+
+    if (config.graystyle) {
+        task.options.colorMode = Printing.PrintColorMode.grayscale;
+    } else {
+        task.options.colorMode = Printing.PrintColorMode.color;
+    }
+
+    if (config.landscape) {
+        task.options.orientation = Printing.PrintOrientation.landscape;
+    } else {
+        task.options.orientation = Printing.PrintOrientation.portrait;
+    }
+
+    if (config.duplex == 'long') {
+        task.options.duplex = Printing.PrintDuplex.twoSidedLongEdge;
+    } else
+    if (config.duplex == 'short') {
+        task.options.duplex = Printing.PrintDuplex.twoSidedShortEdge;
+    } else {
+        task.options.duplex = Printing.PrintDuplex.oneSided;
+    }
+
+    task.options.numberOfCopies = config.copies || 1;
 
     task.oncompleted = function (e) {
         exports._func(e.detail[0].completion == 3);
