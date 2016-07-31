@@ -91,6 +91,10 @@ exports.onPrintTaskRequested = function (event) {
     task = event.request.createPrintTask(config.name, function (args) {
         args.setSource(exports._page);
     });
+
+    task.oncompleted = function (e) {
+        exports._func(e.detail[0].completion == 3);
+    };
 };
 
 PrintManager.getForCurrentView()
