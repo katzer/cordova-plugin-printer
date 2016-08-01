@@ -43,6 +43,15 @@ public final class PrintServiceInfo {
     }
 
     /**
+     * The accessibility service id.
+     *
+     * @return @return The id.
+     */
+    public final String getId() {
+        return (String) Meta.invokeMethod(obj, "getId");
+    }
+
+    /**
      * The add printers activity name.
      *
      * @return The add printers activity name.
