@@ -49,16 +49,9 @@ public final class PrinterDiscoverySession {
                 throws Throwable {
 
             if (method.getName().equals("onPrintersChanged")) {
-                onPrintersChanged();
+                notifyOnPrintersChanged();
                 return null;
             } else throw new Exception();
-        }
-
-        /**
-         * Delegate the event to the listener.
-         */
-        public void onPrintersChanged() {
-            notifyOnPrintersChanged();
         }
     }
 
@@ -152,7 +145,10 @@ public final class PrinterDiscoverySession {
      * Destroy the session if not already done.
      */
     public final void destroy() {
+        stopPrinterDiscovery();
+        setOnPrintersChangeListener(null);
         Meta.invokeMethod(session, "destroy");
+        session = null;
     }
 
     /**
