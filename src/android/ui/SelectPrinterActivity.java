@@ -58,6 +58,12 @@ public final class SelectPrinterActivity extends Activity {
             "INTENT_EXTRA_PRINTER_ID";
 
     /**
+     * The action of the intent.
+     */
+    public static final String ACTION_SELECT_PRINTER =
+            "ACTION_SELECT_PRINTER";
+
+    /**
      * Reference to the main view which lists all discovered printers.
      */
     private ListView listView;
@@ -100,6 +106,15 @@ public final class SelectPrinterActivity extends Activity {
     }
 
     /**
+     * Sent intent with empty result.
+     */
+    @Override
+    public void onBackPressed() {
+        onPrinterSelected(null);
+        super.onBackPressed();
+    }
+
+    /**
      * Sends an intent with the specified printer back to the owning activity
      * and finishes that activity.
      *
@@ -110,6 +125,7 @@ public final class SelectPrinterActivity extends Activity {
         Intent intent = new Intent();
 
         intent.putExtra(EXTRA_PRINTER_ID, printerId);
+        intent.setAction(ACTION_SELECT_PRINTER);
         setResult(RESULT_OK, intent);
 
         finish();
