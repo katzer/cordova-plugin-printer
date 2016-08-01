@@ -45,10 +45,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.appplant.cordova.plugin.printer.ext.PrintManager;
+import de.appplant.cordova.plugin.printer.ext.PrintManager.OnPrintJobStateChangeListener;
 import de.appplant.cordova.plugin.printer.ext.PrintServiceInfo;
 import de.appplant.cordova.plugin.printer.reflect.Meta;
 import de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity;
 
+import static android.print.PrintJobInfo.STATE_STARTED;
+import static de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity.ACTION_SELECT_PRINTER;
 import static de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity.EXTRA_PRINTER_ID;
 
 /**
@@ -65,14 +68,28 @@ public class Printer extends CordovaPlugin {
 
     /**
      * Reference is necessary to invoke the callback in the onresume event.
-     * Without its not possible to determine the status of the job.
-     */
-    private PrintJob job;
-
-    /**
-     * Reference is necessary to invoke the callback in the onresume event.
      */
     private CallbackContext command;
+
+    /**
+     * Instance of the print manager to listen for job status changes.
+     */
+    private PrintManager pm;
+
+    /**
+     * Invokes the callback once the job has reached a final state.
+     */
+    OnPrintJobStateChangeListener listener = new OnPrintJobStateChangeListener() {
+        /**
+         * Callback notifying that a print job state changed.
+         *
+         * @param job The print job.
+         */
+        @Override
+        public void onPrintJobStateChanged(PrintJob job) {
+            notifyAboutPrintJobResult(job);
+        }
+    };
 
     /**
      * Default name of the printed document (PDF-Printer).
@@ -239,7 +256,6 @@ public class Printer extends CordovaPlugin {
 
             @Override
             public void onPageFinished (WebView webView, String url) {
-                PrintManager pm = new PrintManager(cordova.getActivity());
                 PrintAttributes.Builder builder = new PrintAttributes.Builder();
                 PrintDocumentAdapter adapter    = getAdapter(webView, docName);
 
@@ -262,45 +278,27 @@ public class Printer extends CordovaPlugin {
                             longEdge ? 2 : 4);
                 }
 
-                job  = pm.getInstance().print(docName, adapter, builder.build());
+                pm.getInstance().print(docName, adapter, builder.build());
                 view = null;
             }
         });
     }
 
     /**
-     * Invokes the callback once the print job is complete or has been canceled.
+     * Invoke the callback send with `print` to inform about the result.
+     *
+     * @param job The print job.
      */
-    @Override
-    public void onResume (boolean multitasking) {
-        super.onResume(multitasking);
+    @SuppressWarnings("ConstantConditions")
+    private void notifyAboutPrintJobResult(PrintJob job) {
 
-        if (job == null || command == null)
+        if (job == null || command == null ||
+                job.getInfo().getState() <= STATE_STARTED) {
             return;
-
-        PluginResult res = new PluginResult(
-                PluginResult.Status.OK, job.isStarted() || job.isCompleted());
-
-        job = null;
-        command.sendPluginResult(res);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        if (command == null)
-            return;
-
-        String url = null;
-
-        if (intent != null) {
-            PrinterId printerId = intent.getParcelableExtra(EXTRA_PRINTER_ID);
-            url = printerId.toString();
         }
 
         PluginResult res = new PluginResult(
-                PluginResult.Status.OK, url);
+                PluginResult.Status.OK, job.isCompleted());
 
         command.sendPluginResult(res);
     }
@@ -329,5 +327,61 @@ public class Printer extends CordovaPlugin {
             return (PrintDocumentAdapter) Meta.invokeMethod(webView,
                     "createPrintDocumentAdapterMethod");
         }
+    }
+
+    /**
+     * Called after plugin construction and fields have been initialized.
+     */
+    @Override
+    protected void pluginInitialize() {
+        super.pluginInitialize();
+        pm = new PrintManager(cordova.getActivity());
+        pm.setOnPrintJobStateChangeListener(listener);
+    }
+
+    /**
+     * The final call you receive before your activity is destroyed.
+     */
+    @Override
+    public void onDestroy() {
+        pm.unsetOnPrintJobStateChangeListener();
+
+        pm       = null;
+        listener = null;
+        command  = null;
+        view     = null;
+
+        super.onDestroy();
+    }
+
+    /**
+     * Invoke the callback from `pick` method.
+     *
+     * @param requestCode   The request code originally supplied to
+     *                      startActivityForResult(), allowing you to
+     *                      identify who this result came from.
+     * @param resultCode    The integer result code returned by the child
+     *                      activity through its setResult().
+     * @param intent        An Intent, which can return result data to the
+     *                      caller (various data can be
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (command == null || intent == null) {
+            return;
+        }
+
+        if (!intent.getAction().equals(ACTION_SELECT_PRINTER)) {
+            return;
+        }
+
+        PrinterId printer = intent.getParcelableExtra(EXTRA_PRINTER_ID);
+
+        PluginResult res  = new PluginResult(PluginResult.Status.OK,
+                printer != null ? printer.getLocalId() : null);
+
+        command.sendPluginResult(res);
     }
 }
