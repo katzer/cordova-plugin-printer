@@ -71,7 +71,7 @@ public final class SelectPrinterActivity extends Activity {
     /**
      * Session for printer discovering within the network.
      */
-    private PrinterDiscoverySession discoverySession;
+    private PrinterDiscoverySession session;
 
     /**
      * Called when the activity is starting.
@@ -88,8 +88,8 @@ public final class SelectPrinterActivity extends Activity {
         setContentView(Meta.getResId(
                 this, "layout", "select_printer_activity"));
 
-        discoverySession = new PrintManager(this).createPrinterDiscoverySession();
-        listView         = (ListView) findViewById(android.R.id.list);
+        session  = new PrintManager(this).createPrinterDiscoverySession();
+        listView = (ListView) findViewById(android.R.id.list);
 
         initListView();
         startPrinterDiscovery();
@@ -101,7 +101,7 @@ public final class SelectPrinterActivity extends Activity {
      */
     @Override
     protected void onDestroy() {
-        discoverySession.destroy();
+        session.destroy();
         super.onDestroy();
     }
 
@@ -162,7 +162,7 @@ public final class SelectPrinterActivity extends Activity {
         if (pm.getInstalledPrintServices().isEmpty())
             return;
 
-        discoverySession.startPrinterDiscovery();
+        session.startPrinterDiscovery();
     }
 
     /**
@@ -178,7 +178,7 @@ public final class SelectPrinterActivity extends Activity {
             listView.setEmptyView(emptyView);
         }
 
-        if (discoverySession.isPrinterDiscoveryStarted()) {
+        if (session.isPrinterDiscoveryStarted()) {
             titleView.setText("Searching for printers");
             progressBar.setVisibility(View.VISIBLE);
         } else {
@@ -204,7 +204,7 @@ public final class SelectPrinterActivity extends Activity {
          * printers.
          */
         ListViewAdapter() {
-            discoverySession.setOnPrintersChangeListener(new OnPrintersChangeListener() {
+            session.setOnPrintersChangeListener(new OnPrintersChangeListener() {
                 @Override
                 public void onPrintersChanged (List<PrinterInfo> printerInfos) {
                     printers.addAll(printerInfos);
