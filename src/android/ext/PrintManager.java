@@ -22,7 +22,14 @@
 package de.appplant.cordova.plugin.printer.ext;
 
 import android.content.Context;
+import android.print.PrintJob;
+import android.print.PrintJobId;
+import android.print.PrinterInfo;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,10 +38,50 @@ import de.appplant.cordova.plugin.printer.reflect.Meta;
 
 public final class PrintManager {
 
+    public interface OnPrintJobStateChangeListener {
+        /**
+         * Callback notifying that a print job state changed.
+         *
+         * @param job The print job.
+         */
+        void onPrintJobStateChanged(PrintJob job);
+    }
+
+    /**
+     * Required to be able to register a listener of hidden interface.
+     */
+    private class OnPrintJobStateChangeProxy implements InvocationHandler {
+        @Override
+        public Object invoke (Object o, Method method, Object[] objects)
+                throws Throwable {
+
+            if (method.getName().equals("hashCode")) {
+                return listener.get().hashCode();
+            }
+
+            if (method.getName().equals("onPrintJobStateChanged")) {
+                notifyOnPrintJobStateChanged((PrintJobId) objects[0]);
+                return null;
+            }
+
+            throw new Exception();
+        }
+    }
+
     /**
      * The application context.
      */
-    private Context ctx;
+    private WeakReference<Context> ctx;
+
+    /**
+     * The registered listener for the state change event.
+     */
+    private WeakReference<OnPrintJobStateChangeListener> listener;
+
+    /**
+     * The proxy wrapper of the listener.
+     */
+    private Object proxy;
 
     /**
      * Constructor
@@ -42,7 +89,7 @@ public final class PrintManager {
      * @param context The context where to look for.
      */
     public PrintManager (Context context) {
-        this.ctx = context;
+        this.ctx = new WeakReference<Context>(context);
     }
 
     /**
@@ -52,7 +99,7 @@ public final class PrintManager {
      */
     public final android.print.PrintManager getInstance () {
         return (android.print.PrintManager)
-                ctx.getSystemService(Context.PRINT_SERVICE);
+                ctx.get().getSystemService(Context.PRINT_SERVICE);
     }
 
     /**
@@ -110,6 +157,93 @@ public final class PrintManager {
                 "createPrinterDiscoverySession");
 
         return new PrinterDiscoverySession(session);
+    }
+
+    /**
+     * Adds a listener for observing the state of print jobs.
+     *
+     * @param listener The listener to add.
+     */
+    public void setOnPrintJobStateChangeListener(
+            OnPrintJobStateChangeListener listener) {
+
+        if (this.listener == listener) {
+            return;
+        }
+
+        if (listener == null) {
+            unsetOnPrintJobStateChangeListener();
+            return;
+        }
+
+        Class<?> interfaceCls = null;
+
+        this.listener =
+                new WeakReference<OnPrintJobStateChangeListener>(listener);
+
+        try {
+            interfaceCls = Class.forName(
+                    "android.print.PrintManager$PrintJobStateChangeListener");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (interfaceCls == null)
+            return;
+
+        Method method = Meta.getMethod(getInstance().getClass(),
+                "addPrintJobStateChangeListener", interfaceCls);
+
+        Class<?>[] interfaces = {interfaceCls};
+
+        proxy = Proxy.newProxyInstance(
+                interfaceCls.getClassLoader(),
+                interfaces,
+                new OnPrintJobStateChangeProxy()
+        );
+
+        Meta.invokeMethod(getInstance(), method, proxy);
+    }
+
+    /**
+     * Removes the listener from the observing the state of print jobs.
+     */
+    public void unsetOnPrintJobStateChangeListener() {
+        Class<?> interfaceCls = null;
+
+        try {
+            interfaceCls = Class.forName(
+                    "android.print.PrintManager$PrintJobStateChangeListener");
+        } catch (ClassNotFoundException e) {
+            // Nothing to do
+        }
+
+        if (interfaceCls == null || proxy == null)
+            return;
+
+        Method method = Meta.getMethod(getInstance().getClass(),
+                "removePrintJobStateChangeListener", interfaceCls);
+
+        Meta.invokeMethod(getInstance(), method, proxy);
+
+        proxy    = null;
+        listener = null;
+    }
+
+    /**
+     * Callback notifying that a print job state changed.
+     *
+     * @param printJobId The print job id.
+     */
+    private void notifyOnPrintJobStateChanged(PrintJobId printJobId) {
+        if (listener != null && listener.get() != null) {
+            Method method = Meta.getMethod(getInstance().getClass(),
+                    "getPrintJob", PrintJobId.class);
+            PrintJob job = (PrintJob) Meta.invokeMethod(getInstance(),
+                    method, printJobId);
+
+            listener.get().onPrintJobStateChanged(job);
+        }
     }
 
 }
