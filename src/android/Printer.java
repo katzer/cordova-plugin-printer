@@ -324,7 +324,7 @@ public class Printer extends CordovaPlugin {
                     webView, createPrintDocumentAdapterMethod, docName);
         } else {
             return (PrintDocumentAdapter) Meta.invokeMethod(webView,
-                    "createPrintDocumentAdapterMethod");
+                    "createPrintDocumentAdapter");
         }
     }
 
