@@ -47,8 +47,10 @@ public abstract class Meta  {
         try {
             return cls.getDeclaredMethod(name, params);
         } catch (NoSuchMethodException e) {
-            return null;
+            e.printStackTrace();
         }
+
+        return null;
     }
 
     /**

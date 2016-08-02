@@ -143,7 +143,6 @@ public class Printer extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                PrintManager pm = new PrintManager(cordova.getActivity());
                 List<PrintServiceInfo> services  = pm.getEnabledPrintServices();
                 Boolean available = services.size() > 0;
 

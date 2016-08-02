@@ -24,7 +24,6 @@ package de.appplant.cordova.plugin.printer.ext;
 import android.content.Context;
 import android.print.PrintJob;
 import android.print.PrintJobId;
-import android.print.PrinterInfo;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
