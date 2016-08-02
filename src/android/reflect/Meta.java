@@ -31,6 +31,24 @@ import java.lang.reflect.Method;
  * This is an activity for selecting a printer.
  */
 public abstract class Meta  {
+
+    /**
+     * Tries to find the class for the given name.
+     *
+     * @param fullName
+     *      The full class name including the package scope.
+     * @return
+     *      The found class or null.
+     */
+    public static Class<?> getClass (String fullName) {
+        try {
+            return Class.forName(fullName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * Finds the method with given name and set of arguments.
      *
@@ -48,9 +66,8 @@ public abstract class Meta  {
             return cls.getDeclaredMethod(name, params);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
 
     /**

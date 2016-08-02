@@ -166,29 +166,22 @@ public final class PrintManager {
     public void setOnPrintJobStateChangeListener(
             OnPrintJobStateChangeListener listener) {
 
-        if (this.listener == listener) {
+        if (this.listener == listener)
             return;
-        }
 
         if (listener == null) {
             unsetOnPrintJobStateChangeListener();
             return;
         }
 
-        Class<?> interfaceCls = null;
-
-        this.listener =
-                new WeakReference<OnPrintJobStateChangeListener>(listener);
-
-        try {
-            interfaceCls = Class.forName(
-                    "android.print.PrintManager$PrintJobStateChangeListener");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Class<?> interfaceCls = Meta.getClass(
+                "android.print.PrintManager$PrintJobStateChangeListener");
 
         if (interfaceCls == null)
             return;
+
+        this.listener =
+                new WeakReference<OnPrintJobStateChangeListener>(listener);
 
         Method method = Meta.getMethod(getInstance().getClass(),
                 "addPrintJobStateChangeListener", interfaceCls);
@@ -208,14 +201,8 @@ public final class PrintManager {
      * Removes the listener from the observing the state of print jobs.
      */
     public void unsetOnPrintJobStateChangeListener() {
-        Class<?> interfaceCls = null;
-
-        try {
-            interfaceCls = Class.forName(
-                    "android.print.PrintManager$PrintJobStateChangeListener");
-        } catch (ClassNotFoundException e) {
-            // Nothing to do
-        }
+        Class<?> interfaceCls = Meta.getClass(
+                "android.print.PrintManager$PrintJobStateChangeListener");
 
         if (interfaceCls == null || proxy == null)
             return;
@@ -238,7 +225,8 @@ public final class PrintManager {
         if (listener != null && listener.get() != null) {
             Method method = Meta.getMethod(getInstance().getClass(),
                     "getPrintJob", PrintJobId.class);
-            PrintJob job = (PrintJob) Meta.invokeMethod(getInstance(),
+
+            PrintJob job  = (PrintJob) Meta.invokeMethod(getInstance(),
                     method, printJobId);
 
             listener.get().onPrintJobStateChanged(job);

@@ -110,20 +110,14 @@ public final class PrinterDiscoverySession {
     public final void setOnPrintersChangeListener(
             OnPrintersChangeListener listener) {
 
-        Class<?> interfaceCls = null;
         Object proxy          = null;
-
-        this.listener = listener;
-
-        try {
-            interfaceCls = Class.forName(
-                    "android.print.PrinterDiscoverySession$OnPrintersChangeListener");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Class<?> interfaceCls = Meta.getClass(
+                "android.print.PrinterDiscoverySession$OnPrintersChangeListener");
 
         if (interfaceCls == null)
             return;
+
+        this.listener = listener;
 
         Method method = Meta.getMethod(session.getClass(),
                 "setOnPrintersChangeListener", interfaceCls);
