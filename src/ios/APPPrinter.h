@@ -25,11 +25,11 @@
 
 @interface APPPrinter : CDVPlugin <UIWebViewDelegate>
 
-// Prints the content
-- (void) print:(CDVInvokedUrlCommand*)command;
 // Find out whether printing is supported on this platform
-- (void) isAvailable:(CDVInvokedUrlCommand*)command;
+- (void) check:(CDVInvokedUrlCommand*)command;
 // Displays system interface for selecting a printer
 - (void) pick:(CDVInvokedUrlCommand*)command;
+// Prints the content
+- (void) print:(CDVInvokedUrlCommand*)command;
 
 @end

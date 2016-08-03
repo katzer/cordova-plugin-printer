@@ -54,10 +54,17 @@ exports.getDefaults = function () {
  *
  * @return {Boolean}
  */
-exports.isAvailable = function (callback, scope) {
+exports.check = function (callback, scope) {
     var fn = this._createCallbackFn(callback);
 
-    exec(fn, null, 'Printer', 'isAvailable', []);
+    exec(fn, null, 'Printer', 'check', []);
+};
+
+/**
+ * @deprecated API call. Use `check` instead!
+ */
+exports.isAvailable = function () {
+    exports.check.apply(exports, arguments);
 };
 
 /**

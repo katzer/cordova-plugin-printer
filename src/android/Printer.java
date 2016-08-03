@@ -117,8 +117,8 @@ public class Printer extends CordovaPlugin {
 
         command = callback;
 
-        if (action.equalsIgnoreCase("isAvailable")) {
-            isAvailable();
+        if (action.equalsIgnoreCase("check")) {
+            check();
             return true;
         }
 
@@ -139,7 +139,7 @@ public class Printer extends CordovaPlugin {
      * Informs if the device is able to print documents.
      * A Internet connection is required to load the cloud print dialog.
      */
-    private void isAvailable () {
+    private void check () {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {

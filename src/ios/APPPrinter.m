@@ -41,7 +41,7 @@
  * @param {Function} callback
  *      A callback function to be called with the result
  */
-- (void) isAvailable:(CDVInvokedUrlCommand*)command
+- (void) check:(CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult;
@@ -94,13 +94,13 @@
         return;
     }
     _callbackId = command.callbackId;
-    
+
     NSArray*  arguments           = [command arguments];
     NSMutableDictionary* settings = [arguments objectAtIndex:0];
-    
+
     NSArray* bounds = [settings objectForKey:@"bounds"];
     CGRect rect     = [self convertIntoRect:bounds];
-    
+
     [self presentPrinterPicker:rect];
 }
 
@@ -140,11 +140,11 @@
 - (BOOL) isPrintingAvailable
 {
     Class controllerCls = NSClassFromString(@"UIPrintInteractionController");
-    
+
     if (!controllerCls) {
         return NO;
     }
-    
+
     return [self printController] && [UIPrintInteractionController
                                       isPrintingAvailable];
 }
@@ -165,7 +165,7 @@
              CDVPluginResult* pluginResult =
              [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                  messageAsBool:ok];
-             
+
              [self.commandDelegate sendPluginResult:pluginResult
                                          callbackId:_callbackId];
          }];
@@ -176,7 +176,7 @@
              CDVPluginResult* pluginResult =
              [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                  messageAsBool:ok];
-             
+
              [self.commandDelegate sendPluginResult:pluginResult
                                          callbackId:_callbackId];
          }];
@@ -196,13 +196,13 @@
 {
     NSURL* url         = [NSURL URLWithString:printerId];
     UIPrinter* printer = [UIPrinter printerWithURL:url];
-    
+
     [controller printToPrinter:printer completionHandler:
      ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
          CDVPluginResult* pluginResult =
          [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                              messageAsBool:ok];
-         
+
          [self.commandDelegate sendPluginResult:pluginResult
                                      callbackId:_callbackId];
      }];
@@ -218,7 +218,7 @@
 {
     UIPrinterPickerController* controller =
     [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:nil];
-    
+
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
          ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
@@ -248,18 +248,18 @@
 {
     CDVPluginResult* pluginResult =
     [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-    
+
     if (userDidSelect) {
         UIPrinter* printer = ctrl.selectedPrinter;
-        
+
         [UIPrinterPickerController
          printerPickerControllerWithInitiallySelectedPrinter:printer];
-        
+
         pluginResult = [CDVPluginResult
                         resultWithStatus:CDVCommandStatus_OK
                         messageAsString:printer.URL.absoluteString];
     }
-    
+
     [self.commandDelegate sendPluginResult:pluginResult
                                 callbackId:_callbackId];
 }
@@ -301,9 +301,9 @@
     if ([[settings objectForKey:@"graystyle"] boolValue]) {
         outputType = UIPrintInfoOutputGrayscale;
     }
-    
+
     outputType += [[settings objectForKey:@"border"] boolValue] ? 0 : 1;
-    
+
     if ([[settings objectForKey:@"duplex"] isEqualToString:@"long"]) {
         duplexMode = UIPrintInfoDuplexLongEdge;
     } else
@@ -340,7 +340,7 @@
     UIViewPrintFormatter* formatter = [page viewPrintFormatter];
 
     [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
-    
+
     page.delegate = self;
 
     if ([NSURL URLWithString:content]) {
