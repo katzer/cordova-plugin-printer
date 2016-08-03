@@ -14,12 +14,21 @@
   ],
   "platforms": [
     "ios",
-    "android"
+    "android",
+    "windows"
   ],
   "engines": [
     {
       "name": "cordova",
       "version": ">=6.0.0"
+    },
+    {
+      "name": "android-sdk",
+      "version": ">=19"
+    },
+    {
+      "name": "apple-ios",
+      "version": ">=8.0"
     }
   ],
   "author": "Sebastián Katzer",
