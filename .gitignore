@@ -6,6 +6,7 @@
 /platforms/android/CordovaLib/ant-build
 /platforms/android/CordovaLib/bin
 /platforms/android/CordovaLib/ant-gen
+platforms/android/CordovaLib/build
 /platforms/android/ant-gen
 /platforms/android/bin
 /platforms/windows/build

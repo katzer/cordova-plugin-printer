@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-printer.Printer", function(require, exports, module) {
 /*
     Copyright 2013-2016 appPlant GmbH
 
@@ -184,5 +183,3 @@ exports._createCallbackFn = function (callbackFn, scope) {
         callbackFn.apply(scope || this, arguments);
     };
 };
-
-});

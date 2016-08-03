@@ -12,7 +12,7 @@
 		301BF552109A68D80062928A /* libCordova.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BF535109A57CC0062928A /* libCordova.a */; };
 		302D95F114D2391D003F00A1 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 302D95EF14D2391D003F00A1 /* MainViewController.m */; };
 		302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 302D95F014D2391D003F00A1 /* MainViewController.xib */; };
-		846EFE16F1C34733B0952027 /* APPPrinter.m in Sources */ = {isa = PBXBuildFile; fileRef = 554E202757454C3FB12DE5BF /* APPPrinter.m */; };
+		443585C3EE8445EE9153340E /* APPPrinter.m in Sources */ = {isa = PBXBuildFile; fileRef = BE47FA28A26F44DC830CDDE5 /* APPPrinter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,8 +52,8 @@
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = PrinterExample/config.xml; sourceTree = "<group>"; };
-		554E202757454C3FB12DE5BF /* APPPrinter.m */ = {isa = PBXFileReference; name = "APPPrinter.m"; path = "../../../../../cordova-plugin-printer/src/ios/APPPrinter.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		0B87A6AFCF184E6F95521340 /* APPPrinter.h */ = {isa = PBXFileReference; name = "APPPrinter.h"; path = "../../../../../cordova-plugin-printer/src/ios/APPPrinter.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		BE47FA28A26F44DC830CDDE5 /* APPPrinter.m */ = {isa = PBXFileReference; name = "APPPrinter.m"; path = "cordova-plugin-printer/APPPrinter.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		248250C0E269486DAF74CF6B /* APPPrinter.h */ = {isa = PBXFileReference; name = "APPPrinter.h"; path = "cordova-plugin-printer/APPPrinter.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,8 +156,8 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				554E202757454C3FB12DE5BF /* APPPrinter.m */,
-				0B87A6AFCF184E6F95521340 /* APPPrinter.h */,
+				BE47FA28A26F44DC830CDDE5 /* APPPrinter.m */,
+				248250C0E269486DAF74CF6B /* APPPrinter.h */,
 			);
 			name = Plugins;
 			path = PrinterExample/Plugins;
@@ -277,7 +277,7 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
-				846EFE16F1C34733B0952027 /* APPPrinter.m in Sources */,
+				443585C3EE8445EE9153340E /* APPPrinter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

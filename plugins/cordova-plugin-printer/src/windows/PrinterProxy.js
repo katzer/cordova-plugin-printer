@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-printer.PrinterProxy", function(require, exports, module) {
 /* globals Windows: true */
 
 /*
@@ -126,5 +125,3 @@ PrintManager.getForCurrentView()
     .onprinttaskrequested = exports.onPrintTaskRequested;
 
 require('cordova/exec/proxy').add('Printer', exports);
-
-});

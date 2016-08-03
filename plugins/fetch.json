@@ -1,8 +1,8 @@
 {
     "cordova-plugin-printer": {
         "source": {
-            "type": "local",
-            "path": "/Users/sebastian/Documents/github/cordova-plugin-printer"
+            "type": "registry",
+            "id": "cordova-plugin-printer"
         },
         "is_top_level": true,
         "variables": {}

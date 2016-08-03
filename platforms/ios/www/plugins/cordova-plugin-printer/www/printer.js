@@ -46,7 +46,7 @@ exports.getDefaults = function () {
 
 /**
  * Checks if the printer service is avaible (iOS)
- * or if connected to the Internet (Android).
+ * or if services are available (Android).
  *
  * @param {Function} callback
  *      A callback function
@@ -55,14 +55,21 @@ exports.getDefaults = function () {
  *
  * @return {Boolean}
  */
-exports.isAvailable = function (callback, scope) {
+exports.check = function (callback, scope) {
     var fn = this._createCallbackFn(callback);
 
-    exec(fn, null, 'Printer', 'isAvailable', []);
+    exec(fn, null, 'Printer', 'check', []);
 };
 
 /**
- * Displays system interface for selecting a printer (iOS only)
+ * @deprecated API call. Use `check` instead!
+ */
+exports.isAvailable = function () {
+    exports.check.apply(exports, arguments);
+};
+
+/**
+ * Displays system interface for selecting a printer.
  *
  * @param {Function} callback
  *      A callback function
@@ -79,7 +86,7 @@ exports.pick = function (callback, options) {
 };
 
 /**
- * Sends the content to the Google Cloud Print service.
+ * Sends the content to the Printing Framework.
  *
  * @param {String} content
  *      HTML string or DOM node

@@ -1,4 +1,4 @@
-cordova.define("cordova-plugin-printer.PrinterProxy", function (require, exports, module) {
+cordova.define("cordova-plugin-printer.PrinterProxy", function(require, exports, module) {
 /* globals Windows: true */
 
 /*
@@ -35,7 +35,7 @@ var Printing     = Windows.Graphics.Printing,
  * @param {Array} args
  *      Interface arguments
  */
-exports.isAvailable = function (success, fail, args) {
+exports.check = function (success, fail, args) {
     success(MSApp.hasOwnProperty('getHtmlPrintDocumentSourceAsync'), 0);
 };
 

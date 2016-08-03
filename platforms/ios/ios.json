@@ -35,6 +35,6 @@
         }
     ],
     "plugin_metadata": {
-        "cordova-plugin-printer": "0.7.2-dev"
+        "cordova-plugin-printer": "0.7.2"
     }
 }

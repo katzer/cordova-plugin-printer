@@ -21,7 +21,7 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "cordova-plugin-printer": "0.7.2-dev"
+    "cordova-plugin-printer": "0.7.2"
 };
 // BOTTOM OF METADATA
 });

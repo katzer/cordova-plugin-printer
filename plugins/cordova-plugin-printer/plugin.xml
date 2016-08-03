@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2013-2016 by appPlant GmbH. All rights reserved.
+ *
+ * @APPPLANT_LICENSE_HEADER_START@
+ *
+ * This file contains Original Code and/or Modifications of Original Code
+ * as defined in and that are subject to the Apache License
+ * Version 2.0 (the 'License'). You may not use this file except in
+ * compliance with the License. Please obtain a copy of the License at
+ * http://opensource.org/licenses/Apache-2.0/ and read it before using this
+ * file.
+ *
+ * The Original Code and all software distributed under the License are
+ * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
+ * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+ * INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
+ * Please see the License for the specific language governing rights and
+ * limitations under the License.
+ *
+ * @APPPLANT_LICENSE_HEADER_END@
+-->
+
+<plugin id="cordova-plugin-printer"
+        xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        version="0.7.2">
+
+    <name>Printer</name>
+
+    <description>Prints HTML documents</description>
+
+    <repo>https://github.com/katzer/cordova-plugin-printer.git</repo>
+
+    <keywords>appplant, printer, cordova</keywords>
+
+    <license>Apache 2.0</license>
+
+    <author>Sebastián Katzer</author>
+
+    <!-- cordova -->
+    <engines>
+        <engine name="cordova" version=">=3.0.0" />
+        <engine name="android-sdk" version=">=19" />
+        <engine name="apple-ios" version=">=8.0" />
+    </engines>
+
+    <!-- interface -->
+    <js-module src="www/printer.js" name="Printer">
+        <clobbers target="plugin.printer" />
+        <clobbers target="cordova.plugins.printer" />
+    </js-module>
+
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Printer">
+                <param name="ios-package" value="APPPrinter"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/APPPrinter.h" />
+        <source-file src="src/ios/APPPrinter.m" />
+
+    </platform>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Printer">
+                <param name="android-package" value="de.appplant.cordova.plugin.printer.Printer"/>
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity
+                android:name="de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity"
+                android:label="Printer"
+                android:theme="@android:style/Theme.Material.Settings"
+                android:exported="false">
+            </activity>
+        </config-file>
+
+        <source-file src="src/android/Printer.java"
+            target-dir="src/de/appplant/cordova/plugin/printer" />
+
+        <source-file src="src/android/ui/SelectPrinterActivity.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ui" />
+
+        <source-file src="src/android/reflect/Meta.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/reflect" />
+
+        <source-file src="src/android/ext/PrinterDiscoverySession.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <source-file src="src/android/ext/PrintManager.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <source-file src="src/android/ext/PrintServiceInfo.java"
+            target-dir="src/de/appplant/cordova/plugin/printer/ext" />
+
+        <resource-file src="res/android/layout/printer_list_item.xml"
+            target="res/layout/printer_list_item.xml" />
+
+        <resource-file src="res/android/layout/select_printer_activity.xml"
+            target="res/layout/select_printer_activity.xml" />
+    </platform>
+
+    <!-- windows -->
+    <platform name="windows">
+        <js-module src="src/windows/PrinterProxy.js" name="PrinterProxy">
+            <merges target="" />
+        </js-module>
+    </platform>
+
+</plugin>

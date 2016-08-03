@@ -61,7 +61,7 @@ This software is released under the [Apache 2.0 License][apache2_license].
 
 Made with :yum: from Leipzig
 
-© 2016 appPlant GmbH
+© 2016 [appPlant GmbH][appplant]
 
 
 [cordova]: https://cordova.apache.org
@@ -74,3 +74,4 @@ Made with :yum: from Leipzig
 [xcode_io_tools]: http://justabeech.com/2015/01/12/hardware-io-tools-for-xcode/
 [mupdf]: http://www.mupdf.com
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
+[appplant]: www.appplant.de
