@@ -58,19 +58,17 @@ And then execute:
 
 ## ChangeLog
 #### Version 0.7.2 (not yet released)
-- __TODO__
+- Finally on __NPM__
+- __Windows__ support
+- New __pick__ method
+- Fixed iOS build issue
+- Various enhancements
 
 See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
 
 
 ## Usage
-The plugin creates the object `cordova.plugins.printer` with the following methods:
-
-- [check][check]
-- [pick][pick]
-- [print][print]
-
-__Note:__ The plugin and its methods are not available before the *deviceready* event has been fired.
+The plugin and its methods are not available before the *deviceready* event has been fired.
 
 ```javascript
 document.addEventListener('deviceready', function () {
