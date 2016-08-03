@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-printer",
-  "version": "0.7.2dev",
+  "version": "0.7.2",
   "description": "Prints HTML documents",
   "repository": {
     "type": "git",

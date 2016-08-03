@@ -57,7 +57,7 @@ And then execute:
 
 
 ## ChangeLog
-#### Version 0.7.2 (not yet released)
+#### Version 0.7.2 (03.08.2016)
 - Finally on __NPM__
 - __Windows__ support
 - New __pick__ method

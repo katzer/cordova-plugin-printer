@@ -26,7 +26,7 @@
 <plugin id="cordova-plugin-printer"
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        version="0.7.2-dev">
+        version="0.7.2">
 
     <name>Printer</name>
 
@@ -114,5 +114,5 @@
             <merges target="" />
         </js-module>
     </platform>
-	
+
 </plugin>

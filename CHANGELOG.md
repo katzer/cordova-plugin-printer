@@ -1,5 +1,5 @@
 ## ChangeLog
-#### Version 0.7.2 (not yet released)
+#### Version 0.7.2 (03.08.2016)
 - [__change__:] Changed plugin ID to `cordova-plugin-printer`
 - [__change__:] Plugin requires Android KitKat or newer
 - [__change__:] `isAvailable` returns false if no enabled service can be found (Android)
