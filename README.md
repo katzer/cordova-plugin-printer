@@ -3,7 +3,7 @@
     <b><a href="https://github.com/katzer/cordova-plugin-printer/blob/example/README.md">SAMPLE APP</a> :point_right:</b>
 </p>
 
-Cordova Print Plugin
+Cordova Print Plugin [![npm version](https://badge.fury.io/js/cordova-plugin-printer.svg)](http://badge.fury.io/js/cordova-plugin-printer)
 ====================
 
 Plugin for the [Cordova][cordova] framework to print HTML from iOS, Android and Windows Universal apps.
