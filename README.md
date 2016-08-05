@@ -145,7 +145,7 @@ The method accepts a list of attributes. Not all are supported on each platform 
 | landscape| The orientation of the printed content, portrait or landscape.<br>Defaults to: false | Boolean | all |
 | graystyle | If your application only prints black text, setting this property to _true_ can result in better performance in many cases.<br>Defaults to: false | Boolean | all |
 | printerId | The network URL to the printer. | String | iOS |
-| border | Set to _true_ to skip any border. Useful for fullscreen images.<br>Defaults to: true | Boolean | iOS |
+| border | Set to _false_ to skip any border. Useful for fullscreen images.<br>Defaults to: true | Boolean | iOS |
 | hidePageRange | Set to _true_ to hide the control for the page range.<br>Defaults to: false | Boolean | iOS |
 | hideNumberOfCopies | Set to _true_ to hide the control for the number of copies.<br>Defaults to: false | Boolean | iOS |
 | hidePaperFormat | Set to _true_ to hide the control for the paper format.<br>Defaults to: false | Boolean | iOS |
