@@ -29,8 +29,8 @@ See [Building Apps with Multimedia for Android][android_guide] for detailed info
 
 
 ## Supported Platforms
-- iOS 8 or up
-- Android KitKat or up
+- iOS 8 or newer
+- Android KitKat or newer
 - Universal Windows Platform
 
 
@@ -63,6 +63,9 @@ And then execute:
 - New __pick__ method
 - Fixed iOS build issue
 - Various enhancements
+
+Known limitations
+- _check_ and _pick_ are broken on Android N
 
 See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
 
