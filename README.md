@@ -142,7 +142,7 @@ cordova.plugins.printer.print('<html>..</html>', { duplex: 'long' }, function (r
 The method accepts a list of attributes. Not all are supported on each platform and by each printer!
 
 | Name | Description | Type | Platform |
-| ---- | ----------- |:----:| --------:|
+|:---- |:----------- |:----:| --------:|
 | name | The name of the print job and of the document | String | all |
 | duplex | Specifies the duplex mode to use for the print job.<br>Either double-sided on short site (duplex:'short'), double-sided on long site (duplex:'long') or single-sided (duplex:'none').<br>Defaults to: 'none' | String | all |
 | landscape| The orientation of the printed content, portrait or landscape.<br>Defaults to: false | Boolean | all |
