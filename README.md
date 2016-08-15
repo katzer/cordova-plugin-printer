@@ -61,6 +61,7 @@ And then execute:
 - Finally on __NPM__
 - __Windows__ support
 - New __pick__ method
+- __print__ returns boolean flag
 - Fixed iOS build issue
 - Various enhancements
 
