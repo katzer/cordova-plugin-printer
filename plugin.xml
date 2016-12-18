@@ -78,7 +78,6 @@
             <activity
                 android:name="de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity"
                 android:label="Printer"
-                android:theme="@android:style/Theme.Material.Settings"
                 android:exported="false">
             </activity>
         </config-file>

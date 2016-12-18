@@ -137,6 +137,10 @@ public abstract class Meta  {
         int resId;
         resId = res.getIdentifier(name, type, pkgName);
 
+        if (resId == 0) {
+            resId = Resources.getSystem().getIdentifier(name, type, "android");
+        }
+
         return resId;
     }
 }

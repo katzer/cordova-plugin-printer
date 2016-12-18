@@ -28,6 +28,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.print.PrinterId;
 import android.print.PrinterInfo;
@@ -84,6 +85,11 @@ public final class SelectPrinterActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            setTheme(Meta.getResId(
+                    this, "style", "Theme.Material.Settings"));
+        }
 
         setContentView(Meta.getResId(
                 this, "layout", "select_printer_activity"));
