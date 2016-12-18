@@ -278,7 +278,6 @@ public class Printer extends CordovaPlugin {
                 }
 
                 pm.getInstance().print(docName, adapter, builder.build());
-                view = null;
             }
         });
     }
