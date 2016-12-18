@@ -299,6 +299,8 @@ public class Printer extends CordovaPlugin {
                 PluginResult.Status.OK, job.isCompleted());
 
         command.sendPluginResult(res);
+
+        view = null;
     }
 
     /**
