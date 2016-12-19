@@ -57,6 +57,12 @@ And then execute:
 
 
 ## ChangeLog
+#### Version 0.7.3 (19.12.2016)
+- Fixed incompatibility with Android KitKat (4.4)
+
+Known limitations
+- Plugin crashes on Windows OS 10.0.14 
+
 #### Version 0.7.2 (03.08.2016)
 - Finally on __NPM__
 - __Windows__ support
