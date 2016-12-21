@@ -20,41 +20,38 @@
 # @APPPLANT_LICENSE_HEADER_END@
 
 language: objective-c
-sudo: false
-
-osx_image: xcode7.1
+osx_image: xcode8.2
 
 branches:
   only:
-    - master
-    - /^feature\//
-    - /^bug\//
+  - master
+  - /^feature\//
+  - /^bug\//
 
 node_js:
-  - 4.4
+- 6
 
 notifications:
   email: false
 
 before_install:
-  # - brew update
+- xcrun simctl delete 79C525D3-2383-4201-AC3A-81810F9F4E03
 
 install:
-  - npm install
-  - npm install -g cordova
-  # - npm install -g ios-deploy
-  - brew install gradle
-  - brew install android-sdk
-  - ( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk -a -u -t "tools,platform-tools,build-tools-23.0.3,android-23"
+- npm install
+- npm install -g cordova
+- brew install gradle
+- brew install android-sdk
+- ( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk -a -u -t "tools,platform-tools,build-tools-25.0.2,android-25"
 
 before_script:
-  - cordova create myApp org.apache.cordova.myApp myApp
-  - cd myApp
-  - cordova platform add ios@latest android@latest
-  # - cordova requirements
-  - cordova plugin add cordova-plugin-printer --searchpath ../
-  # - cordova prepare
+- cordova create myApp org.apache.cordova.myApp myApp
+- cd myApp
+- cordova platform add ios@latest android@latest
+- cordova plugin add cordova-plugin-printer --searchpath ../
+- cordova platform ls
+- cordova plugin ls
 
 script:
-  - cordova build ios
-  - cordova build android
+- cordova build ios
+- cordova build android
