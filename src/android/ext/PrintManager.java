@@ -22,6 +22,7 @@
 package de.appplant.cordova.plugin.printer.ext;
 
 import android.content.Context;
+import android.os.Build;
 import android.print.PrintJob;
 import android.print.PrintJobId;
 
@@ -107,8 +108,18 @@ public final class PrintManager {
      * @return The found service list or an empty list.
      */
     public final List<PrintServiceInfo> getInstalledPrintServices () {
-        List printers = (List) Meta.invokeMethod(getInstance(),
-                "getInstalledPrintServices");
+        List printers;
+
+        if (Build.VERSION.SDK_INT < 24) {
+            printers = (List) Meta.invokeMethod(getInstance(),
+                    "getInstalledPrintServices");
+        } else {
+            Method getPrintServicesMethod = Meta.getMethod(
+                    getInstance().getClass(), "getPrintServices", int.class);
+
+            printers = (List) Meta.invokeMethod(getInstance(),
+                    getPrintServicesMethod, 3);
+        }
 
         ArrayList<PrintServiceInfo> services =
                 new ArrayList<PrintServiceInfo>();
@@ -129,8 +140,18 @@ public final class PrintManager {
      * @return The found service list or an empty list.
      */
     public final List<PrintServiceInfo> getEnabledPrintServices () {
-        List printers = (List) Meta.invokeMethod(getInstance(),
-                "getEnabledPrintServices");
+        List printers;
+
+        if (Build.VERSION.SDK_INT < 24) {
+            printers = (List) Meta.invokeMethod(getInstance(),
+                    "getEnabledPrintServices");
+        } else {
+            Method getPrintServicesMethod = Meta.getMethod(
+                    getInstance().getClass(), "getPrintServices", int.class);
+
+            printers = (List) Meta.invokeMethod(getInstance(),
+                    getPrintServicesMethod, 1);
+        }
 
         ArrayList<PrintServiceInfo> services =
                 new ArrayList<PrintServiceInfo>();
