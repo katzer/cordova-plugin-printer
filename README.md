@@ -57,22 +57,15 @@ And then execute:
 
 
 ## ChangeLog
+#### Version 0.7.4 (not yet released)
+- Fix broken _check_ and _pick_ on Android N and above
+
 #### Version 0.7.3 (19.12.2016)
 - Fixed incompatibility with Android KitKat (4.4)
 
 Known limitations
-- Plugin crashes on Windows OS 10.0.14 
-
-#### Version 0.7.2 (03.08.2016)
-- Finally on __NPM__
-- __Windows__ support
-- New __pick__ method
-- __print__ returns boolean flag
-- Fixed iOS build issue
-- Various enhancements
-
-Known limitations
-- _check_ and _pick_ are broken on Android N
+- Plugin crashes on Windows OS 10.0.14
+- _check_ on Android might return empty result as some versions of cordova seems to have a bug with multipart results.
 
 See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
 

@@ -1,4 +1,7 @@
 ## ChangeLog
+#### Version 0.7.4 (not yet released)
+- Fix broken _check_ and _pick_ on Android N and above
+
 #### Version 0.7.3 (19.12.2016)
 - Fixed incompatibility with Android KitKat (4.4)
 
