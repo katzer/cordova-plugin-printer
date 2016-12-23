@@ -79,7 +79,7 @@ public class Printer extends CordovaPlugin {
     /**
      * Invokes the callback once the job has reached a final state.
      */
-    OnPrintJobStateChangeListener listener = new OnPrintJobStateChangeListener() {
+    private OnPrintJobStateChangeListener listener = new OnPrintJobStateChangeListener() {
         /**
          * Callback notifying that a print job state changed.
          *
@@ -278,6 +278,7 @@ public class Printer extends CordovaPlugin {
                 }
 
                 pm.getInstance().print(docName, adapter, builder.build());
+                view = null;
             }
         });
     }
@@ -299,8 +300,6 @@ public class Printer extends CordovaPlugin {
                 PluginResult.Status.OK, job.isCompleted());
 
         command.sendPluginResult(res);
-
-        view = null;
     }
 
     /**

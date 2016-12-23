@@ -72,7 +72,7 @@ public final class PrinterDiscoverySession {
      * @param session An instance of type
      *                android.print.PrinterDiscoverySession
      */
-    public PrinterDiscoverySession (Object session) {
+    PrinterDiscoverySession(Object session) {
         this.session = session;
     }
 
@@ -89,7 +89,7 @@ public final class PrinterDiscoverySession {
     /**
      * Stop discovering printers.
      */
-    public final void stopPrinterDiscovery() {
+    private void stopPrinterDiscovery() {
         Meta.invokeMethod(session, "stopPrinterDiscovery");
     }
 
@@ -151,7 +151,7 @@ public final class PrinterDiscoverySession {
      * @return List of their basic infos
      */
     @SuppressWarnings("unchecked")
-    public final List<PrinterInfo> getPrinters() {
+    private List<PrinterInfo> getPrinters() {
         Method method = Meta.getMethod(session.getClass(), "getPrinters");
 
         return (List<PrinterInfo>) Meta.invokeMethod(session, method);
