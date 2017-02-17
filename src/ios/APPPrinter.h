@@ -25,6 +25,9 @@
 
 @interface APPPrinter : CDVPlugin <UIWebViewDelegate>
 
+// this is used to cache the uiprinter making repeated prints faster
+@property (nonatomic) UIPrinter *previousPrinter;
+
 // Find out whether printing is supported on this platform
 - (void) check:(CDVInvokedUrlCommand*)command;
 // Displays system interface for selecting a printer

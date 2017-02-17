@@ -195,8 +195,15 @@
                printer:(NSString*)printerId
 {
     NSURL* url         = [NSURL URLWithString:printerId];
-    UIPrinter* printer = [UIPrinter printerWithURL:url];
-
+    
+    // check to see if we have previously created this printer to reduce printing/"contacting" time
+    if(self.previousPrinter == nil || [[self.previousPrinter URL] absoluteString] != printerId) {
+        self.previousPrinter = [UIPrinter printerWithURL:url];
+    }
+    
+    UIPrinter* printer = self.previousPrinter;
+    
+    
     [controller printToPrinter:printer completionHandler:
      ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
          CDVPluginResult* pluginResult =
