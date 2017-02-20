@@ -197,7 +197,7 @@
     NSURL* url         = [NSURL URLWithString:printerId];
     
     // check to see if we have previously created this printer to reduce printing/"contacting" time
-    if(self.previousPrinter == nil || [[self.previousPrinter URL] absoluteString] != printerId) {
+    if(self.previousPrinter == nil || ![[[self.previousPrinter URL] absoluteString] isEqualToString: printerId]) {
         self.previousPrinter = [UIPrinter printerWithURL:url];
     }
     
