@@ -84,7 +84,7 @@ The device his printing capabilities can be reviewed through the `printer.check`
 
 ```javascript
 /**
- * Checks if the printer service is avaible (iOS)
+ * Checks if the printer service is available (iOS)
  * or if printer services are installed and enabled (Android).
  *
  * @param {Function} callback
@@ -93,8 +93,8 @@ The device his printing capabilities can be reviewed through the `printer.check`
  *      Optional scope of the callback
  *      Defaults to: window
  */
-cordova.plugins.printer.check(function (avail, count) {
-    alert(avail ? 'Found ' + count + ' services' : 'No');
+cordova.plugins.printer.check(function (available, count) {
+    alert(available ? 'Found ' + count + ' services' : 'No');
 });
 ```
 
