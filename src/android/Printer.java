@@ -218,11 +218,15 @@ public class Printer extends CordovaPlugin {
         Activity ctx         = cordova.getActivity();
         view                 = new WebView(ctx);
         WebSettings settings = view.getSettings();
+        final boolean jsEnabled = props.optBoolean("javascript", false);
 
         settings.setDatabaseEnabled(true);
         settings.setGeolocationEnabled(true);
         settings.setSaveFormData(true);
         settings.setUseWideViewPort(true);
+        if (jsEnabled) {
+            settings.setJavaScriptEnabled(jsEnabled);
+        }
         view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         if (Build.VERSION.SDK_INT >= 21) {
