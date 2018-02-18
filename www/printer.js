@@ -135,6 +135,10 @@ exports.print = function (content, options, callback, scope) {
 exports.mergeWithDefaults = function (options) {
     var defaults = this.getDefaults();
 
+    if( options === undefined ){
+        return this.getDefaults();
+    }
+    
     if (options.bounds && !options.bounds.length) {
         options.bounds = [
             options.bounds.left   || defaults.bounds[0],
