@@ -116,7 +116,7 @@ exports.onPrintTaskRequested = function (event) {
 
     // handling exception to prevent app to crash
     try {        
-		task.options.numberOfCopies = 1;
+		task.options.numberOfCopies = config.copies || 1;
     } catch (e) {
     }
 
