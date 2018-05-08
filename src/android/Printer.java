@@ -29,6 +29,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrinterId;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -79,7 +80,7 @@ public class Printer extends CordovaPlugin {
     /**
      * Invokes the callback once the job has reached a final state.
      */
-    private OnPrintJobStateChangeListener listener = new OnPrintJobStateChangeListener() {
+    OnPrintJobStateChangeListener listener = new OnPrintJobStateChangeListener() {
         /**
          * Callback notifying that a print job state changed.
          *
@@ -188,6 +189,8 @@ public class Printer extends CordovaPlugin {
         cordova.startActivityForResult(this, intent, 0);
     }
 
+    private String ContentURL = "";
+
     /**
      * Loads the content into the web view.
      *
@@ -195,6 +198,7 @@ public class Printer extends CordovaPlugin {
      *      Either an HTML string or URI
      */
     private void loadContent(String content) {
+        ContentURL = content;
         if (content.startsWith("http") || content.startsWith("file:")) {
             view.loadUrl(content);
         } else {
@@ -218,15 +222,11 @@ public class Printer extends CordovaPlugin {
         Activity ctx         = cordova.getActivity();
         view                 = new WebView(ctx);
         WebSettings settings = view.getSettings();
-        final boolean jsEnabled = props.optBoolean("javascript", false);
 
         settings.setDatabaseEnabled(true);
         settings.setGeolocationEnabled(true);
         settings.setSaveFormData(true);
         settings.setUseWideViewPort(true);
-        if (jsEnabled) {
-            settings.setJavaScriptEnabled(jsEnabled);
-        }
         view.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         if (Build.VERSION.SDK_INT >= 21) {
@@ -251,7 +251,11 @@ public class Printer extends CordovaPlugin {
         final boolean graystyle = props.optBoolean("graystyle", false);
         final String  duplex    = props.optString("duplex", "none");
 
+        view.setWebChromeClient(new WebChromeClient());
+
         view.setWebViewClient(new WebViewClient() {
+
+
             @Override
             public boolean shouldOverrideUrlLoading (WebView view, String url) {
                 return false;
@@ -282,7 +286,6 @@ public class Printer extends CordovaPlugin {
                 }
 
                 pm.getInstance().print(docName, adapter, builder.build());
-                view = null;
             }
         });
     }
@@ -304,6 +307,8 @@ public class Printer extends CordovaPlugin {
                 PluginResult.Status.OK, job.isCompleted());
 
         command.sendPluginResult(res);
+
+        view = null;
     }
 
     /**
@@ -321,6 +326,12 @@ public class Printer extends CordovaPlugin {
      */
     private PrintDocumentAdapter getAdapter (WebView webView, String docName) {
         if (Build.VERSION.SDK_INT >= 21) {
+
+            if(ContentURL.startsWith("file:") && ContentURL.endsWith(".pdf"))
+            {
+                return new PrinterPDF().CreatePrintAdapter(ContentURL, docName);
+            }
+
             Method createPrintDocumentAdapterMethod = Meta.getMethod(
                     WebView.class, "createPrintDocumentAdapter", String.class);
 
@@ -347,16 +358,14 @@ public class Printer extends CordovaPlugin {
      */
     @Override
     public void onDestroy() {
- 	if(pm != null && listener != null && command != null && view != null) {
-       	   pm.unsetOnPrintJobStateChangeListener();
+        pm.unsetOnPrintJobStateChangeListener();
 
-       	   pm       = null;
-           listener = null;
-           command  = null;
-           view     = null;
+        pm       = null;
+        listener = null;
+        command  = null;
+        view     = null;
 
-           super.onDestroy();
-	}
+        super.onDestroy();
     }
 
     /**
