@@ -152,6 +152,9 @@ The method accepts a list of attributes. Not all are supported on each platform 
 | hidePageRange | Set to _true_ to hide the control for the page range.<br>Defaults to: false | Boolean | iOS |
 | hideNumberOfCopies | Set to _true_ to hide the control for the number of copies.<br>Defaults to: false | Boolean | iOS |
 | hidePaperFormat | Set to _true_ to hide the control for the paper format.<br>Defaults to: false | Boolean | iOS |
+| paperWidth | Ability to hint width of the paper – iOS will get a printer supported paperformat which fits the best to this width. Only works when `paperHeight` is given. Width in millimeters. | Number | iOS |
+| paperHeight | Ability to hint height of the paper – iOS will get a printer paperformat which fits the best to this heigth. Only works when `paperWidth` is given. Height in millimeters. | Number | iOS |
+| paperCutLength | On roll-fed printers you can decide after how many milimeters the printer cuts the paper. | Number | iOS |
 | bounds | The Size and position of the print view<br>Defaults to: [40, 30, 0, 0] | Array | iPad |
 
 #### Further informations
