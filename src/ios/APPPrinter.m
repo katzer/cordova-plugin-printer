@@ -76,6 +76,7 @@
     self.settings                 = [arguments objectAtIndex:1];
 
     UIPrintInteractionController* controller = [self printController];
+    controller.delegate = self;
 
     [self adjustPrintController:controller withSettings:self.settings];
     [self loadContent:content intoPrintController:controller];
@@ -333,6 +334,42 @@
 }
 
 /**
+ * Choose paper Delegate. If Paper-Size is given it selects the best fitting papersize
+ */
+
+- (UIPrintPaper *) printInteractionController:(UIPrintInteractionController *)printInteractionController choosePaper:(NSArray *)paperList {
+    if ([[self.settings objectForKey:@"paperHeight"] doubleValue] && [[self.settings objectForKey:@"paperHeight"] doubleValue]){
+        double heigth = [[self.settings objectForKey:@"paperHeight"] doubleValue];
+        double width = [[self.settings objectForKey:@"paperWidth"] doubleValue];
+        double dotsHeigth = 72*heigth / 25.4; //convert milimeters to dots
+        double dotsWidth = 72*width / 25.4; //convert milimeters to dots
+        CGSize pageSize = CGSizeMake(dotsHeigth, dotsWidth);
+        
+        // get best fitting paper size
+        UIPrintPaper* paper = [UIPrintPaper bestPaperForPageSize:pageSize withPapersFromArray:paperList];
+        return paper;
+    }
+    else {
+        return NULL;
+    }
+}
+
+/**
+ * cutPaper Delegate. If using roll printers like Label-Printer (brother QL-710W) you can cut paper after given length.
+ */
+- (CGFloat)printInteractionController:(UIPrintInteractionController *)printInteractionController
+                    cutLengthForPaper:(UIPrintPaper *)paper {
+    if ([[self.settings objectForKey:@"paperCutLength"] doubleValue]){
+        NSLog(@"Paper Cut size size %f,%f",paper.paperSize.width, paper.paperSize.height);
+        double cutLength = [[self.settings objectForKey:@"paperCutLength"] doubleValue];
+        return 72 * cutLength / 25.4; //convert milimeters to dots
+    } else {
+        return paper.paperSize.height;
+    }
+}
+
+
+/**
  * Loads the content into the print controller.
  *
  * @param {NSString} content
@@ -385,3 +422,4 @@
 }
 
 @end
+ 
