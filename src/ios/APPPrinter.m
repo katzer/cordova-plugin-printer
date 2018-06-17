@@ -99,9 +99,13 @@
     NSArray*  arguments           = [command arguments];
     NSMutableDictionary* settings = [arguments objectAtIndex:0];
 
-    NSArray* bounds = [settings objectForKey:@"bounds"];
-    CGRect rect     = [self convertIntoRect:bounds];
 
+    CGRect rect     = CGRectMake(40, 30, 0, 0); //Default in documentation
+    if (settings != (id)[NSNull null] && [settings objectForKey:@"bounds"] != nil){
+        NSArray* bounds = [settings objectForKey:@"bounds"];
+        rect     = [self convertIntoRect:bounds];
+    }
+    
     [self presentPrinterPicker:rect];
 }
 
