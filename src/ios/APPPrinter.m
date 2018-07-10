@@ -364,7 +364,6 @@
 - (CGFloat)printInteractionController:(UIPrintInteractionController *)printInteractionController
                     cutLengthForPaper:(UIPrintPaper *)paper {
     if ([[self.settings objectForKey:@"paperCutLength"] doubleValue]){
-        NSLog(@"Paper Cut size size %f,%f",paper.paperSize.width, paper.paperSize.height);
         double cutLength = [[self.settings objectForKey:@"paperCutLength"] doubleValue];
         return 72 * cutLength / 25.4; //convert milimeters to dots
     } else {
