@@ -35,6 +35,8 @@ import android.webkit.WebViewClient;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,6 +62,7 @@ import static de.appplant.cordova.plugin.printer.ui.SelectPrinterActivity.EXTRA_
  * the print adapter of that web view and initializes a print job.
  */
 public class Printer extends CordovaPlugin {
+    CordovaWebView _webView;
 
     /**
      * The web view that loads all the content.
@@ -165,14 +168,18 @@ public class Printer extends CordovaPlugin {
      *      The exec arguments as JSON
      */
     private void print (final JSONArray args) {
-        final String content   = args.optString(0, "<html></html>");
+        final String content   = args.optString(0);
         final JSONObject props = args.optJSONObject(1);
 
         cordova.getActivity().runOnUiThread( new Runnable() {
             @Override
             public void run() {
-                initWebView(props);
-                loadContent(content);
+                if( content.isEmpty() ) {
+                    do_print((WebView)_webView.getView(), props);
+                } else {
+                    initWebView(props);
+                    loadContent(content);
+                }
             }
         });
     }
@@ -239,6 +246,37 @@ public class Printer extends CordovaPlugin {
         setWebViewClient(props);
     }
 
+    private void do_print(WebView webView, JSONObject props) {
+        final String docName    = props.optString("name", DEFAULT_DOC_NAME);
+        final boolean landscape = props.optBoolean("landscape", false);
+        final boolean graystyle = props.optBoolean("graystyle", false);
+        final String  duplex    = props.optString("duplex", "none");
+
+        PrintAttributes.Builder builder = new PrintAttributes.Builder();
+        PrintDocumentAdapter adapter    = getAdapter(webView, docName);
+
+        builder.setMinMargins(PrintAttributes.Margins.NO_MARGINS);
+
+        builder.setColorMode(graystyle
+                ? PrintAttributes.COLOR_MODE_MONOCHROME
+                : PrintAttributes.COLOR_MODE_COLOR);
+
+        builder.setMediaSize(landscape
+                ? PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE
+                : PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
+
+        if (!duplex.equals("none") && Build.VERSION.SDK_INT >= 23) {
+            boolean longEdge = duplex.equals("long");
+            Method setDuplexModeMethod = Meta.getMethod(
+                    builder.getClass(), "setDuplexMode", int.class);
+
+            Meta.invokeMethod(builder, setDuplexModeMethod,
+                    longEdge ? 2 : 4);
+        }
+
+        pm.getInstance().print(docName, adapter, builder.build());
+    }
+
     /**
      * Creates the web view client which sets the print document.
      *
@@ -246,11 +284,6 @@ public class Printer extends CordovaPlugin {
      *      The JSON object with the containing page properties
      */
     private void setWebViewClient (JSONObject props) {
-        final String docName    = props.optString("name", DEFAULT_DOC_NAME);
-        final boolean landscape = props.optBoolean("landscape", false);
-        final boolean graystyle = props.optBoolean("graystyle", false);
-        final String  duplex    = props.optString("duplex", "none");
-
         view.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading (WebView view, String url) {
@@ -259,29 +292,7 @@ public class Printer extends CordovaPlugin {
 
             @Override
             public void onPageFinished (WebView webView, String url) {
-                PrintAttributes.Builder builder = new PrintAttributes.Builder();
-                PrintDocumentAdapter adapter    = getAdapter(webView, docName);
-
-                builder.setMinMargins(PrintAttributes.Margins.NO_MARGINS);
-
-                builder.setColorMode(graystyle
-                        ? PrintAttributes.COLOR_MODE_MONOCHROME
-                        : PrintAttributes.COLOR_MODE_COLOR);
-
-                builder.setMediaSize(landscape
-                        ? PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE
-                        : PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
-
-                if (!duplex.equals("none") && Build.VERSION.SDK_INT >= 23) {
-                    boolean longEdge = duplex.equals("long");
-                    Method setDuplexModeMethod = Meta.getMethod(
-                            builder.getClass(), "setDuplexMode", int.class);
-
-                    Meta.invokeMethod(builder, setDuplexModeMethod,
-                            longEdge ? 2 : 4);
-                }
-
-                pm.getInstance().print(docName, adapter, builder.build());
+                do_print(webView, props);
                 view = null;
             }
         });
@@ -340,6 +351,12 @@ public class Printer extends CordovaPlugin {
         super.pluginInitialize();
         pm = new PrintManager(cordova.getActivity());
         pm.setOnPrintJobStateChangeListener(listener);
+    }
+
+    @Override
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+        _webView = webView;
     }
 
     /**

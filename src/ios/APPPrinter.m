@@ -342,29 +342,39 @@
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
-    UIWebView* page                 = [[UIWebView alloc] init];
     UIPrintPageRenderer* renderer   = [[UIPrintPageRenderer alloc] init];
-    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
+    UIViewPrintFormatter* formatter;
+
+    if([content length] == 0) {
+        formatter = [self.webView viewPrintFormatter];
+    } else {
+        UIWebView* page = [[UIWebView alloc] init];
+        formatter = [page viewPrintFormatter];
+
+        page.delegate = self;
+
+        if([content length] == 0) {
+            // do nothing, already loaded
+        } else if ([NSURL URLWithString:content]) {
+            NSURL *url = [NSURL URLWithString:content];
+
+            [page loadRequest:[NSURLRequest requestWithURL:url]];
+        } else {
+            NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
+                                                                    ofType:nil];
+            NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
+
+
+            [page loadHTMLString:content baseURL:baseURL];
+        }
+    }
 
     [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
-
-    page.delegate = self;
-
-    if ([NSURL URLWithString:content]) {
-        NSURL *url = [NSURL URLWithString:content];
-
-        [page loadRequest:[NSURLRequest requestWithURL:url]];
-    }
-    else {
-        NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                                ofType:nil];
-        NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
-
-
-        [page loadHTMLString:content baseURL:baseURL];
-    }
-
     controller.printPageRenderer = renderer;
+
+    // just trigger the finish load fn straight off if using current webView
+    if([content length] == 0)
+        [self webViewDidFinishLoad:(UIWebView *)self.webView];
 }
 
 /**
