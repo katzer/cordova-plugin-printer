@@ -23,7 +23,7 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface APPPrinter : CDVPlugin <UIWebViewDelegate>
+@interface APPPrinter : CDVPlugin <UIWebViewDelegate, UIPrintInteractionControllerDelegate>
 
 // this is used to cache the uiprinter making repeated prints faster
 @property (nonatomic) UIPrinter *previousPrinter;
