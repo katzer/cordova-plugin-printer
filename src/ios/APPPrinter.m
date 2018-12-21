@@ -26,6 +26,8 @@
 
 @property (retain) NSString* callbackId;
 @property (retain) NSMutableDictionary* settings;
+// this is used to cache the uiprinter making repeated prints faster
+@property (nonatomic) UIPrinter *previousPrinter;
 
 @end
 
@@ -37,9 +39,6 @@
 
 /*
  * Checks if the printing service is available.
- *
- * @param {Function} callback
- *      A callback function to be called with the result
  */
 - (void) check:(CDVInvokedUrlCommand*)command
 {
@@ -59,53 +58,41 @@
 
 /**
  * Sends the printing content to the printer controller and opens them.
- *
- * @param {NSString} content
- *      The (HTML encoded) content
  */
 - (void) print:(CDVInvokedUrlCommand*)command
 {
-    if (!self.isPrintingAvailable) {
-        return;
-    }
-
-    _callbackId = command.callbackId;
-
-    NSArray* arguments            = [command arguments];
-    NSString* content             = [arguments objectAtIndex:0];
-    self.settings                 = [arguments objectAtIndex:1];
+    if (!self.isPrintingAvailable) return;
 
     UIPrintInteractionController* controller = [self printController];
-    controller.delegate = self;
+    NSString* content                        = command.arguments[0];
 
-    [self adjustPrintController:controller withSettings:self.settings];
+    _settings                                = command.arguments[1];
+    _callbackId                              = command.callbackId;
+
+    [self adjustPrintController:controller
+                   withSettings:_settings];
+
     [self loadContent:content intoPrintController:controller];
-
 }
 
 /**
- * Displays system interface for selecting a printer
- *
- * @param command
- *      Contains the callback function and picker options if applicable
+ * Displays system interface for selecting a printer.
  */
 - (void) pick:(CDVInvokedUrlCommand*)command
 {
-    if (!self.isPrintingAvailable) {
-        return;
+    if (!self.isPrintingAvailable) return;
+
+    NSMutableDictionary* settings = command.arguments[0];
+    NSArray* bounds               = settings[@"bounds"];
+    _callbackId                   = command.callbackId;
+    CGRect rect;
+
+    if (bounds) {
+        rect = [self convertIntoRect:bounds];
+    } else {
+        rect = CGRectMake(40, 30, 0, 0);
     }
-    _callbackId = command.callbackId;
 
-    NSArray*  arguments           = [command arguments];
-    NSMutableDictionary* settings = [arguments objectAtIndex:0];
-
-
-    CGRect rect     = CGRectMake(40, 30, 0, 0); //Default in documentation
-    if (settings != (id)[NSNull null] && [settings objectForKey:@"bounds"] != nil){
-        NSArray* bounds = [settings objectForKey:@"bounds"];
-        rect     = [self convertIntoRect:bounds];
-    }
-    
     [self presentPrinterPicker:rect];
 }
 
@@ -115,23 +102,73 @@
 /**
  * Sent after a web view finishes loading a frame.
  *
- * @param webView
- *      The web view has finished loading.
+ * @param webView The web view has finished loading.
+ *
+ * @return [ Void ]
  */
 - (void) webViewDidFinishLoad:(UIWebView *)webView
 {
     UIPrintInteractionController* controller = [self printController];
-    NSString* printerId = [self.settings objectForKey:@"printerId"];
+    NSString* printerID = _settings[@"printerId"];
 
-    if (( ![printerId isEqual:[NSNull null]] ) && ( [printerId length] > 0 )) {
-        [self sendToPrinter:controller printer:printerId];
+    if (![printerID isEqual:[NSNull null]] && printerID.length > 0)
+    {
+        [self sendToPrinter:controller printer:printerID];
         return;
     }
 
-    NSArray* bounds = [self.settings objectForKey:@"bounds"];
+    NSArray* bounds = self.settings[@"bounds"];
     CGRect rect     = [self convertIntoRect:bounds];
 
     [self presentPrintController:controller fromRect:rect];
+}
+
+#pragma mark -
+#pragma mark UIPrintInteractionControllerDelegate
+
+/**
+ * Asks the delegate for an object encapsulating the paper size and printing
+ * area to use for the print job. If Paper-Size is given it selects the best
+ * fitting papersize
+ */
+- (UIPrintPaper *) printInteractionController:(UIPrintInteractionController *)printInteractionController
+                                  choosePaper:(NSArray *)paperList
+{
+    double height = [self.settings[@"paperHeight"] doubleValue];
+    double width  = [self.settings[@"paperWidth"] doubleValue];
+    UIPrintPaper* paper;
+
+    if (height && width)
+    {
+        double dotsHeigth = 72 * height / 25.4; //convert milimeters to dots
+        double dotsWidth  = 72 * width / 25.4;  //convert milimeters to dots
+        CGSize pageSize   = CGSizeMake(dotsHeigth, dotsWidth);
+
+        // get best fitting paper size
+        paper = [UIPrintPaper bestPaperForPageSize:pageSize
+                               withPapersFromArray:paperList];
+    }
+
+    return paper;
+}
+
+/**
+ * Asks the delegate for a length to use when cutting the page. If using roll
+ * printers like Label-Printer (brother QL-710W) you can cut paper after given
+ * length.
+ */
+- (CGFloat) printInteractionController:(UIPrintInteractionController *)printInteractionController
+                     cutLengthForPaper:(UIPrintPaper *)paper
+{
+    double length  = [self.settings[@"paperCutLength"] doubleValue];
+    CGFloat height = paper.paperSize.height;
+
+    if (length)
+    {
+        height = 72 * length / 25.4; //convert milimeters to dots
+    }
+
+    return height;
 }
 
 #pragma mark -
@@ -139,8 +176,6 @@
 
 /**
  * Checks either the printing service is avaible or not.
- *
- * @return {BOOL}
  */
 - (BOOL) isPrintingAvailable
 {
@@ -155,124 +190,119 @@
 }
 
 /**
- * Opens the print controller so that the user can choose between
- * available iPrinters.
+ * Sends the content directly to the specified or previously selected printer.
  *
- * @param {UIPrintInteractionController} controller
- *      The prepared print controller with a content
- */
-- (void) presentPrintController:(UIPrintInteractionController*)controller
-                       fromRect:(CGRect)rect
-{
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
-         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-             CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                 messageAsBool:ok];
-
-             [self.commandDelegate sendPluginResult:pluginResult
-                                         callbackId:_callbackId];
-         }];
-    }
-    else {
-        [controller presentAnimated:YES completionHandler:
-         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-             CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                 messageAsBool:ok];
-
-             [self.commandDelegate sendPluginResult:pluginResult
-                                         callbackId:_callbackId];
-         }];
-    }
-}
-
-/**
- * Sends the content directly to the specified printer.
+ * @param controller The prepared print controller with the content.
+ * @param printer    The printer specified by its URL.
  *
- * @param controller
- *      The prepared print controller with the content
- * @param printer
- *      The printer specified by its URL
+ * @return [ Void ]
  */
 - (void) sendToPrinter:(UIPrintInteractionController*)controller
-               printer:(NSString*)printerId
+               printer:(NSString*)printerID
 {
-    NSURL* url         = [NSURL URLWithString:printerId];
-    
+    NSURL* printerURL = [NSURL URLWithString:printerID];
+
     // check to see if we have previously created this printer to reduce printing/"contacting" time
-    if(self.previousPrinter == nil || ![[[self.previousPrinter URL] absoluteString] isEqualToString: printerId]) {
-        self.previousPrinter = [UIPrinter printerWithURL:url];
+    if (!_previousPrinter || ![_previousPrinter.URL.absoluteString isEqualToString:printerID])
+    {
+        _previousPrinter = [UIPrinter printerWithURL:printerURL];
     }
-    
-    UIPrinter* printer = self.previousPrinter;
-    
-    
-    [controller printToPrinter:printer completionHandler:
+
+    [controller printToPrinter:_previousPrinter completionHandler:
      ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-         CDVPluginResult* pluginResult =
+         CDVPluginResult* result =
          [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                              messageAsBool:ok];
 
-         [self.commandDelegate sendPluginResult:pluginResult
-                                     callbackId:_callbackId];
+         [self.commandDelegate sendPluginResult:result
+                                     callbackId:self->_callbackId];
      }];
 }
 
 /**
- * Displays system interface for selecting a printer
+ * Opens the print controller so that the user can choose between
+ * available iPrinters.
  *
- * @param rect
- *      Rect object of where to display the interface
+ * @param controller The prepared print preview controller.
+ * @param rect       The coordinates where to present the preview.
+ *
+ * @return [ Void ]
+ */
+- (void) presentPrintController:(UIPrintInteractionController*)controller
+                       fromRect:(CGRect)rect
+{
+    UIPrintInteractionCompletionHandler handler =
+    ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+        CDVPluginResult* result =
+        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                            messageAsBool:ok];
+
+        [self.commandDelegate sendPluginResult:result
+                                    callbackId:self.callbackId];
+    };
+
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        [controller presentFromRect:rect
+                             inView:self.webView
+                           animated:YES
+                  completionHandler:handler];
+    } else {
+        [controller presentAnimated:YES
+                  completionHandler:handler];
+    }
+}
+
+/**
+ * Displays system interface for selecting a printer.
+ *
+ * @param rect Defines where to display the interface on the screen.
+ *
+ * @return [ Void ]
  */
 - (void) presentPrinterPicker:(CGRect)rect
 {
     UIPrinterPickerController* controller =
     [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:nil];
 
+    UIPrinterPickerCompletionHandler handler =
+    ^(UIPrinterPickerController *ctrl, BOOL selected, NSError *e) {
+        [self returnPrinterPickerResult:ctrl];
+    };
+
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
-         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
-             [self returnPrinterPickerResult:ctrl
-                           withUserDidSelect:&userDidSelect];
-         }];
-    }
-    else {
-        [controller presentAnimated:YES completionHandler:
-         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
-             [self returnPrinterPickerResult:ctrl
-                           withUserDidSelect:&userDidSelect];
-         }];
+        [controller presentFromRect:rect
+                             inView:self.webView
+                           animated:YES
+                  completionHandler:handler];
+    } else {
+        [controller presentAnimated:YES
+                  completionHandler:handler];
     }
 }
 
 /**
- * Calls the callback funtion with the result of the selected printer
+ * Calls the callback funtion with the result of the selected printer.
  *
- * @param ctrl
- *      The UIPrinterPickerController used to display the printer selector interface
- * @param userDidSelect
- *      True if the user selected a printer
+ * @param controller The UIPrinterPickerController used to display
+ *                   the printer selector interface.
+ *
+ * @return [ Void ]
  */
-- (void) returnPrinterPickerResult:(UIPrinterPickerController*)ctrl
-                 withUserDidSelect:(BOOL*)userDidSelect
+- (void) returnPrinterPickerResult:(UIPrinterPickerController*)controller
 {
-    CDVPluginResult* pluginResult =
-    [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    CDVPluginResult* result;
+    UIPrinter* printer = controller.selectedPrinter;
 
-    if (userDidSelect) {
-        UIPrinter* printer = ctrl.selectedPrinter;
+    [self rememberPrinter:printer];
 
-        [UIPrinterPickerController
-         printerPickerControllerWithInitiallySelectedPrinter:printer];
-
-        pluginResult = [CDVPluginResult
-                        resultWithStatus:CDVCommandStatus_OK
-                        messageAsString:printer.URL.absoluteString];
+    if (printer) {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                   messageAsString:printer.URL.absoluteString];
+    } else {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     }
 
-    [self.commandDelegate sendPluginResult:pluginResult
+    [self.commandDelegate sendPluginResult:result
                                 callbackId:_callbackId];
 }
 
@@ -280,23 +310,25 @@
 #pragma mark Helper
 
 /**
- * Retrieves an instance of shared print controller.
- *
- * @return {UIPrintInteractionController*}
+ * Returns the shared instance of the printer controller.
  */
 - (UIPrintInteractionController*) printController
 {
-    return [UIPrintInteractionController sharedPrintController];
+    UIPrintInteractionController* controller = [UIPrintInteractionController
+                                                sharedPrintController];
+
+    controller.delegate = self;
+
+    return controller;
 }
 
 /**
  * Adjusts the settings for the print controller.
  *
- * @param {UIPrintInteractionController} controller
- *      The print controller instance
+ * @param controller The print controller instance.
+ * @param settings   The print job specs.
  *
- * @return {UIPrintInteractionController} controller
- *      The modified print controller instance
+ * @return The modified print controller instance
  */
 - (UIPrintInteractionController*) adjustPrintController:(UIPrintInteractionController*)controller
                                            withSettings:(NSMutableDictionary*)settings
@@ -306,133 +338,108 @@
     UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
     UIPrintInfoDuplex duplexMode       = UIPrintInfoDuplexNone;
 
-    if ([[settings objectForKey:@"landscape"] boolValue]) {
+    if ([settings[@"landscape"] boolValue]) {
         orientation = UIPrintInfoOrientationLandscape;
     }
 
-    if ([[settings objectForKey:@"graystyle"] boolValue]) {
+    if ([settings[@"graystyle"] boolValue]) {
         outputType = UIPrintInfoOutputGrayscale;
     }
 
-    outputType += [[settings objectForKey:@"border"] boolValue] ? 0 : 1;
+    outputType += [settings[@"border"] boolValue] ? 0 : 1;
 
-    if ([[settings objectForKey:@"duplex"] isEqualToString:@"long"]) {
+    if ([settings[@"duplex"] isEqualToString:@"long"]) {
         duplexMode = UIPrintInfoDuplexLongEdge;
     } else
-    if ([[settings objectForKey:@"duplex"] isEqualToString:@"short"]) {
+    if ([settings[@"duplex"] isEqualToString:@"short"]) {
         duplexMode = UIPrintInfoDuplexShortEdge;
     }
 
     printInfo.outputType  = outputType;
     printInfo.orientation = orientation;
     printInfo.duplex      = duplexMode;
-    printInfo.jobName     = [settings objectForKey:@"name"];
+    printInfo.jobName     = settings[@"name"];
 
     controller.printInfo  = printInfo;
 
-    controller.showsPageRange = ![[settings objectForKey:@"hidePageRange"] boolValue];
-    controller.showsNumberOfCopies = ![[settings objectForKey:@"hideNumberOfCopies"] boolValue];
-    controller.showsPaperSelectionForLoadedPapers = ![[settings objectForKey:@"hidePaperFormat"] boolValue];
+    controller.showsNumberOfCopies = ![settings[@"hideNumberOfCopies"] boolValue];
+    controller.showsPaperSelectionForLoadedPapers = ![settings[@"hidePaperFormat"] boolValue];
 
     return controller;
 }
 
 /**
- * Choose paper Delegate. If Paper-Size is given it selects the best fitting papersize
- */
-
-- (UIPrintPaper *) printInteractionController:(UIPrintInteractionController *)printInteractionController choosePaper:(NSArray *)paperList {
-    if ([[self.settings objectForKey:@"paperHeight"] doubleValue] && [[self.settings objectForKey:@"paperHeight"] doubleValue]){
-        double heigth = [[self.settings objectForKey:@"paperHeight"] doubleValue];
-        double width = [[self.settings objectForKey:@"paperWidth"] doubleValue];
-        double dotsHeigth = 72*heigth / 25.4; //convert milimeters to dots
-        double dotsWidth = 72*width / 25.4; //convert milimeters to dots
-        CGSize pageSize = CGSizeMake(dotsHeigth, dotsWidth);
-        
-        // get best fitting paper size
-        UIPrintPaper* paper = [UIPrintPaper bestPaperForPageSize:pageSize withPapersFromArray:paperList];
-        return paper;
-    }
-    else {
-        return NULL;
-    }
-}
-
-/**
- * cutPaper Delegate. If using roll printers like Label-Printer (brother QL-710W) you can cut paper after given length.
- */
-- (CGFloat)printInteractionController:(UIPrintInteractionController *)printInteractionController
-                    cutLengthForPaper:(UIPrintPaper *)paper {
-    if ([[self.settings objectForKey:@"paperCutLength"] doubleValue]){
-        double cutLength = [[self.settings objectForKey:@"paperCutLength"] doubleValue];
-        return 72 * cutLength / 25.4; //convert milimeters to dots
-    } else {
-        return paper.paperSize.height;
-    }
-}
-
-
-/**
  * Loads the content into the print controller.
  *
- * @param {NSString} content
- *      The (HTML encoded) content
- * @param {UIPrintInteractionController} controller
- *      The print controller instance
+ * @param content    The (HTML encoded) content
+ * @param controller The print controller instance
+ *
+ * @return [ Void ]
  */
 - (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
 {
     UIPrintPageRenderer* renderer   = [[UIPrintPageRenderer alloc] init];
-    UIViewPrintFormatter* formatter;
+    UIViewPrintFormatter* formatter = self.webView.viewPrintFormatter;
+    bool printSelf                  = ![content isEqual:[NSNull null]] && content.length == 0;
 
-    if([content length] == 0) {
-        formatter = [self.webView viewPrintFormatter];
-    } else {
+    if (!printSelf)
+    {
         UIWebView* page = [[UIWebView alloc] init];
-        formatter = [page viewPrintFormatter];
+        formatter       = page.viewPrintFormatter;
 
         page.delegate = self;
 
-        if([content length] == 0) {
-            // do nothing, already loaded
-        } else if ([NSURL URLWithString:content]) {
+        if ([NSURL URLWithString:content])
+        {
             NSURL *url = [NSURL URLWithString:content];
 
             [page loadRequest:[NSURLRequest requestWithURL:url]];
-        } else {
-            NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                                    ofType:nil];
-            NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
+        }
+        else
+        {
+            NSString* path = [NSBundle.mainBundle pathForResource:@"www" ofType:nil];
+            NSURL *url     = [NSURL fileURLWithPath:path];
 
-
-            [page loadHTMLString:content baseURL:baseURL];
+            [page loadHTMLString:content baseURL:url];
         }
     }
 
     [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
-    controller.printPageRenderer = renderer;
+    [controller setPrintPageRenderer:renderer];
 
-    // just trigger the finish load fn straight off if using current webView
-    if([content length] == 0)
+    if (printSelf) {
+        // just trigger the finish load fn straight off if using current webView
         [self webViewDidFinishLoad:(UIWebView *)self.webView];
+    }
+}
+
+/**
+ * Tells the system to pre-select the given printer next time.
+ *
+ * @param printer The printer to remeber.
+ *
+ * @return [ Void ]
+ */
+- (void) rememberPrinter:(UIPrinter*)printer
+{
+    if (!printer) return;
+    [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:printer];
 }
 
 /**
  * Convert Array into Rect object.
  *
- * @param bounds
- *      The bounds
+ * @param bounds The bounds
  *
- * @return
- *      A converted Rect object
+ * @return A converted Rect object
  */
 - (CGRect) convertIntoRect:(NSArray*)bounds
 {
-    return CGRectMake([[bounds objectAtIndex:0] floatValue],
-                      [[bounds objectAtIndex:1] floatValue],
-                      [[bounds objectAtIndex:2] floatValue],
-                      [[bounds objectAtIndex:3] floatValue]);
+    return CGRectMake([bounds[0] floatValue],
+                      [bounds[1] floatValue],
+                      [bounds[2] floatValue],
+                      [bounds[3] floatValue]);
 }
 
 @end
- 
+

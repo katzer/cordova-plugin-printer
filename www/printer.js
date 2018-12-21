@@ -35,7 +35,6 @@ exports.getDefaults = function () {
         graystyle: false,
         // iOS specific
         border:    true,
-        hidePageRange:      false,
         hideNumberOfCopies: false,
         hidePaperFormat:    false,
         // iPad specific

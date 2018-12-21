@@ -19,14 +19,9 @@
  under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <Cordova/CDVPlugin.h>
 
-
 @interface APPPrinter : CDVPlugin <UIWebViewDelegate, UIPrintInteractionControllerDelegate>
-
-// this is used to cache the uiprinter making repeated prints faster
-@property (nonatomic) UIPrinter *previousPrinter;
 
 // Find out whether printing is supported on this platform
 - (void) check:(CDVInvokedUrlCommand*)command;
