@@ -337,6 +337,7 @@
     UIPrintInfoOrientation orientation = UIPrintInfoOrientationPortrait;
     UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
     UIPrintInfoDuplex duplexMode       = UIPrintInfoDuplexNone;
+    long copies                        = MAX([settings[@"copies"] longValue], 1);
 
     if ([settings[@"landscape"] boolValue]) {
         orientation = UIPrintInfoOrientationLandscape;
@@ -355,11 +356,12 @@
         duplexMode = UIPrintInfoDuplexShortEdge;
     }
 
+    [printInfo setValue:[NSNumber numberWithLong:copies] forKey:@"_copies"];
+
     printInfo.outputType  = outputType;
     printInfo.orientation = orientation;
     printInfo.duplex      = duplexMode;
     printInfo.jobName     = settings[@"name"];
-
     controller.printInfo  = printInfo;
 
     controller.showsNumberOfCopies = ![settings[@"hideNumberOfCopies"] boolValue];
