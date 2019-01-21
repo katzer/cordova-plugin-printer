@@ -19,7 +19,8 @@
  under the License.
  */
 
-#import "APPPrinterLayout.h"
+#include "APPPrinterLayout.h"
+#include "APPPrinterUnit.h"
 
 @implementation APPPrinterLayout
 
@@ -33,7 +34,7 @@
     NSDictionary* insests = spec[@"padding"];
     double maxWidth       = [spec[@"maxWidth"] doubleValue];
     double maxHeight      = [spec[@"maxHeight"] doubleValue];
-    double dots           = [self pointsPerUnit:spec[@"unit"]];
+    double dots           = [APPPrinterUnit convert:spec[@"unit"]];
 
     _contentInsets = UIEdgeInsetsMake(dots * [insests[@"top"] doubleValue],
                                       dots * [insests[@"left"] doubleValue],
@@ -74,28 +75,6 @@
     }
 
     formatter.perPageContentInsets = _contentInsets;
-}
-
-#pragma mark -
-#pragma mark Private
-
-- (double) pointsPerUnit:(NSString *)unit
-{
-    if ([unit isEqualToString:@"in"])
-        return 72.0;
-
-    if ([unit isEqualToString:@"mm"])
-        return 72.0 / 25.4;
-
-    if ([unit isEqualToString:@"cm"])
-        return 72.0 / 2.54;
-
-    if (![unit isEqualToString:@"pp"])
-    {
-        NSLog(@"[cordova-plugin-printer] unit not recogniced: %@", unit);
-    }
-
-    return 1.0;
 }
 
 @end

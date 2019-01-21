@@ -19,9 +19,9 @@
  under the License.
  */
 
-#import "APPPrinter.h"
-#import "APPPrinterItem.h"
-#import "APPPrinterPaper.h"
+#include "APPPrinter.h"
+#include "APPPrinterItem.h"
+#include "APPPrinterPaper.h"
 #include "APPPrinterRenderer.h"
 #include "UIPrintInteractionController+APPPrinter.h"
 

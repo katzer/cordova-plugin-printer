@@ -19,7 +19,7 @@
  under the License.
  */
 
-#import "APPPrinterItem.h"
+#include "APPPrinterItem.h"
 
 @implementation APPPrinterItem
 

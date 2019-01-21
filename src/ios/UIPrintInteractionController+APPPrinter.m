@@ -22,7 +22,7 @@
 #include "APPPrinterInfo.h"
 #include "UIPrintInteractionController+APPPrinter.h"
 
-#import <objc/runtime.h>
+#include <objc/runtime.h>
 
 @implementation UIPrintInteractionController (APPPrinter)
 

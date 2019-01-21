@@ -21,6 +21,7 @@
 
 #include "APPPrinterLayout.h"
 #include "APPPrinterRenderer.h"
+#include "APPPrinterUnit.h"
 
 @implementation APPPrinterRenderer
 
@@ -46,13 +47,13 @@
 
     if (header)
     {
-        dots = [self pointsPerUnit:header[@"unit"]];
+        dots = [APPPrinterUnit convert:header[@"unit"]];
         self.headerHeight = dots * [header[@"height"] doubleValue];
     }
 
     if (footer)
     {
-        dots = [self pointsPerUnit:header[@"unit"]];
+        dots = [APPPrinterUnit convert:header[@"unit"]];
         self.footerHeight = dots * [footer[@"height"] doubleValue];
     }
 
@@ -92,25 +93,6 @@
                              NSForegroundColorAttributeName: [UIColor blueColor]};
 
     [footer drawInRect:rect withAttributes:attrs];
-}
-
-- (double) pointsPerUnit:(NSString*)unit
-{
-    if ([unit isEqualToString:@"in"])
-        return 72.0;
-
-    if ([unit isEqualToString:@"mm"])
-        return 72.0 / 25.4;
-
-    if ([unit isEqualToString:@"cm"])
-        return 72.0 / 2.54;
-
-    if (![unit isEqualToString:@"pp"])
-    {
-        NSLog(@"[cordova-plugin-printer] unit not recogniced: %@", unit);
-    }
-
-    return 1.0;
 }
 
 @end

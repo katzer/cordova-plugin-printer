@@ -19,7 +19,7 @@
  under the License.
  */
 
-#import "APPPrinterInfo.h"
+#include "APPPrinterInfo.h"
 
 @implementation APPPrinterInfo
 

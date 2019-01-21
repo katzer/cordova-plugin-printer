@@ -19,43 +19,27 @@
  under the License.
  */
 
-#include "APPPrinterPaper.h"
 #include "APPPrinterUnit.h"
 
-@implementation APPPrinterPaper
+@implementation APPPrinterUnit
 
-#pragma mark -
-#pragma mark Init
-
-- (id) initWithDictionary:(NSDictionary*)spec
++ (double) convert:(NSString *)unit
 {
-    self = [self init];
+    if ([unit isEqualToString:@"in"])
+        return 72.0;
 
-    double dots   = [APPPrinterUnit convert:spec[@"unit"]];
-    double length = [spec[@"length"] doubleValue];
-    double height = [spec[@"height"] doubleValue];
-    double width  = [spec[@"width"] doubleValue];
+    if ([unit isEqualToString:@"mm"])
+        return 72.0 / 25.4;
 
-    _size   = CGSizeMake(dots * width, dots * height);
-    _length = dots * length;
+    if ([unit isEqualToString:@"cm"])
+        return 72.0 / 2.54;
 
-    return self;
-}
-
-#pragma mark -
-#pragma mark Public
-
-- (UIPrintPaper*) bestPaperFromArray:(NSArray<UIPrintPaper *> *)list
-{
-    UIPrintPaper* paper;
-
-    if (_size.height || _size.width)
+    if (![unit isEqualToString:@"pp"])
     {
-        paper = [UIPrintPaper bestPaperForPageSize:_size
-                               withPapersFromArray:list];
+        NSLog(@"[cordova-plugin-printer] unit not recogniced: %@", unit);
     }
 
-    return paper;
+    return 1.0;
 }
 
 @end
