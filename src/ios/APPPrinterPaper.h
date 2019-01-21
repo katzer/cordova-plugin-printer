@@ -1,5 +1,5 @@
 /*
- Copyright 2013-2016 appPlant GmbH
+ Copyright 2013 appPlant GmbH
 
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,15 +19,15 @@
  under the License.
  */
 
-#import <Cordova/CDVPlugin.h>
+@interface APPPrinterPaper : NSObject
 
-@interface APPPrinter : CDVPlugin <UIPrintInteractionControllerDelegate>
+- (id) initWithDictionary:(NSDictionary*)spec;
 
-// Find out whether printing is supported on this platform
-- (void) check:(CDVInvokedUrlCommand *)command;
-// Displays system interface for selecting a printer
-- (void) pick:(CDVInvokedUrlCommand *)command;
-// Prints the content
-- (void) print:(CDVInvokedUrlCommand *)command;
+- (UIPrintPaper*) bestPaperFromArray:(NSArray<UIPrintPaper *> *)list;
+
+// The length to use when cutting the page if using roll printers.
+@property(nonatomic) CGFloat length;
+// The size of the printed page.
+@property(nonatomic) CGSize size;
 
 @end

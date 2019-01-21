@@ -1,5 +1,5 @@
 /*
- Copyright 2013-2016 appPlant GmbH
+ Copyright 2013 appPlant GmbH
 
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,15 +19,17 @@
  under the License.
  */
 
-#import <Cordova/CDVPlugin.h>
+@interface APPPrinterLayout : NSObject
 
-@interface APPPrinter : CDVPlugin <UIPrintInteractionControllerDelegate>
++ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withLayoutFromDictionary:(NSDictionary *)layout;
 
-// Find out whether printing is supported on this platform
-- (void) check:(CDVInvokedUrlCommand *)command;
-// Displays system interface for selecting a printer
-- (void) pick:(CDVInvokedUrlCommand *)command;
-// Prints the content
-- (void) print:(CDVInvokedUrlCommand *)command;
+// The index of the page for where to apply the layout.
+@property(nonatomic) NSInteger pageIndex;
+// The margins for each printed page.
+@property(nonatomic) UIEdgeInsets contentInsets;
+// The maximum height of the content area.
+@property(nonatomic) CGFloat maximumContentHeight;
+// The maximum width of the content area.
+@property(nonatomic) CGFloat maximumContentWidth;
 
 @end

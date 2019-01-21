@@ -26,11 +26,11 @@
 <plugin id="cordova-plugin-printer"
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        version="0.7.4-dev">
+        version="0.8.0.beta">
 
     <name>Printer</name>
 
-    <description>Prints HTML documents</description>
+    <description>Prints HTML content</description>
 
     <repo>https://github.com/katzer/cordova-plugin-printer.git</repo>
 
@@ -49,7 +49,6 @@
 
     <!-- interface -->
     <js-module src="www/printer.js" name="Printer">
-        <clobbers target="plugin.printer" />
         <clobbers target="cordova.plugins.printer" />
     </js-module>
 
@@ -63,6 +62,18 @@
 
         <header-file src="src/ios/APPPrinter.h" />
         <source-file src="src/ios/APPPrinter.m" />
+
+        <header-file src="src/ios/APPPrinterInfo.h" />
+        <source-file src="src/ios/APPPrinterInfo.m" />
+
+        <header-file src="src/ios/APPPrinterItem.h" />
+        <source-file src="src/ios/APPPrinterItem.m" />
+
+        <header-file src="src/ios/APPPrinterLayout.h" />
+        <source-file src="src/ios/APPPrinterLayout.m" />
+
+        <header-file src="src/ios/APPPrinterPaper.h" />
+        <source-file src="src/ios/APPPrinterPaper.m" />
 
     </platform>
 

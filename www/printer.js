@@ -28,15 +28,32 @@ var exec = require('cordova/exec');
  */
 exports.getDefaults = function () {
     return {
-        name:      'unknown',
-        duplex:    'none',
-        landscape: false,
-        graystyle: false,
-        border:    true,
+        // name:      'unknown',
+        // duplex:    'none',
+        // landscape: false,
+        // graystyle: false,
+        // border:    true,
         copies:    1,
-        hideNumberOfCopies: false,
-        hidePaperFormat:    false,
-        bounds:    [40, 30, 0, 0]
+
+        ui: {
+            hideNumberOfCopies: false,
+            hidePaperFormat:    false,
+            bounds: [40, 30, 0, 0]
+        },
+
+        paper: {
+            unit: 'cm',
+            height: 0,
+            width: 0,
+            length: 0
+        },
+
+        layout: {
+            unit: 'cm',
+            maxHeight: 0,
+            maxWidth: 0,
+            padding: { top: 0, left: 0, right: 0, bottom: 0 }
+        }
     };
 };
 
