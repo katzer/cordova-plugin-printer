@@ -21,13 +21,12 @@
 
 #import "APPPrinter.h"
 #import "APPPrinterItem.h"
-#import "APPPrinterInfo.h"
 #import "APPPrinterPaper.h"
 #import "APPPrinterLayout.h"
+#import "UIPrintInteractionController+APPPrinter.h"
 
 @interface APPPrinter ()
 
-@property (retain) NSDictionary* settings;
 @property (nonatomic) UIPrinter *previousPrinter;
 
 @end
@@ -82,8 +81,6 @@
         NSMutableDictionary* settings = command.arguments[1];
         settings[@"callbackId"]       = command.callbackId;
 
-        self.settings = settings;
-
         [self printContent:content withSettings:settings];
     }];
 }
@@ -100,7 +97,7 @@
                                   choosePaper:(NSArray *)paperList
 {
     APPPrinterPaper* paperSpec = [[APPPrinterPaper alloc]
-                                  initWithDictionary:_settings[@"paper"]];
+                                  initWithDictionary:ctrl.settings[@"paper"]];
 
     return [paperSpec bestPaperFromArray:paperList];
 }
@@ -114,7 +111,7 @@
                      cutLengthForPaper:(UIPrintPaper *)paper
 {
     APPPrinterPaper* paperSpec = [[APPPrinterPaper alloc]
-                                  initWithDictionary:_settings[@"paper"]];
+                                  initWithDictionary:ctrl.settings[@"paper"]];
 
     return paperSpec.length || paper.paperSize.height;
 }
@@ -158,34 +155,6 @@
 }
 
 /**
- * Adjusts the settings for the print controller.
- *
- * @param view     The view which content to print.
- * @param settings The print job specs.
- *
- * @return A ready to use print controller instance.
- */
-- (UIPrintInteractionController *) prepareControllerWithSettings:(NSDictionary *)settings
-{
-    UIPrintInfo* printInfo = [APPPrinterInfo printInfoWithDictionary:settings];
-    NSDictionary* ui       = settings[@"ui"];
-
-    UIPrintInteractionController* ctrl =
-    [UIPrintInteractionController sharedPrintController];
-
-    ctrl.printInfo         = printInfo;
-    ctrl.delegate          = self;
-
-    if (ui)
-    {
-        ctrl.showsNumberOfCopies = ![ui[@"hideNumberOfCopies"] boolValue];
-        ctrl.showsPaperSelectionForLoadedPapers = ![ui[@"hidePaperFormat"] boolValue];
-    }
-
-    return ctrl;
-}
-
-/**
  * Loads the content into the print controller.
  *
  * @param content  The HTML content or remote web page URI to print.
@@ -199,7 +168,9 @@
     __block id item;
 
     UIPrintInteractionController* ctrl =
-    [self prepareControllerWithSettings:settings];
+    [UIPrintInteractionController sharedPrintControllerWithSettings:settings];
+
+    ctrl.delegate = self;
 
     if ([self strIsNullOrEmpty:content])
     {
@@ -444,4 +415,3 @@
 }
 
 @end
-
