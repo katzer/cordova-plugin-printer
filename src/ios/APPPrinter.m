@@ -22,8 +22,8 @@
 #import "APPPrinter.h"
 #import "APPPrinterItem.h"
 #import "APPPrinterPaper.h"
-#import "APPPrinterLayout.h"
-#import "UIPrintInteractionController+APPPrinter.h"
+#include "APPPrinterRenderer.h"
+#include "UIPrintInteractionController+APPPrinter.h"
 
 @interface APPPrinter ()
 
@@ -217,9 +217,8 @@
 
     if ([item isKindOfClass:UIPrintFormatter.class])
     {
-        ctrl.printFormatter =
-        [APPPrinterLayout configureFormatter:item
-                    withLayoutFromDictionary:settings[@"layout"]];
+        ctrl.printPageRenderer =
+        [[APPPrinterRenderer alloc] initWithDictionary:settings formatter:item];
     }
     else
     {

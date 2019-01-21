@@ -53,6 +53,16 @@ exports.getDefaults = function () {
             maxHeight: 0,
             maxWidth: 0,
             padding: { top: 0, left: 0, right: 0, bottom: 0 }
+        },
+
+        header: {
+            unit: 'cm',
+            height: 0,
+        },
+
+        footer: {
+            unit: 'cm',
+            height: 0
         }
     };
 };
