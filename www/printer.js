@@ -57,12 +57,18 @@ exports.getDefaults = function () {
 
         header: {
             unit: 'cm',
-            height: 0,
-        },
+            height: 1,
 
-        footer: {
-            unit: 'cm',
-            height: 0
+            labels: [{
+                text: 'Awesome Printer Plug-in',
+                align: 'center',
+                italic: true,
+                color: '#FF0000'
+            },{
+                showPageIndex: true,
+                align: 'right',
+                bold: true
+            }]
         }
     };
 };
