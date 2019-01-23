@@ -21,10 +21,8 @@
 
 @interface APPPrinterLayout : NSObject
 
-+ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withLayoutFromDictionary:(NSDictionary *)layout;
++ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withLayoutFromDictionary:(nullable NSDictionary *)layoutSpec withStyleFromDictionary:(nullable NSDictionary *)styleSpec;
 
-// The index of the page for where to apply the layout.
-@property(nonatomic) NSInteger pageIndex;
 // The margins for each printed page.
 @property(nonatomic) UIEdgeInsets contentInsets;
 // The maximum height of the content area.

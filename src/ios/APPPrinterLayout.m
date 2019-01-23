@@ -20,6 +20,7 @@
  */
 
 #include "APPPrinterLayout.h"
+#include "APPPrinterStyle.h"
 #include "APPPrinterUnit.h"
 
 @implementation APPPrinterLayout
@@ -27,9 +28,11 @@
 #pragma mark -
 #pragma mark Init
 
-- (id) initWithDictionary:(NSDictionary *)spec
+- (id) initWithDictionary:(nullable NSDictionary *)spec
 {
     self = [self init];
+
+    if (!spec) return self;
 
     NSDictionary* insests = spec[@"padding"];
     double maxWidth       = [spec[@"maxWidth"] doubleValue];
@@ -45,19 +48,25 @@
 
     _maximumContentHeight = dots * maxHeight;
 
-    _pageIndex = [spec[@"page"] integerValue];
-
     return self;
 }
 
 #pragma mark -
 #pragma mark Public
 
-+ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withLayoutFromDictionary:(NSDictionary *)spec
++ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter
+                 withLayoutFromDictionary:(NSDictionary *)layoutSpec
+                  withStyleFromDictionary:(nullable NSDictionary *)styleSpec
 {
-    id layout = [[self alloc] initWithDictionary:spec];
+    id layout = [[self alloc] initWithDictionary:layoutSpec];
 
     [layout configureFormatter:formatter];
+
+    if (styleSpec && ![formatter isKindOfClass:UIMarkupTextPrintFormatter.class])
+    {
+        [layout configureTextFormatter:(UISimpleTextPrintFormatter *)formatter
+               withStyleFromDictionary:styleSpec];
+    }
 
     return formatter;
 }
@@ -75,6 +84,17 @@
     }
 
     formatter.perPageContentInsets = _contentInsets;
+}
+
+- (void) configureTextFormatter:(UISimpleTextPrintFormatter *)formatter
+        withStyleFromDictionary:(NSDictionary *)spec
+{
+    APPPrinterStyle *style = [[APPPrinterStyle alloc]
+                              initWithDictionary:spec];
+
+    formatter.font          = style.font;
+    formatter.color         = style.color;
+    formatter.textAlignment = style.textAlignment;
 }
 
 @end

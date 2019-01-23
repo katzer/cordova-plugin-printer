@@ -37,18 +37,15 @@
 
 - (instancetype) initWithDictionary:(NSDictionary *)spec formatter:(UIPrintFormatter *)formatter
 {
-    NSDictionary* layout = spec[@"layout"];
     NSDictionary* header = spec[@"header"];
     NSDictionary* footer = spec[@"footer"];
     double dots          = 0;
 
     self = [self init];
 
-    if (layout)
-    {
-        [APPPrinterLayout configureFormatter:formatter
-                    withLayoutFromDictionary:layout];
-    }
+    [APPPrinterLayout configureFormatter:formatter
+                withLayoutFromDictionary:spec[@"layout"]
+                 withStyleFromDictionary:spec[@"style"]];
 
     [self addPrintFormatter:formatter startingAtPageAtIndex:0];
 
