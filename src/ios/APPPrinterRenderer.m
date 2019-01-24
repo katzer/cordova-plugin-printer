@@ -126,10 +126,64 @@
     if ([self strIsNullOrEmpty:label])
         return;
 
-    APPPrinterStyle *style = [[APPPrinterStyle alloc]
-                              initWithDictionary:spec];
+    NSDictionary *position   = spec[@"position"];
+    NSDictionary *style      = spec[@"style"];
 
-    [label drawInRect:rect withAttributes:style.attributes];
+    NSDictionary *attributes = [[APPPrinterStyle alloc]
+                                initWithDictionary:style].attributes;
+
+    if (position)
+    {
+        [label drawAtPoint:[self pointFromPositionAsDictionary:position
+                                                      forLabel:label
+                                                withAttributes:attributes
+                                                        inRect:rect]
+            withAttributes:attributes];
+    }
+    else
+    {
+        [label drawInRect:rect withAttributes:attributes];
+    }
+}
+
+- (CGPoint) pointFromPositionAsDictionary:(NSDictionary *)spec
+                                 forLabel:(NSString *)label
+                           withAttributes:(NSDictionary *)attributes
+                                   inRect:(CGRect)rect
+{
+    double dots     = [APPPrinterUnit convert:spec[@"unit"]];
+    id top          = spec[@"top"];
+    id left         = spec[@"left"];
+    id right        = spec[@"right"];
+    id bottom       = spec[@"bottom"];
+
+    double x = rect.origin.x, y = rect.origin.y;
+    CGSize size;
+
+    if (bottom || right)
+    {
+        size =  [label sizeWithAttributes:attributes];
+    }
+
+    if (top)
+    {
+        y = rect.origin.y + dots * [top doubleValue];
+    }
+    else if (bottom)
+    {
+        y = rect.origin.y - size.height - dots * [bottom doubleValue];
+    }
+
+    if (left)
+    {
+        x = rect.origin.x + dots * [left doubleValue];
+    }
+    else if (right)
+    {
+        x = rect.size.width - size.width - dots * [right doubleValue];
+    }
+
+    return CGPointMake(x, y);
 }
 
 - (BOOL) strIsNullOrEmpty:(NSString *)string

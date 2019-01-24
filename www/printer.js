@@ -61,14 +61,33 @@ exports.getDefaults = function () {
 
             labels: [{
                 text: 'Awesome Printer Plug-in',
-                align: 'center',
-                italic: true,
-                color: '#FF0000'
+                style: {
+                    align: 'center',
+                    italic: true,
+                    color: '#FF0000'
+                }
             },{
                 showPageIndex: true,
-                align: 'right',
-                bold: true
+                style: {
+                    align: 'right',
+                    bold: true
+                }
             }]
+        },
+
+        footer: {
+            unit: 'mm',
+            height: 3,
+
+            label: {
+                text: 'Copyright (c) 2013-2019 Sebastián Katzer',
+                style: { size: 9 },
+                position: {
+                    unit: 'mm',
+                    top: 1.5,
+                    right: 5
+               }
+            }
         }
     };
 };
