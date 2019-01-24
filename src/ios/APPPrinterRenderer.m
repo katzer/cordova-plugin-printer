@@ -71,7 +71,12 @@
     NSInteger num = [super numberOfPages];
     id maxPages   = _settings[@"maxPages"];
 
-    return maxPages ? MIN(num, [maxPages longValue]) : num;
+    if (maxPages < 0)
+    {
+        return MAX(1, num + [maxPages longValue]);
+    }
+
+    return maxPages ? MAX(1, MIN(num, [maxPages longValue])) : num;
 }
 
 #pragma mark -
