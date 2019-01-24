@@ -66,6 +66,14 @@
     return self;
 }
 
+- (NSInteger) numberOfPages
+{
+    NSInteger num = [super numberOfPages];
+    id maxPages   = _settings[@"maxPages"];
+
+    return maxPages ? MIN(num, [maxPages longValue]) : num;
+}
+
 #pragma mark -
 #pragma mark Callbacks
 
