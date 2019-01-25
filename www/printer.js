@@ -94,7 +94,7 @@ exports._defaults = {
  *
  * @return [ Void ]
  */
-exports.canPrint = function (uri, callback, scope) {
+exports.canPrintItem = function (uri, callback, scope) {
 
     if (typeof uri == 'function') {
         scope    = callback;
