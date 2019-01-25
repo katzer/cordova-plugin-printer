@@ -45,9 +45,12 @@
  *
  * @return true if its able to render the content of the file.
  */
-+ (BOOL) canPrintURL:(NSString *)url
++ (BOOL) canPrintURL:(nullable NSString *)url
 {
-    if (![NSURL URLWithString:url]) return YES;
+    if (![NSURL URLWithString:url])
+    {
+        return UIPrintInteractionController.isPrintingAvailable;
+    }
 
     id item = [self ItemFromURL:url];
 

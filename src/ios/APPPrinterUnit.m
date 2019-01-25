@@ -23,8 +23,11 @@
 
 @implementation APPPrinterUnit
 
-+ (double) convert:(NSString *)unit
++ (double) convert:(nullable NSString *)unit
 {
+    if ([unit isEqual:[NSNull null]])
+        return 1.0;
+
     if ([unit isEqualToString:@"in"])
         return 72.0;
 

@@ -23,6 +23,6 @@
 
 + (id) ItemFromURL:(NSString *)url;
 
-+ (BOOL) canPrintURL:(NSString *)url;
++ (BOOL) canPrintURL:(nullable NSString *)url;
 
 @end

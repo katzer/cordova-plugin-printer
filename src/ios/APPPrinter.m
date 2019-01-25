@@ -42,19 +42,27 @@
 - (void) check:(CDVInvokedUrlCommand *)command
 {
     [self.commandDelegate runInBackground:^{
-        BOOL res = NO;
-
-        if (command.arguments.count == 0)
-        {
-            res = UIPrintInteractionController.isPrintingAvailable;
-        }
-        else
-        {
-            res = [APPPrinterItem canPrintURL:command.arguments[0]];
-        }
+        BOOL res = [APPPrinterItem canPrintURL:command.arguments[0]];
 
         [self sendResultWithMessageAsBool:res
                                callbackId:command.callbackId];
+    }];
+}
+
+/*
+ * List all printable document types (utis).
+ */
+- (void) utis:(CDVInvokedUrlCommand *)command
+{
+    [self.commandDelegate runInBackground:^{
+        NSSet *utis = UIPrintInteractionController.printableUTIs;
+
+        CDVPluginResult* result =
+        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                            messageAsArray:utis.allObjects];
+
+        [self.commandDelegate sendPluginResult:result
+                                    callbackId:command.callbackId];
     }];
 }
 
