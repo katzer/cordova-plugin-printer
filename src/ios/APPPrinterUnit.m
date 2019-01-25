@@ -25,7 +25,7 @@
 
 + (double) convert:(nullable NSString *)unit
 {
-    if ([unit isEqual:[NSNull null]])
+    if (!unit || [unit isEqual:[NSNull null]])
         return 1.0;
 
     if ([unit isEqualToString:@"in"])
@@ -39,7 +39,7 @@
 
     if (![unit isEqualToString:@"pp"])
     {
-        NSLog(@"[cordova-plugin-printer] unit not recogniced: %@", unit);
+        NSLog(@"[cordova-plugin-printer] unit not recognized: %@", unit);
     }
 
     return 1.0;
