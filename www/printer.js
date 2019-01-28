@@ -17,7 +17,9 @@
  under the License.
  */
 
-var exec = require('cordova/exec');
+var exec  = require('cordova/exec'),
+    ua    = navigator.userAgent.toLowerCase(),
+    isIOS = ua.indexOf('ipad') > -1 || ua.indexOf('iphone') > -1;
 
 // Defaults
 exports._defaults = {
@@ -141,7 +143,11 @@ exports.pick = function (options, callback, scope) {
     var fn     = this._createCallbackFn(callback, scope),
         params = this._mergeWithDefaults(options || {});
 
-    exec(fn, null, 'Printer', 'pick', [params]);
+    if (isIOS) {
+        exec(fn, null, 'Printer', 'pick', [params]);
+    } else if (fn) {
+        fn(null);
+    }
 };
 
 /**
