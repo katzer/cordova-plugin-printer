@@ -38,7 +38,7 @@
         info.orientation = UIPrintInfoOrientationLandscape;
     }
 
-    if ([spec[@"graystyle"] boolValue])
+    if ([spec[@"monochrome"] boolValue])
     {
         if ([spec[@"photo"] boolValue])
         {

@@ -23,12 +23,12 @@ var exec  = require('cordova/exec'),
 
 // Defaults
 exports._defaults = {
-    // name:      'unknown',
-    // duplex:    'none',
-    // landscape: false,
-    // graystyle: false,
-    // border:    true,
-    // copies:    1,
+    // name:       'unknown',
+    // duplex:     'none',
+    // landscape:  false,
+    // monochrome: false,
+    // border:     true,
+    // copies:     1,
 
     ui: {
         hideNumberOfCopies: false,

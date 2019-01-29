@@ -29,16 +29,18 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 
-class AssetUtil {
+class PrintContent {
 
     // List of supported content types
-    enum ContentType { PLAIN, HTML, IMAGE, PDF, SELF }
+    enum ContentType { PLAIN, HTML, IMAGE, PDF, UNSUPPORTED }
 
     // Application context
     private final @NonNull Context context;
@@ -48,8 +50,8 @@ class AssetUtil {
      *
      * @param ctx The application context.
      */
-    AssetUtil (@NonNull Context ctx) {
-        this.context = ctx;
+    private PrintContent (@NonNull Context ctx) {
+        context = ctx;
     }
 
     /**
@@ -59,21 +61,60 @@ class AssetUtil {
      *
      * @return The content type even the file does not exist.
      */
-    static @NonNull ContentType getContentType (@Nullable String path)
+    @NonNull
+    static ContentType getContentType (@Nullable String path,
+                                       @NonNull Context context)
+    {
+        return new PrintContent(context).getContentType(path);
+    }
+
+    /**
+     * Returns the content type for the file referenced by its uri.
+     *
+     * @param path The path to check.
+     *
+     * @return The content type even the file does not exist.
+     */
+    @NonNull
+    private ContentType getContentType (@Nullable String path)
     {
         ContentType type = ContentType.PLAIN;
 
-        if (path == null || path.isEmpty())
-        {
-            type = ContentType.SELF;
-        }
-        else if (path.charAt(0) == '<')
+        if (path == null || path.isEmpty() || path.charAt(0) == '<')
         {
             type = ContentType.HTML;
         }
-        else if (path.matches("^[a-z]+://.+"))
+        else if (path.matches("^[a-z0-9]+://.+"))
         {
-            return path.endsWith(".pdf") ? ContentType.PDF : ContentType.IMAGE;
+            String mime;
+
+            if (path.startsWith("base64:")) {
+                try {
+                    mime = URLConnection.guessContentTypeFromStream(openBase64(path));
+                } catch (IOException e) {
+                    return ContentType.UNSUPPORTED;
+                }
+            } else {
+                mime = URLConnection.guessContentTypeFromName(path);
+            }
+
+            switch (mime)
+            {
+                case "image/bmp":
+                case "image/png":
+                case "image/jpeg":
+                case "image/jpeg2000":
+                case "image/jp2":
+                case "image/gif":
+                case "image/x-icon":
+                case "image/vnd.microsoft.icon":
+                case "image/heif":
+                    return ContentType.IMAGE;
+                case "application/pdf":
+                    return ContentType.PDF;
+                default:
+                    return ContentType.UNSUPPORTED;
+            }
         }
 
         return type;
@@ -83,10 +124,25 @@ class AssetUtil {
      * Opens a file://, res:// or base64:// Uri as a stream.
      *
      * @param path The file path to decode.
+     * @param context The application context.
      *
      * @return An open IO stream or null if the file does not exist.
      */
-    @Nullable InputStream open (@NonNull String path)
+    @Nullable
+    static InputStream open (@NonNull String path, @NonNull Context context)
+    {
+        return new PrintContent(context).open(path);
+    }
+
+    /**
+     * Opens a file://, res:// or base64:// Uri as a stream.
+     *
+     * @param path The file path to decode.
+     *
+     * @return An open IO stream or null if the file does not exist.
+     */
+    @Nullable
+    private InputStream open (@NonNull String path)
     {
         InputStream stream = null;
 
@@ -113,11 +169,26 @@ class AssetUtil {
     /**
      * Decodes a file://, res:// or base64:// Uri to bitmap.
      *
+     * @param path    The file path to decode.
+     * @param context The application context.
+     *
+     * @return A bitmap or null if the path is not valid
+     */
+    @Nullable
+    static Bitmap decode (@NonNull String path, @NonNull Context context)
+    {
+        return new PrintContent(context).decode(path);
+    }
+
+    /**
+     * Decodes a file://, res:// or base64:// Uri to bitmap.
+     *
      * @param path The file path to decode.
      *
      * @return A bitmap or null if the path is not valid
      */
-    @Nullable Bitmap decode (@NonNull String path)
+    @Nullable
+    private Bitmap decode (@NonNull String path)
     {
         Bitmap bitmap;
 
@@ -150,7 +221,8 @@ class AssetUtil {
      * @param input  The readable input stream.
      * @param output The writable output stream.
      *
-     * @throws IOException
+     * @throws IOException If the input stream is not readable,
+     *                     or the output stream is not writable.
      */
     static void copy (@NonNull InputStream input,
                       @NonNull OutputStream output) throws IOException
@@ -162,8 +234,22 @@ class AssetUtil {
             output.write(buf, 0, bytesRead);
         }
 
-        output.close();
-        input.close();
+        input.reset();
+        close(output);
+    }
+
+    /**
+     * Closes the stream.
+     *
+     * @param stream The stream to close.
+     */
+    static void close (@NonNull Closeable stream)
+    {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            // ignore
+        }
     }
 
     /**
@@ -173,7 +259,8 @@ class AssetUtil {
      *
      * @return An open IO stream or null if the file does not exist.
      */
-    private @Nullable InputStream openFile (@NonNull String path)
+    @Nullable
+    private InputStream openFile (@NonNull String path)
     {
         String absPath = path.substring(7);
 
@@ -191,7 +278,8 @@ class AssetUtil {
      *
      * @return A bitmap or null if the path is not valid
      */
-    private @Nullable Bitmap decodeFile (@NonNull String path)
+    @Nullable
+    private Bitmap decodeFile (@NonNull String path)
     {
         String absPath = path.substring(7);
 
@@ -205,7 +293,8 @@ class AssetUtil {
      *
      * @return An open IO stream or null if the file does not exist.
      */
-    private @Nullable InputStream openAsset (@NonNull String path)
+    @Nullable
+    private InputStream openAsset (@NonNull String path)
     {
         String resPath = path.replaceFirst("file:/", "www");
 
@@ -223,7 +312,8 @@ class AssetUtil {
      *
      * @return A bitmap or null if the path is not valid
      */
-    private @Nullable Bitmap decodeAsset (@NonNull String path)
+    @Nullable
+    private Bitmap decodeAsset (@NonNull String path)
     {
         InputStream stream  = openAsset(path);
         Bitmap bitmap;
@@ -233,11 +323,7 @@ class AssetUtil {
 
         bitmap = BitmapFactory.decodeStream(stream);
 
-        try {
-            stream.close();
-        } catch (IOException e) {
-            // ignore
-        }
+        close(stream);
 
         return bitmap;
     }
@@ -249,7 +335,8 @@ class AssetUtil {
      *
      * @return An open IO stream or null if the file does not exist.
      */
-    private @NonNull InputStream openResource (@NonNull String path)
+    @NonNull
+    private InputStream openResource (@NonNull String path)
     {
         String resPath = path.substring(6);
         int resId      = getResId(resPath);
@@ -264,7 +351,8 @@ class AssetUtil {
      *
      * @return A bitmap or null if the path is not valid
      */
-    private @Nullable Bitmap decodeResource (@NonNull String path)
+    @Nullable
+    private Bitmap decodeResource (@NonNull String path)
     {
         String data  = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
@@ -279,7 +367,8 @@ class AssetUtil {
      *
      * @return An open IO stream or null if the file does not exist.
      */
-    private @NonNull InputStream openBase64 (@NonNull String path)
+    @NonNull
+    private InputStream openBase64 (@NonNull String path)
     {
         String data  = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
@@ -294,7 +383,8 @@ class AssetUtil {
      *
      * @return A bitmap or null if the path is not valid
      */
-    private @Nullable Bitmap decodeBase64 (@NonNull String path)
+    @Nullable
+    private Bitmap decodeBase64 (@NonNull String path)
     {
         String data  = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
@@ -333,10 +423,16 @@ class AssetUtil {
         return resId;
     }
 
+    /**
+     * Returns the asset manager for the app.
+     */
     private AssetManager getAssets() {
         return context.getAssets();
     }
 
+    /**
+     * Returns the resource bundle for the app.
+     */
     private Resources getResources() {
         return context.getResources();
     }

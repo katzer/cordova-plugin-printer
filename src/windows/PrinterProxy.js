@@ -93,7 +93,7 @@ exports.onPrintTaskRequested = function (event) {
         args.setSource(exports._page);
     });
 
-    if (config.graystyle) {
+    if (config.monochrome) {
         task.options.colorMode = Printing.PrintColorMode.grayscale;
     } else {
         task.options.colorMode = Printing.PrintColorMode.color;

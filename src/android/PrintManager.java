@@ -31,12 +31,15 @@ import android.support.v4.print.PrintHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+
 import static android.content.Context.PRINT_SERVICE;
+import static de.appplant.cordova.plugin.printer.PrintContent.ContentType.UNSUPPORTED;
 
 class PrintManager {
 
     // The application context
-    private @NonNull Context context;
+    private final @NonNull Context context;
 
     /**
      * Constructor
@@ -61,15 +64,16 @@ class PrintManager {
 
         if (item != null)
         {
-            supported = new AssetUtil(context).open(item) != null;
+            supported = PrintContent.getContentType(item, context) != UNSUPPORTED;
         }
 
         return supported;
     }
 
     /**
-     * @return List of all printable document types (utis).
+     * List of all printable document types (utis).
      */
+    @NonNull
     static JSONArray getPrintableUTIs()
     {
         JSONArray utis = new JSONArray();
@@ -82,8 +86,6 @@ class PrintManager {
         utis.put("public.heif");
         utis.put("com.compuserve.gif");
         utis.put("com.microsoft.ico");
-        utis.put("com.microsoft.bmp");
-        utis.put("com.microsoft.bmp");
 
         return utis;
     }
@@ -96,19 +98,20 @@ class PrintManager {
      * @param settings Additional settings how to render the content.
      * @param callback The function to invoke once the job is done.
      */
-    void print (@Nullable String content, JSONObject settings,
+    void print (@Nullable String content, @NonNull JSONObject settings,
                 @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        switch (AssetUtil.getContentType(content))
+        switch (PrintContent.getContentType(content, context))
         {
             case IMAGE:
+                //noinspection ConstantConditions
                 printImage(content, settings, callback);
                 break;
             case PDF:
+                //noinspection ConstantConditions
                 printPdf(content, settings, callback);
                 break;
             case HTML:
-            case SELF:
             case PLAIN:
                 // TODO
         }
@@ -121,15 +124,19 @@ class PrintManager {
      * @param settings Additional settings how to render the content.
      * @param callback The function to invoke once the job is done.
      */
-    private void printPdf (String path, JSONObject settings,
+    private void printPdf (@NonNull String path, @NonNull JSONObject settings,
                            @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        PrintOptions options       = new PrintOptions(settings);
-        String jobName             = options.getJobName();
-        PrintPdfAdapter adapter    = new PrintPdfAdapter(path, context);
-        PrintAttributes attributes = options.toPrintAttributes();
+        InputStream stream    = PrintContent.open(path, context);
 
-        getPrintService().print(jobName, adapter, attributes);
+        if (stream == null) return;
+
+        PrintOptions options  = new PrintOptions(settings);
+        String jobName        = options.getJobName();
+        PrintAdapter adapter  = new PrintAdapter(jobName, stream, callback);
+        PrintAttributes attrs = options.toPrintAttributes();
+
+        getPrintService().print(jobName, adapter, attrs);
     }
 
     /**
@@ -139,11 +146,10 @@ class PrintManager {
      * @param settings Additional settings how to render the content.
      * @param callback The function to invoke once the job is done.
      */
-    private void printImage (String path, JSONObject settings,
+    private void printImage (@NonNull String path, @NonNull JSONObject settings,
                              @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        AssetUtil decoder = new AssetUtil(context);
-        Bitmap bitmap     = decoder.decode(path);
+        Bitmap bitmap        = PrintContent.decode(path, context);
 
         if (bitmap == null) return;
 
@@ -159,7 +165,8 @@ class PrintManager {
     /**
      * Returns the print service of the app.
      */
-    private @NonNull android.print.PrintManager getPrintService()
+    @NonNull
+    private android.print.PrintManager getPrintService()
     {
         return (android.print.PrintManager) context.getSystemService(PRINT_SERVICE);
     }

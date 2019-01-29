@@ -43,7 +43,7 @@ import static android.support.v4.print.PrintHelper.SCALE_MODE_FIT;
 class PrintOptions {
 
     // The print job settings
-    private @NonNull JSONObject spec;
+    private final @NonNull JSONObject spec;
 
     /**
      * Constructor
@@ -140,9 +140,9 @@ class PrintOptions {
                 break;
         }
 
-        if (spec.has("graystyle"))
+        if (spec.has("monochrome"))
         {
-            if (spec.optBoolean("graystyle"))
+            if (spec.optBoolean("monochrome"))
             {
                 printer.setColorMode(PrintHelper.COLOR_MODE_MONOCHROME);
             }
@@ -152,16 +152,13 @@ class PrintOptions {
             }
         }
 
-        if (spec.has("autoFit"))
+        if (spec.optBoolean("autoFit", true))
         {
-            if (spec.optBoolean("autoFit"))
-            {
-                printer.setScaleMode(SCALE_MODE_FIT);
-            }
-            else
-            {
-                printer.setScaleMode(SCALE_MODE_FILL);
-            }
+            printer.setScaleMode(SCALE_MODE_FIT);
+        }
+        else
+        {
+            printer.setScaleMode(SCALE_MODE_FILL);
         }
     }
 }

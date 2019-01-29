@@ -19,7 +19,6 @@
 
 package de.appplant.cordova.plugin.printer;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -28,6 +27,8 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.print.PrintHelper;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,23 +40,30 @@ import static android.print.PrintDocumentInfo.CONTENT_TYPE_DOCUMENT;
 /**
  * Document adapter to render and print PDF files.
  */
-class PrintPdfAdapter extends PrintDocumentAdapter {
+class PrintAdapter extends PrintDocumentAdapter {
 
-    // The application context
-    private @NonNull Context context;
+    // The name of the print job
+    private final @NonNull String jobName;
 
-    // The path to the PDF file
-    private @NonNull String path;
+    // The input stream to render
+    private final @NonNull InputStream input;
+
+    // The callback to inform once the job is done
+    private final @Nullable PrintHelper.OnPrintFinishCallback callback;
 
     /**
      * Constructor
      *
-     * @param context The context where to look for.
+     * @param jobName  The name of the print job.
+     * @param input    The input stream to render.
+     * @param callback The callback to inform once the job is done.
      */
-    PrintPdfAdapter (@NonNull String path, @NonNull Context context)
+    PrintAdapter (@NonNull String jobName, @NonNull InputStream input,
+                  @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        this.path    = path;
-        this.context = context;
+        this.jobName  = jobName;
+        this.input    = input;
+        this.callback = callback;
     }
 
     @Override
@@ -70,11 +78,13 @@ class PrintPdfAdapter extends PrintDocumentAdapter {
         if (cancellationSignal.isCanceled())
             return;
 
-        pdi = new PrintDocumentInfo.Builder("test")
+        pdi = new PrintDocumentInfo.Builder(jobName)
                 .setContentType(CONTENT_TYPE_DOCUMENT)
                 .build();
 
-        callback.onLayoutFinished(pdi, true);
+        boolean changed = !newAttributes.equals(oldAttributes);
+
+        callback.onLayoutFinished(pdi, changed);
     }
 
     @Override
@@ -86,23 +96,30 @@ class PrintPdfAdapter extends PrintDocumentAdapter {
         if (cancellationSignal.isCanceled())
             return;
 
-        AssetUtil io   = new AssetUtil(context);
-        InputStream in = io.open(path);
-
-        if (in == null) {
-            callback.onWriteFailed("File not found: " + path);
-            return;
-        }
-
-        OutputStream out = new FileOutputStream(dest.getFileDescriptor());
+        OutputStream output = new FileOutputStream(dest.getFileDescriptor());
 
         try {
-            AssetUtil.copy(in, out);
+            PrintContent.copy(input, output);
         } catch (IOException e) {
             callback.onWriteFailed(e.getMessage());
             return;
         }
 
         callback.onWriteFinished(new PageRange[]{ PageRange.ALL_PAGES });
+    }
+
+    /**
+     * Close input stream once the printing is done.
+     */
+    @Override
+    public void onFinish ()
+    {
+        super.onFinish();
+
+        PrintContent.close(input);
+
+        if (callback != null) {
+            callback.onFinish();
+        }
     }
 }

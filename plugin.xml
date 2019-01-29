@@ -101,7 +101,10 @@
 
         <framework src="com.android.support:support-v4:$ANDROID_SUPPORT_V4_VERSION"/>
 
-        <source-file src="src/android/AssetUtil.java"
+        <source-file src="src/android/PrintAdapter.java"
+            target-dir="src/de/appplant/cordova/plugin/printer" />
+
+        <source-file src="src/android/PrintContent.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
 
         <source-file src="src/android/Printer.java"
@@ -111,9 +114,6 @@
             target-dir="src/de/appplant/cordova/plugin/printer" />
 
         <source-file src="src/android/PrintOptions.java"
-            target-dir="src/de/appplant/cordova/plugin/printer" />
-
-        <source-file src="src/android/PrintPdfAdapter.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 
