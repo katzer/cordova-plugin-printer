@@ -104,16 +104,16 @@
         <source-file src="src/android/AssetUtil.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
 
-        <source-file src="src/android/Options.java"
-            target-dir="src/de/appplant/cordova/plugin/printer" />
-
-        <source-file src="src/android/PdfAdapter.java"
-            target-dir="src/de/appplant/cordova/plugin/printer" />
-
         <source-file src="src/android/Printer.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
 
         <source-file src="src/android/PrintManager.java"
+            target-dir="src/de/appplant/cordova/plugin/printer" />
+
+        <source-file src="src/android/PrintOptions.java"
+            target-dir="src/de/appplant/cordova/plugin/printer" />
+
+        <source-file src="src/android/PrintPdfAdapter.java"
             target-dir="src/de/appplant/cordova/plugin/printer" />
     </platform>
 

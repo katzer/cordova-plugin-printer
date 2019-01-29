@@ -24,7 +24,6 @@ package de.appplant.cordova.plugin.printer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.print.PrintHelper;
@@ -125,10 +124,10 @@ class PrintManager {
     private void printPdf (String path, JSONObject settings,
                            @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        Options options              = new Options(settings);
-        String jobName               = options.getJobName();
-        PrintDocumentAdapter adapter = new PdfAdapter(path, context);
-        PrintAttributes attributes   = options.toPrintAttributes();
+        PrintOptions options       = new PrintOptions(settings);
+        String jobName             = options.getJobName();
+        PrintPdfAdapter adapter    = new PrintPdfAdapter(path, context);
+        PrintAttributes attributes = options.toPrintAttributes();
 
         getPrintService().print(jobName, adapter, attributes);
     }
@@ -143,14 +142,14 @@ class PrintManager {
     private void printImage (String path, JSONObject settings,
                              @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
-        AssetUtil decoder   = new AssetUtil(context);
-        Bitmap bitmap       = decoder.decode(path);
+        AssetUtil decoder = new AssetUtil(context);
+        Bitmap bitmap     = decoder.decode(path);
 
         if (bitmap == null) return;
 
-        Options options     = new Options(settings);
-        PrintHelper printer = new PrintHelper(context);
-        String jobName      = options.getJobName();
+        PrintOptions options = new PrintOptions(settings);
+        PrintHelper printer  = new PrintHelper(context);
+        String jobName       = options.getJobName();
 
         options.decoratePrintHelper(printer);
 

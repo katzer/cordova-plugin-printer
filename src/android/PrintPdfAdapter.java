@@ -39,7 +39,7 @@ import static android.print.PrintDocumentInfo.CONTENT_TYPE_DOCUMENT;
 /**
  * Document adapter to render and print PDF files.
  */
-class PdfAdapter extends PrintDocumentAdapter {
+class PrintPdfAdapter extends PrintDocumentAdapter {
 
     // The application context
     private @NonNull Context context;
@@ -52,7 +52,7 @@ class PdfAdapter extends PrintDocumentAdapter {
      *
      * @param context The context where to look for.
      */
-    PdfAdapter (@NonNull String path, @NonNull Context context)
+    PrintPdfAdapter (@NonNull String path, @NonNull Context context)
     {
         this.path    = path;
         this.context = context;
