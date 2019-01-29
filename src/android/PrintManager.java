@@ -21,19 +21,24 @@
 
 package de.appplant.cordova.plugin.printer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.print.PrintHelper;
+import android.view.View;
 
+import org.apache.cordova.engine.SystemWebView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
 
 import static android.content.Context.PRINT_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
 import static de.appplant.cordova.plugin.printer.PrintContent.ContentType.UNSUPPORTED;
 
 class PrintManager {
@@ -99,6 +104,7 @@ class PrintManager {
      * @param callback The function to invoke once the job is done.
      */
     void print (@Nullable String content, @NonNull JSONObject settings,
+                @NonNull View view,
                 @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
         switch (PrintContent.getContentType(content, context))
@@ -112,9 +118,54 @@ class PrintManager {
                 printPdf(content, settings, callback);
                 break;
             case HTML:
+                if (content == null || content.isEmpty()) {
+                    printView(view, settings);
+                } else {
+                    printHtml(content, settings);
+                }
             case PLAIN:
-                // TODO
+                // TODO implement me
+            default:
+                // TODO unsupported content
         }
+    }
+
+    /**
+     * Prints the content of the specified view.
+     *
+     * @param view     The web view instance to print.
+     * @param settings Additional settings how to render the content.
+     */
+    private void printView (@NonNull View view, @NonNull JSONObject settings)
+    {
+        PrintOptions options  = new PrintOptions(settings);
+        String jobName        = options.getJobName();
+        SystemWebView webView = (SystemWebView) view;
+
+        ((Activity) context).runOnUiThread(() -> {
+            PrintDocumentAdapter adapter;
+
+            if (SDK_INT >= 21) {
+                adapter = webView.createPrintDocumentAdapter(jobName);
+            } else {
+                adapter = webView.createPrintDocumentAdapter();
+            }
+
+            printAdapter(adapter, options);
+        });
+
+    }
+
+    /**
+     * Prints the HTML markup.
+     *
+     * @param content  The HTML markup to print.
+     * @param settings Additional settings how to render the content.
+     */
+    private void printHtml (@NonNull String content,
+                            @NonNull JSONObject settings)
+    {
+        // TODO implement me
     }
 
     /**
@@ -134,6 +185,20 @@ class PrintManager {
         PrintOptions options  = new PrintOptions(settings);
         String jobName        = options.getJobName();
         PrintAdapter adapter  = new PrintAdapter(jobName, stream, callback);
+
+        printAdapter(adapter, options);
+    }
+
+    /**
+     * Prints the content provided by the print adapter.
+     *
+     * @param adapter The adapter that holds the content.
+     * @param options Additional settings how to render the content.
+     */
+    private void printAdapter (@NonNull PrintDocumentAdapter adapter,
+                               @NonNull PrintOptions options)
+    {
+        String jobName        = options.getJobName();
         PrintAttributes attrs = options.toPrintAttributes();
 
         getPrintService().print(jobName, adapter, attrs);
