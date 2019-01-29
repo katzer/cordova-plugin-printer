@@ -22,6 +22,7 @@
 package de.appplant.cordova.plugin.printer;
 
 import android.support.annotation.Nullable;
+import android.webkit.WebView;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -129,5 +130,4 @@ public class Printer extends CordovaPlugin {
             pm.print(content, settings, webView.getView(), callback::success);
         });
     }
-
 }

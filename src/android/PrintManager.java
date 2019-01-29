@@ -30,8 +30,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.print.PrintHelper;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import org.apache.cordova.engine.SystemWebView;
+import org.apache.cordova.engine.SystemWebViewClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -45,6 +48,8 @@ class PrintManager {
 
     // The application context
     private final @NonNull Context context;
+
+    private @Nullable WebView webView;
 
     /**
      * Constructor
@@ -140,7 +145,7 @@ class PrintManager {
     {
         PrintOptions options  = new PrintOptions(settings);
         String jobName        = options.getJobName();
-        SystemWebView webView = (SystemWebView) view;
+        WebView webView       = (WebView) view;
 
         ((Activity) context).runOnUiThread(() -> {
             PrintDocumentAdapter adapter;
@@ -153,7 +158,6 @@ class PrintManager {
 
             printAdapter(adapter, options);
         });
-
     }
 
     /**
@@ -165,7 +169,25 @@ class PrintManager {
     private void printHtml (@NonNull String content,
                             @NonNull JSONObject settings)
     {
-        // TODO implement me
+        ((Activity) context).runOnUiThread(() -> {
+            webView = new WebView(context);
+
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading (WebView view, String url) {
+                    return false;
+                }
+
+                @Override
+                public void onPageFinished (WebView view, String url) {
+                    printView(webView, settings);
+                    webView = null;
+                }
+            });
+
+            webView.loadDataWithBaseURL("file:///android_asset/www/", content, "text/html", "UTF-8",
+                    null);
+        });
     }
 
     /**
