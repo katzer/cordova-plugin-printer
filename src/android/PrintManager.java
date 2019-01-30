@@ -29,7 +29,8 @@ import android.print.PrintDocumentAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.print.PrintHelper;
-import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -109,7 +110,7 @@ class PrintManager {
      */
     @SuppressWarnings("ConstantConditions")
     void print (@Nullable String content, @NonNull JSONObject settings,
-                @NonNull View view,
+                @NonNull WebView view,
                 @Nullable PrintHelper.OnPrintFinishCallback callback)
     {
         switch (PrintContent.getContentType(content, context))
@@ -122,16 +123,15 @@ class PrintManager {
                 break;
             case HTML:
                 if (content == null || content.isEmpty()) {
-                    printView(view, settings);
+                    printWebView(view, settings);
                 } else {
                     printText(content, "text/html", settings);
                 }
                 break;
+            case UNSUPPORTED:
+                // TODO unsupported content
             case PLAIN:
                 printText(content, "text/plain", settings);
-                break;
-            default:
-                // TODO unsupported content
         }
     }
 
@@ -145,7 +145,7 @@ class PrintManager {
                             @NonNull JSONObject settings)
     {
         ((Activity) context).runOnUiThread(() -> {
-            view = new WebView(context);
+            view = this.createWebView(settings);
 
             view.setWebViewClient(new WebViewClient() {
                 @Override
@@ -155,7 +155,7 @@ class PrintManager {
 
                 @Override
                 public void onPageFinished (WebView view, String url) {
-                    printView(PrintManager.this.view, settings);
+                    printWebView(PrintManager.this.view, settings);
                     PrintManager.this.view = null;
                 }
             });
@@ -170,19 +170,19 @@ class PrintManager {
      * @param view     The web view instance to print.
      * @param settings Additional settings how to render the content.
      */
-    private void printView (@NonNull View view, @NonNull JSONObject settings)
+    private void printWebView (@NonNull WebView view,
+                               @NonNull JSONObject settings)
     {
         PrintOptions options = new PrintOptions(settings);
         String jobName       = options.getJobName();
-        WebView webView      = (WebView) view;
 
         ((Activity) context).runOnUiThread(() -> {
             PrintDocumentAdapter adapter;
 
             if (SDK_INT >= 21) {
-                adapter = webView.createPrintDocumentAdapter(jobName);
+                adapter = view.createPrintDocumentAdapter(jobName);
             } else {
-                adapter = webView.createPrintDocumentAdapter();
+                adapter = view.createPrintDocumentAdapter();
             }
 
             printAdapter(adapter, options);
@@ -246,6 +246,34 @@ class PrintManager {
         options.decoratePrintHelper(printer);
 
         printer.printBitmap(jobName, bitmap, callback);
+    }
+
+    /**
+     * Creates a new web view instance that can be used for printing.
+     *
+     * @param settings Additional settings about the print job.
+     *
+     * @return A web view instance.
+     */
+    @NonNull
+    private WebView createWebView (@NonNull JSONObject settings)
+    {
+        boolean jsEnabled = settings.optBoolean("javascript", false);
+        WebView      view = new WebView(context);
+        WebSettings  spec = view.getSettings();
+
+        spec.setDatabaseEnabled(true);
+        spec.setGeolocationEnabled(true);
+        spec.setSaveFormData(true);
+        spec.setUseWideViewPort(true);
+        spec.setJavaScriptEnabled(jsEnabled);
+
+        if (SDK_INT >= 21) {
+            spec.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            CookieManager.getInstance().setAcceptThirdPartyCookies(view, true);
+        }
+
+        return view;
     }
 
     /**

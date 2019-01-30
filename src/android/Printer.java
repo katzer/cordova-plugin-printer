@@ -127,7 +127,9 @@ public class Printer extends CordovaPlugin {
     {
         cordova.getThreadPool().execute(() -> {
             PrintManager pm = new PrintManager(cordova.getContext());
-            pm.print(content, settings, webView.getView(), callback::success);
+            WebView view    = (WebView) webView.getView();
+
+            pm.print(content, settings, view, callback::success);
         });
     }
 }
