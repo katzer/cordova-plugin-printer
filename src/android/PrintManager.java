@@ -33,8 +33,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.apache.cordova.engine.SystemWebView;
-import org.apache.cordova.engine.SystemWebViewClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,7 +47,8 @@ class PrintManager {
     // The application context
     private final @NonNull Context context;
 
-    private @Nullable WebView webView;
+    // Reference required as long as the page does load the HTML markup
+    private @Nullable WebView view;
 
     /**
      * Constructor
@@ -108,6 +107,7 @@ class PrintManager {
      * @param settings Additional settings how to render the content.
      * @param callback The function to invoke once the job is done.
      */
+    @SuppressWarnings("ConstantConditions")
     void print (@Nullable String content, @NonNull JSONObject settings,
                 @NonNull View view,
                 @Nullable PrintHelper.OnPrintFinishCallback callback)
@@ -115,24 +115,53 @@ class PrintManager {
         switch (PrintContent.getContentType(content, context))
         {
             case IMAGE:
-                //noinspection ConstantConditions
                 printImage(content, settings, callback);
                 break;
             case PDF:
-                //noinspection ConstantConditions
                 printPdf(content, settings, callback);
                 break;
             case HTML:
                 if (content == null || content.isEmpty()) {
                     printView(view, settings);
                 } else {
-                    printHtml(content, settings);
+                    printText(content, "text/html", settings);
                 }
+                break;
             case PLAIN:
-                // TODO implement me
+                printText(content, "text/plain", settings);
+                break;
             default:
                 // TODO unsupported content
         }
+    }
+
+    /**
+     * Prints the markup content.
+     *
+     * @param content  The HTML markup to print.
+     * @param settings Additional settings how to render the content.
+     */
+    private void printText (@Nullable String content, @NonNull String mimeType,
+                            @NonNull JSONObject settings)
+    {
+        ((Activity) context).runOnUiThread(() -> {
+            view = new WebView(context);
+
+            view.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading (WebView view, String url) {
+                    return false;
+                }
+
+                @Override
+                public void onPageFinished (WebView view, String url) {
+                    printView(PrintManager.this.view, settings);
+                    PrintManager.this.view = null;
+                }
+            });
+
+            view.loadDataWithBaseURL("file:///android_asset/www/", content, mimeType, "UTF-8",null);
+        });
     }
 
     /**
@@ -143,9 +172,9 @@ class PrintManager {
      */
     private void printView (@NonNull View view, @NonNull JSONObject settings)
     {
-        PrintOptions options  = new PrintOptions(settings);
-        String jobName        = options.getJobName();
-        WebView webView       = (WebView) view;
+        PrintOptions options = new PrintOptions(settings);
+        String jobName       = options.getJobName();
+        WebView webView      = (WebView) view;
 
         ((Activity) context).runOnUiThread(() -> {
             PrintDocumentAdapter adapter;
@@ -157,36 +186,6 @@ class PrintManager {
             }
 
             printAdapter(adapter, options);
-        });
-    }
-
-    /**
-     * Prints the HTML markup.
-     *
-     * @param content  The HTML markup to print.
-     * @param settings Additional settings how to render the content.
-     */
-    private void printHtml (@NonNull String content,
-                            @NonNull JSONObject settings)
-    {
-        ((Activity) context).runOnUiThread(() -> {
-            webView = new WebView(context);
-
-            webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading (WebView view, String url) {
-                    return false;
-                }
-
-                @Override
-                public void onPageFinished (WebView view, String url) {
-                    printView(webView, settings);
-                    webView = null;
-                }
-            });
-
-            webView.loadDataWithBaseURL("file:///android_asset/www/", content, "text/html", "UTF-8",
-                    null);
         });
     }
 
