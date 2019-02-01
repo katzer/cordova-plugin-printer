@@ -27,47 +27,63 @@ var Printing     = Windows.Graphics.Printing,
 /**
  * Verifies if printing is supported on the device.
  *
- * @param {Function} success
- *      Success callback function
- * @param {Function} error
- *      Error callback function
- * @param {Array} args
- *      Interface arguments
+ * @param [ Function ] success Success callback function.
+ * @param [ Function ] error   Error callback function.
+ * @param [ Array ]    args    Interface arguments.
+ *
+ * @return [ Void ]
  */
 exports.check = function (success, fail, args) {
-    success(MSApp.hasOwnProperty('getHtmlPrintDocumentSourceAsync'), 0);
+    var item      = args[0],
+        supported = PrintManager.isSupported();
+
+    if (!item || !supported) {
+        success(supported);
+        return;
+    }
+
+    if (item[0] === '<') {
+        supported = true;
+    } else {
+        supported = item.match(/[a-z0-9]:\/\//) === null;
+    }
+
+    success(supported);
 };
 
 /**
- * Displays system interface for selecting a printer.
+ * List of printable document types.
  *
- * @param {Function} success
- *      Success callback function
- * @param {Function} error
- *      Error callback function
- * @param {Array} args
- *      Interface arguments
+ * @param [ Function ] success Success callback function.
+ * @param [ Function ] error   Error callback function.
+ * @param [ Array ]    args    Interface arguments.
+ *
+ * @return [ Void ]
  */
-exports.pick = function (success, fail, args) {
-    success(); // Not supported :(
+exports.utis = function (success, fail, args) {
+    success([]);
 };
 
 /**
  * Sends the content to the Printing Framework.
  *
- * @param {Function} success
- *      Success callback function
- * @param {Function} error
- *      Error callback function
- * @param {Array} args
- *      Interface arguments
+ * @param [ Function ] success Success callback function.
+ * @param [ Function ] error   Error callback function.
+ * @param [ Array ]    args    Interface arguments.
+ *
+ * @return [ Void ]
  */
 exports.print = function (success, fail, args) {
-    var page    = document.createDocumentFragment(),
-        content = document.createElement('html');
+    var content = args[0],
+        page    = document, body;
 
-    content.innerHTML = args[0];
-    page.appendChild(content);
+    if (content && content.length > 0) {
+        page = document.createDocumentFragment();
+        body = document.createElement('html');
+
+        body.innerHTML = content;
+        page.appendChild(body);
+    }
 
     exports._func = success;
     exports._args = args[1];
@@ -82,40 +98,56 @@ exports.print = function (success, fail, args) {
  * Raised when a request to print has occurred.
  * Create, configure and schedule the print task.
  *
- * @param {PrintTaskRequestedEventArgs} event
- *      Event arguments associated with the request.
+ * @param [ PrintTaskRequestedEventArgs ] event Event arguments.
+ *
+ * @return [ Void ]
  */
 exports.onPrintTaskRequested = function (event) {
     var config = exports._args,
-        task;
+        task, spec;
 
     task = event.request.createPrintTask(config.name, function (args) {
         args.setSource(exports._page);
     });
 
+    spec = task.options;
+
     if (config.monochrome) {
-        task.options.colorMode = Printing.PrintColorMode.grayscale;
+        spec.colorMode = Printing.PrintColorMode.grayscale;
     } else {
-        task.options.colorMode = Printing.PrintColorMode.color;
+        spec.colorMode = Printing.PrintColorMode.color;
     }
 
     if (config.landscape) {
-        task.options.orientation = Printing.PrintOrientation.landscape;
+        spec.orientation = Printing.PrintOrientation.landscape;
     } else {
-        task.options.orientation = Printing.PrintOrientation.portrait;
+        spec.orientation = Printing.PrintOrientation.portrait;
     }
 
     if (config.duplex == 'long') {
-        task.options.duplex = Printing.PrintDuplex.twoSidedLongEdge;
+        spec.duplex = Printing.PrintDuplex.twoSidedLongEdge;
     } else
     if (config.duplex == 'short') {
-        task.options.duplex = Printing.PrintDuplex.twoSidedShortEdge;
+        spec.duplex = Printing.PrintDuplex.twoSidedShortEdge;
     } else {
-        task.options.duplex = Printing.PrintDuplex.oneSided;
+        spec.duplex = Printing.PrintDuplex.oneSided;
+    }
+
+    if (config.photo) {
+        spec.printQuality = Printing.PrintQuality.photographic;
+        spec.mediaType    = Printing.PrintMediaType.photographic;
+    }
+
+    if (config.border === false) {
+        spec.bordering = Printing.PrintBordering.borderless;
+    }
+
+    if (config.paper && config.paper.name) {
+        spec.mediaSize = Printing.PrintMediaSize[config.paper.name] || Printing.PrintMediaSize.default;
     }
 
     try {
-        task.options.numberOfCopies = config.copies || 1;
+        spec.numberOfCopies = config.copies || 1;
     } catch (e) {}
 
     task.oncompleted = function (e) {
@@ -123,7 +155,6 @@ exports.onPrintTaskRequested = function (event) {
     };
 };
 
-PrintManager.getForCurrentView()
-    .onprinttaskrequested = exports.onPrintTaskRequested;
+PrintManager.getForCurrentView().onprinttaskrequested = exports.onPrintTaskRequested;
 
 require('cordova/exec/proxy').add('Printer', exports);
