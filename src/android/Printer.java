@@ -1,32 +1,34 @@
 /*
-    Copyright 2013-2016 appPlant GmbH
+ Copyright 2013 Sebastián Katzer
 
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
  */
 
 package de.appplant.cordova.plugin.printer;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.webkit.WebView;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -90,10 +92,7 @@ public class Printer extends CordovaPlugin {
             PrintManager pm   = new PrintManager(cordova.getContext());
             boolean printable = pm.canPrintItem(item);
 
-            PluginResult res = new PluginResult(
-                    PluginResult.Status.OK, printable);
-
-            callback.sendPluginResult(res);
+            sendPluginResult(callback, printable);
         });
     }
 
@@ -108,7 +107,7 @@ public class Printer extends CordovaPlugin {
             JSONArray utis = PrintManager.getPrintableUTIs();
 
             PluginResult res = new PluginResult(
-                    PluginResult.Status.OK, utis);
+                    Status.OK, utis);
 
             callback.sendPluginResult(res);
         });
@@ -129,7 +128,21 @@ public class Printer extends CordovaPlugin {
             PrintManager pm = new PrintManager(cordova.getContext());
             WebView view    = (WebView) webView.getView();
 
-            pm.print(content, settings, view, callback::success);
+            pm.print(content, settings, view, (boolean completed) -> sendPluginResult(callback, completed));
         });
+    }
+
+    /**
+     * Sends the result back to the client.
+     *
+     * @param callback The callback to invoke.
+     * @param value    The argument to pass with.
+     */
+    private void sendPluginResult (@NonNull CallbackContext callback,
+                                   boolean value)
+    {
+        PluginResult result = new PluginResult(Status.OK, value);
+
+        callback.sendPluginResult(result);
     }
 }

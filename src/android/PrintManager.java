@@ -1,22 +1,22 @@
 /*
-    Copyright 2013-2016 appPlant GmbH
+ Copyright 2013 Sebastián Katzer
 
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
  */
 
 package de.appplant.cordova.plugin.printer;
@@ -26,6 +26,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.print.PrintHelper;
@@ -41,9 +42,14 @@ import java.io.InputStream;
 
 import static android.content.Context.PRINT_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.print.PrintJobInfo.STATE_COMPLETED;
 import static de.appplant.cordova.plugin.printer.PrintContent.ContentType.UNSUPPORTED;
 
 class PrintManager {
+
+    interface OnPrintFinishCallback {
+        void onFinish (boolean completed);
+    }
 
     // The application context
     private final @NonNull Context context;
@@ -110,8 +116,7 @@ class PrintManager {
      */
     @SuppressWarnings("ConstantConditions")
     void print (@Nullable String content, @NonNull JSONObject settings,
-                @NonNull WebView view,
-                @Nullable PrintHelper.OnPrintFinishCallback callback)
+                @NonNull WebView view, @NonNull OnPrintFinishCallback callback)
     {
         switch (PrintContent.getContentType(content, context))
         {
@@ -123,26 +128,57 @@ class PrintManager {
                 break;
             case HTML:
                 if (content == null || content.isEmpty()) {
-                    printWebView(view, settings);
+                    printWebView(view, settings, callback);
                 } else {
-                    printText(content, "text/html", settings);
+                    printHtml(content, settings, callback);
                 }
                 break;
             case UNSUPPORTED:
                 // TODO unsupported content
             case PLAIN:
-                printText(content, "text/plain", settings);
+                printText(content, settings, callback);
         }
+    }
+
+    /**
+     * Prints the HTML content.
+     *
+     * @param content  The HTML text to print.
+     * @param settings Additional settings how to render the content.
+     * @param callback The function to invoke once the job is done.
+     */
+    private void printHtml (@Nullable String content,
+                            @NonNull JSONObject settings,
+                            @NonNull OnPrintFinishCallback callback)
+    {
+        printContent(content, "text/html", settings, callback);
+    }
+
+    /**
+     * Prints the plain text content.
+     *
+     * @param content  The plain text to print.
+     * @param settings Additional settings how to render the content.
+     * @param callback The function to invoke once the job is done.
+     */
+    private void printText (@Nullable String content,
+                            @NonNull JSONObject settings,
+                            @NonNull OnPrintFinishCallback callback)
+    {
+        printContent(content, "text/plain", settings, callback);
     }
 
     /**
      * Prints the markup content.
      *
      * @param content  The HTML markup to print.
+     * @param mimeType The mime type to render.
      * @param settings Additional settings how to render the content.
+     * @param callback The function to invoke once the job is done.
      */
-    private void printText (@Nullable String content, @NonNull String mimeType,
-                            @NonNull JSONObject settings)
+    private void printContent (@Nullable String content, @NonNull String mimeType,
+                               @NonNull JSONObject settings,
+                               @NonNull OnPrintFinishCallback callback)
     {
         ((Activity) context).runOnUiThread(() -> {
             view = this.createWebView(settings);
@@ -155,7 +191,7 @@ class PrintManager {
 
                 @Override
                 public void onPageFinished (WebView view, String url) {
-                    printWebView(PrintManager.this.view, settings);
+                    printWebView(PrintManager.this.view, settings, callback);
                     PrintManager.this.view = null;
                 }
             });
@@ -169,9 +205,11 @@ class PrintManager {
      *
      * @param view     The web view instance to print.
      * @param settings Additional settings how to render the content.
+     * @param callback The function to invoke once the job is done.
      */
     private void printWebView (@NonNull WebView view,
-                               @NonNull JSONObject settings)
+                               @NonNull JSONObject settings,
+                               @NonNull OnPrintFinishCallback callback)
     {
         PrintOptions options = new PrintOptions(settings);
         String jobName       = options.getJobName();
@@ -185,7 +223,9 @@ class PrintManager {
                 adapter = view.createPrintDocumentAdapter();
             }
 
-            printAdapter(adapter, options);
+            PrintProxy proxy = new PrintProxy(adapter, () -> callback.onFinish(isPrintJobCompleted(jobName)));
+
+            printAdapter(proxy, options);
         });
     }
 
@@ -197,7 +237,7 @@ class PrintManager {
      * @param callback The function to invoke once the job is done.
      */
     private void printPdf (@NonNull String path, @NonNull JSONObject settings,
-                           @Nullable PrintHelper.OnPrintFinishCallback callback)
+                           @NonNull OnPrintFinishCallback callback)
     {
         InputStream stream    = PrintContent.open(path, context);
 
@@ -205,7 +245,7 @@ class PrintManager {
 
         PrintOptions options  = new PrintOptions(settings);
         String jobName        = options.getJobName();
-        PrintAdapter adapter  = new PrintAdapter(jobName, stream, callback);
+        PrintAdapter adapter  = new PrintAdapter(jobName, stream, () -> callback.onFinish(isPrintJobCompleted(jobName)));
 
         printAdapter(adapter, options);
     }
@@ -233,7 +273,7 @@ class PrintManager {
      * @param callback The function to invoke once the job is done.
      */
     private void printImage (@NonNull String path, @NonNull JSONObject settings,
-                             @Nullable PrintHelper.OnPrintFinishCallback callback)
+                             @NonNull OnPrintFinishCallback callback)
     {
         Bitmap bitmap        = PrintContent.decode(path, context);
 
@@ -245,7 +285,7 @@ class PrintManager {
 
         options.decoratePrintHelper(printer);
 
-        printer.printBitmap(jobName, bitmap, callback);
+        printer.printBitmap(jobName, bitmap, () -> callback.onFinish(isPrintJobCompleted(jobName)));
     }
 
     /**
@@ -281,6 +321,37 @@ class PrintManager {
         }
 
         return view;
+    }
+
+    /**
+     * Finds the print job by its name.
+     *
+     * @param jobName The name of the print job.
+     *
+     * @return null if it could not find any job with this label.
+     */
+    @Nullable
+    private PrintJob findPrintJobByName (@NonNull String jobName)
+    {
+        for (PrintJob job : getPrintService().getPrintJobs()) {
+            if (job.getInfo().getLabel().equals(jobName)) {
+                return job;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if the print job is done.
+     *
+     * @param jobName The name of the print job.
+     */
+    private boolean isPrintJobCompleted (@NonNull String jobName)
+    {
+        PrintJob job = findPrintJobByName(jobName);
+
+        return (job == null || job.getInfo().getState() <= STATE_COMPLETED);
     }
 
     /**

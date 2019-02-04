@@ -27,27 +27,16 @@ import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
-import android.print.PrintDocumentInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.print.PrintHelper;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import static android.print.PrintDocumentInfo.CONTENT_TYPE_DOCUMENT;
-
 /**
- * Document adapter to render and print PDF files.
+ * Simple delegate class to have access to the onFinish method.
  */
-class PrintAdapter extends PrintDocumentAdapter {
+class PrintProxy extends PrintDocumentAdapter {
 
-    // The name of the print job
-    private final @NonNull String jobName;
-
-    // The input stream to render
-    private final @NonNull InputStream input;
+    // Holds the delegate object
+    private final @NonNull PrintDocumentAdapter delegate;
 
     // The callback to inform once the job is done
     private final @NonNull PrintHelper.OnPrintFinishCallback callback;
@@ -55,15 +44,13 @@ class PrintAdapter extends PrintDocumentAdapter {
     /**
      * Constructor
      *
-     * @param jobName  The name of the print job.
-     * @param input    The input stream to render.
-     * @param callback The callback to inform once the job is done.
+     * @param adapter  The real adapter.
+     * @param callback The callback to invoke once the printing is done.
      */
-    PrintAdapter (@NonNull String jobName, @NonNull InputStream input,
-                  @NonNull PrintHelper.OnPrintFinishCallback callback)
+    PrintProxy (@NonNull PrintDocumentAdapter adapter,
+                @NonNull PrintHelper.OnPrintFinishCallback callback)
     {
-        this.jobName  = jobName;
-        this.input    = input;
+        this.delegate = adapter;
         this.callback = callback;
     }
 
@@ -74,18 +61,7 @@ class PrintAdapter extends PrintDocumentAdapter {
                           LayoutResultCallback callback,
                           Bundle bundle)
     {
-        PrintDocumentInfo pdi;
-
-        if (cancellationSignal.isCanceled())
-            return;
-
-        pdi = new PrintDocumentInfo.Builder(jobName)
-                .setContentType(CONTENT_TYPE_DOCUMENT)
-                .build();
-
-        boolean changed = !newAttributes.equals(oldAttributes);
-
-        callback.onLayoutFinished(pdi, changed);
+        delegate.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, bundle);
     }
 
     @Override
@@ -94,31 +70,15 @@ class PrintAdapter extends PrintDocumentAdapter {
                          CancellationSignal cancellationSignal,
                          WriteResultCallback callback)
     {
-        if (cancellationSignal.isCanceled())
-            return;
-
-        OutputStream output = new FileOutputStream(dest.getFileDescriptor());
-
-        try {
-            PrintContent.copy(input, output);
-        } catch (IOException e) {
-            callback.onWriteFailed(e.getMessage());
-            return;
-        }
-
-        callback.onWriteFinished(new PageRange[]{ PageRange.ALL_PAGES });
+        delegate.onWrite(range, dest, cancellationSignal, callback);
     }
 
     /**
-     * Closes the input stream and invokes the callback.
+     * Invokes the callback.
      */
     @Override
-    public void onFinish ()
-    {
+    public void onFinish () {
         super.onFinish();
-
-        PrintContent.close(input);
-
         callback.onFinish();
     }
 }
