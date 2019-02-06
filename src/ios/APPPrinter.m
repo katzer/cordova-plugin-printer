@@ -221,7 +221,7 @@
            toPrintItem:(id)item
           withSettings:(NSDictionary *)settings
 {
-    NSString* printer = settings[@"printerId"];
+    NSString* printer = settings[@"printer"];
 
     if ([item isKindOfClass:UIPrintFormatter.class])
     {
@@ -256,7 +256,7 @@
           withSettings:(NSDictionary *)settings
 {
     NSString* callbackId = settings[@"callbackId"];
-    NSString* printerURL = settings[@"printerId"];
+    NSString* printerURL = settings[@"printer"];
     UIPrinter* printer   = [self printerWithURL:printerURL];
 
     dispatch_async(dispatch_get_main_queue(), ^{
