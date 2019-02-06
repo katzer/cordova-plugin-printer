@@ -3,141 +3,95 @@
     <b><a href="https://github.com/katzer/cordova-plugin-printer/blob/example/README.md">SAMPLE APP</a> :point_right:</b>
 </p>
 
-Cordova Print Plugin [![npm version](https://badge.fury.io/js/cordova-plugin-printer.svg)](http://badge.fury.io/js/cordova-plugin-printer) [![Build Status](https://travis-ci.org/katzer/cordova-plugin-printer.svg?branch=master)](https://travis-ci.org/katzer/cordova-plugin-printer)
-====================
+# Cordova Print Plugin <br> [![npm version](https://badge.fury.io/js/cordova-plugin-printer.svg)](http://badge.fury.io/js/cordova-plugin-printer) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L3HKQCD9UA35A "Donate once-off to this project using Paypal")
 
-Plugin for the [Cordova][cordova] framework to print HTML from iOS, Android and Windows Universal apps.
+<img width="280px" align="right" hspace="20" vspace="10" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print-ios.png">
 
-<p align="center">
-    <img width="23.8%" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print-ios.png"></img>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <img width="26.8%" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print-windows.png"></img>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <img width="23.8%" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print-android.png"></img>
-</p>
+Plugin for [Cordova][cordova] to print documents or photos from iOS, Android and Windows Universal apps.
 
-### About Apple AirPrint
-AirPrint is an Apple™ technology that helps you create full-quality printed output without the need to download or install drivers. AirPrint is built in to many printer models from most popular printer manufacturers. Just select an AirPrint printer on your local network to print from your favorite iOS or OS X app.
+### Supported Printer Interfaces
 
-See [Drawing and Printing Guide for iOS][ios_guide] for detailed informations. 
+- Apple AirPrint
+- Android Print
+- Windows Print
 
-### About Android Printing Framework
-Starting with _KitKat_, most Android devices have print service plugins installed to enable printing using the Google Cloud Print and Google Drive services. Print service plugins from other printer manufactures are available through the App Store though the Google Cloud Print service plugin can also be used to print from an Android device to just about any printer type and model.<br>
-In addition to supporting physical printers, it is also possible to save printed output to your Google Drive account or locally as a PDF file on the Android device.
+### Supported Content
 
-See [Building Apps with Multimedia for Android][android_guide] for detailed informations. 
+- HTML
+- Text
+- Base64
+- Images
+- PDF
 
+### Supported Platforms
 
-## Supported Platforms
-- iOS 8 or newer
-- Android KitKat or newer
-- Universal Windows Platform
+- Android 4.4+
+- iOS 10+
+- Windows 10 UWP
 
 
 ## Installation
-Install the latest version:
 
-    cordova plugin add cordova-plugin-printer
+The plugin can be installed via [CLI][CLI] and is publicly available on [NPM][npm].
 
-Or a specific version:
+Execute from the projects root folder:
 
-    cordova plugin add cordova-plugin-printer@VERSION
+    $ cordova plugin add cordova-plugin-printer
 
-Or the latest dev version:
+Or install a specific version:
 
-    cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
+    $ cordova plugin add cordova-plugin-printer@VERSION
 
-Or a custom version:
+Or install the latest head version:
 
-    cordova plugin add cordova-plugin-printer --searchpath path/to/plugin
+    $ cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
+
+Or install from local source:
+
+    $ cordova plugin add <path> --nofetch --nosave
 
 And then execute:
 
     cordova build
 
 
-## ChangeLog
-#### Version 0.7.4 (not yet released)
-- Fix broken _check_ and _pick_ on Android N and above
+## Basics
 
-#### Version 0.7.3 (19.12.2016)
-- Fixed incompatibility with Android KitKat (4.4)
+The plugin creates the object `cordova.plugins.printer` and is accessible after the *deviceready* event has been fired.
 
-Known limitations
-- Plugin crashes on Windows OS 10.0.14
-- _check_ on Android might return empty result as some versions of cordova seems to have a bug with multipart results.
-
-See [CHANGELOG.md][changelog] to get the full changelog for the plugin.
-
-
-## Usage
-The plugin and its methods are not available before the *deviceready* event has been fired.
+To print plain text:
 
 ```javascript
-document.addEventListener('deviceready', function () {
-    // cordova.plugins.printer is now available
-}, false);
+cordova.plugins.printer.print("Hello\nWorld!");
 ```
 
-### Check printer
-The device his printing capabilities can be reviewed through the `printer.check` interface. Use this function to hide print functionality from users who will be unable to use it.
+Or HTML+CSS:
 
 ```javascript
-/**
- * Checks if the printer service is available (iOS)
- * or if printer services are installed and enabled (Android).
- *
- * @param {Function} callback
- *      A callback function
- * @param {Object} scope
- *      Optional scope of the callback
- *      Defaults to: window
- */
-cordova.plugins.printer.check(function (available, count) {
-    alert(available ? 'Found ' + count + ' services' : 'No');
-});
+cordova.plugins.printer.print('<h1>Hello World!</h1>');
 ```
 
-### Pick a printer
-Displays a system interface allowing the user to select an available printer. 
-To speak with a printer directly you need to know the network address by picking them before via `printer.pick`.
-
-Note that picking a printer is not supported for windows platform.
+Or images or documents:
 
 ```javascript
-/**
- * Displays system interface for selecting a printer.
- *
- * @param {Function} callback
- *      A callback function
- */
-cordova.plugins.printer.pick(function (uri) {
-    alert(uri ? uri : 'Canceled');
-});
+cordova.plugins.printer.print('file://img/logo.png');
 ```
 
-### Print content
-Content can be send to a printer through the `printer.print` interface. The method takes a string with HTML content, an URI pointing to another web page or any DOM node.
+Or Base64 content:
 
 ```javascript
-/**
- * Sends the content to print service.
- *
- * @param {String} content
- *      HTML string or DOM node
- *      if latter, innerHTML is used to get the content
- * @param {Object} options
- *       Options for the print job
- * @param {Function} callback
- *      An optional callback function
- * @param {Object} scope
- *      An optional scope of the callback
- *      Defaults to: window
- */
-cordova.plugins.printer.print('<html>..</html>', { duplex: 'long' }, function (res) {
-    alert(res ? 'Done' : 'Canceled');
-});
+cordova.plugins.printer.print('base64://...');
 ```
+
+## Formatting
+
+It's possible to pass by additional format options. The list of possible options depend on the platform and the content type:
+
+```javascript
+cordova.plugins.printer.print(content, options);
+```
+
+TODO
 
 The method accepts a list of attributes. Not all are supported on each platform and by each printer!
 
@@ -157,50 +111,46 @@ The method accepts a list of attributes. Not all are supported on each platform 
 | paperCutLength | On roll-fed printers you can decide after how many milimeters the printer cuts the paper. | Number | iOS |
 | bounds | The Size and position of the print view<br>Defaults to: [40, 30, 0, 0] | Array | iPad |
 
-#### Further informations
-- All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
-- The string can contain HTML content or an URI pointing to another web page.
+Use `getDefaults()` or `setDefaults()` to specify default options.
 
 
-## Examples
-__NOTE:__ All CSS rules needs to be embedded or accessible via absolute URLs in order to print out HTML encoded content.
+## Direct Print
 
-Print the whole HTML page:
+For iOS its possible to send the content directly to the printer without any dialog. Todo so pass the network URL as an option:
 
 ```javascript
-var page = location.href;
-
-cordova.plugins.printer.print(page, 'Document.html');
+cordova.plugins.printer.print(content, { printer: 'ipp://...' });
 ```
 
-Print the content from one part of the page:
+To let the user pick an available printer:
 
 ```javascript
-var page = document.getElementById('legal-notice');
-
-cordova.plugins.printer.print(page, 'Document.html');
+cordova.plugins.printer.pick(function (url) {});
 ```
 
-Print some custom content:
+__Note:__ By passing an invalid URL, the application will throw an `Unable to connect to (null)` exception and possibly crash.
+
+
+## Printable Document Types
+
+The list of supported document types differ between mobile platforms. As of writing, Windows UWP only supports HTML and plain text.
+
+To get a list of all printable document types:
 
 ```javascript
-var page = '<h1>Hello Document</h1>';
-
-cordova.plugins.printer.print(page, 'Document.html');
+cordova.plugins.printer.getPrintableTypes(callback);
 ```
 
-Print a remote web page:
+To check if printing is supported in general:
 
 ```javascript
-cordova.plugins.printer.print('http://blackberry.de', 'BB10');
+cordova.plugins.printer.canPrintItem(callback);
 ```
 
-Send to printer directly:
+Or in articular:
 
 ```javascript
-cordova.plugins.printer.pick(function (uri) {
-    cordova.plugins.printer.print(page, { printerId: uri });
-});
+cordova.plugins.printer.canPrintItem('file://css/index.css', callback);
 ```
 
 
@@ -212,21 +162,18 @@ cordova.plugins.printer.pick(function (uri) {
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
+
 ## License
 
 This software is released under the [Apache 2.0 License][apache2_license].
 
 Made with :yum: from Leipzig
 
-© 2016 [appPlant GmbH][appplant]
+© 2013 [appPlant GmbH][appplant]
 
 
 [cordova]: https://cordova.apache.org
-[ios_guide]: http://developer.apple.com/library/ios/documentation/2ddrawing/conceptual/drawingprintingios/Printing/Printing.html
-[android_guide]: https://developer.android.com/training/building-multimedia.html
-[changelog]: CHANGELOG.md
-[check]: #check-printer
-[pick]: #pick-a-printer
-[print]: #print-content
+[CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
+[npm]: https://www.npmjs.com/package/cordova-plugin-printer
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
 [appplant]: www.appplant.de
