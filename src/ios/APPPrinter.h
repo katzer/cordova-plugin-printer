@@ -25,7 +25,7 @@
 
 - (void) check:(CDVInvokedUrlCommand *)command;
 
-- (void) utis:(CDVInvokedUrlCommand *)command;
+- (void) types:(CDVInvokedUrlCommand *)command;
 
 - (void) pick:(CDVInvokedUrlCommand *)command;
 

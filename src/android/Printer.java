@@ -65,9 +65,9 @@ public class Printer extends CordovaPlugin {
         {
             check(args.optString(0), callback);
         }
-        else if (action.equalsIgnoreCase("utis"))
+        else if (action.equalsIgnoreCase("types"))
         {
-            utis(callback);
+            types(callback);
         }
         else if (action.equalsIgnoreCase("print"))
         {
@@ -101,10 +101,10 @@ public class Printer extends CordovaPlugin {
      *
      * @param callback The plugin function to invoke with the result.
      */
-    private void utis (CallbackContext callback)
+    private void types (CallbackContext callback)
     {
         cordova.getThreadPool().execute(() -> {
-            JSONArray utis = PrintManager.getPrintableUTIs();
+            JSONArray utis = PrintManager.getPrintableTypes();
 
             PluginResult res = new PluginResult(
                     Status.OK, utis);

@@ -60,7 +60,7 @@ exports.check = function (success, fail, args) {
  *
  * @return [ Void ]
  */
-exports.utis = function (success, fail, args) {
+exports.types = function (success, fail, args) {
     success([]);
 };
 

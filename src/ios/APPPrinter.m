@@ -52,7 +52,7 @@
 /*
  * List all printable document types (utis).
  */
-- (void) utis:(CDVInvokedUrlCommand *)command
+- (void) types:(CDVInvokedUrlCommand *)command
 {
     [self.commandDelegate runInBackground:^{
         NSSet *utis = UIPrintInteractionController.printableUTIs;

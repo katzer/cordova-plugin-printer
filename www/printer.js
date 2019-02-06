@@ -122,7 +122,7 @@ exports.canPrintItem = function (uri, callback, scope) {
 exports.getPrintableTypes = function (callback, scope) {
     var fn = this._createCallbackFn(callback, scope);
 
-    exec(fn, null, 'Printer', 'utis', []);
+    exec(fn, null, 'Printer', 'types', []);
 };
 
 /**

@@ -90,7 +90,7 @@ class PrintManager {
      * List of all printable document types (utis).
      */
     @NonNull
-    static JSONArray getPrintableUTIs()
+    static JSONArray getPrintableTypes()
     {
         JSONArray utis = new JSONArray();
 
