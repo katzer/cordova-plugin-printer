@@ -134,6 +134,16 @@ exports.print = function (content, options, callback, scope) {
 exports.mergeWithDefaults = function (options) {
     var defaults = this.getDefaults();
 
+    //check if options are empty
+    if( options === undefined
+          || options == undefined
+          || options == null
+          || JSON.stringify(options) == "undefined"
+          || JSON.stringify(options) === undefined
+          || JSON.stringify(options) === JSON.stringify({}) ){
+      return defaults;
+    }
+    
     if (options.bounds && !options.bounds.length) {
         options.bounds = [
             options.bounds.left   || defaults.bounds[0],
