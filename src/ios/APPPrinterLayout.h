@@ -21,13 +21,12 @@
 
 @interface APPPrinterLayout : NSObject
 
-+ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withLayoutFromDictionary:(nullable NSDictionary *)layoutSpec withStyleFromDictionary:(nullable NSDictionary *)styleSpec;
++ (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter withSettings:(nullable NSDictionary *)settings;
 
-// The margins for each printed page.
 @property(nonatomic) UIEdgeInsets contentInsets;
-// The maximum height of the content area.
+
 @property(nonatomic) CGFloat maximumContentHeight;
-// The maximum width of the content area.
+
 @property(nonatomic) CGFloat maximumContentWidth;
 
 @end

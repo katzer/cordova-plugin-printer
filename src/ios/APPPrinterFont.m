@@ -20,15 +20,15 @@
  under the License.
  */
 
-#include "APPPrinterStyle.h"
+#include "APPPrinterFont.h"
 
-@interface APPPrinterStyle ()
+@interface APPPrinterFont ()
 
 @property (nonatomic, retain) NSDictionary *settings;
 
 @end
 
-@implementation APPPrinterStyle
+@implementation APPPrinterFont
 
 #pragma mark -
 #pragma mark Public
@@ -47,7 +47,7 @@
     NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle]
                                       mutableCopy];
 
-    style.alignment = self.textAlignment;
+    style.alignment = self.alignment;
 
     return @{ NSFontAttributeName: self.font,
               NSParagraphStyleAttributeName: style,
@@ -63,7 +63,7 @@
         size = UIFont.smallSystemFontSize;
     }
 
-    UIFont *font = [UIFont fontWithName:_settings[@"font"] size:size];
+    UIFont *font = [UIFont fontWithName:_settings[@"name"] size:size];
 
     if (!font)
     {
@@ -115,7 +115,7 @@
     return color;
 }
 
-- (NSTextAlignment) textAlignment
+- (NSTextAlignment) alignment
 {
     NSString *align = _settings[@"align"];
 

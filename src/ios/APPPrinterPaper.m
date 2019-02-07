@@ -31,13 +31,10 @@
 {
     self = [self init];
 
-    double dots   = [APPPrinterUnit convert:spec[@"unit"]];
-    double length = [spec[@"length"] doubleValue];
-    double height = [spec[@"height"] doubleValue];
-    double width  = [spec[@"width"] doubleValue];
+    _size   = CGSizeMake([APPPrinterUnit convert:spec[@"width"]],
+                         [APPPrinterUnit convert:spec[@"height"]]);
 
-    _size   = CGSizeMake(dots * width, dots * height);
-    _length = dots * length;
+    _length = [APPPrinterUnit convert:spec[@"length"]];
 
     return self;
 }

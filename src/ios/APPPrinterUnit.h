@@ -21,6 +21,6 @@
 
 @interface APPPrinterUnit : NSObject
 
-+ (double) convert:(nullable NSString *)unit;
++ (double) convert:(nullable id)unit;
 
 @end

@@ -23,26 +23,65 @@
 
 @implementation APPPrinterUnit
 
-+ (double) convert:(nullable NSString *)unit
+/**
+ * Converts any unit value to poings.
+ *
+ * @param [ id ] unit A number, a number as string or a string with a unit.
+ *
+ * @return [ double ] The converted unit into points.
+ */
++ (double) convert:(nullable id)unit
 {
-    if (!unit || [unit isEqual:[NSNull null]])
-        return 1.0;
+    double value = 0;
 
-    if ([unit isEqualToString:@"in"])
-        return 72.0;
-
-    if ([unit isEqualToString:@"mm"])
-        return 72.0 / 25.4;
-
-    if ([unit isEqualToString:@"cm"])
-        return 72.0 / 2.54;
-
-    if (![unit isEqualToString:@"pp"])
+    @try
+    {
+        if (!unit || [unit isEqual:[NSNull null]])
+        {
+            value = 0;
+        }
+        else if ([unit isKindOfClass:NSNumber.class])
+        {
+            value = [unit longValue];
+        }
+        else if ([unit hasSuffix:@"pt"])
+        {
+            value = [[self stringWithoutUnit:unit] doubleValue];
+        }
+        else if ([unit hasSuffix:@"in"])
+        {
+            value = [[self stringWithoutUnit:unit] doubleValue] * 72.0;
+        }
+        else if ([unit hasSuffix:@"mm"])
+        {
+            value = [[self stringWithoutUnit:unit] doubleValue] * 72.0 / 25.4;
+        }
+        else if ([unit hasSuffix:@"cm"]) {
+            value = [[self stringWithoutUnit:unit] doubleValue] * 72.0 / 2.54;
+        }
+        else
+        {
+            value = [unit doubleValue];
+        }
+    }
+    @catch (NSException *e)
     {
         NSLog(@"[cordova-plugin-printer] unit not recognized: %@", unit);
     }
 
-    return 1.0;
+    return value;
+}
+
+/**
+ * Cuts the last 2 characters from the string.
+ *
+ * @param str A string like @"2cm"
+ *
+ * @return [ NSString ]
+ */
++ (NSString *) stringWithoutUnit:(NSString *)str
+{
+    return [str substringToIndex:[str length] - 2];
 }
 
 @end

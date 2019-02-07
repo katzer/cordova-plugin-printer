@@ -21,7 +21,7 @@
 
 #include "APPPrinterLayout.h"
 #include "APPPrinterRenderer.h"
-#include "APPPrinterStyle.h"
+#include "APPPrinterFont.h"
 #include "APPPrinterUnit.h"
 
 @interface APPPrinterRenderer ()
@@ -39,26 +39,22 @@
 {
     NSDictionary* header = spec[@"header"];
     NSDictionary* footer = spec[@"footer"];
-    double dots          = 0;
 
     self = [self init];
 
     [APPPrinterLayout configureFormatter:formatter
-                withLayoutFromDictionary:spec[@"layout"]
-                 withStyleFromDictionary:spec[@"style"]];
+                            withSettings:spec];
 
     [self addPrintFormatter:formatter startingAtPageAtIndex:0];
 
     if (header)
     {
-        dots = [APPPrinterUnit convert:header[@"unit"]];
-        self.headerHeight = dots * [header[@"height"] floatValue];
+        self.headerHeight = [APPPrinterUnit convert:header[@"height"]];
     }
 
     if (footer)
     {
-        dots = [APPPrinterUnit convert:footer[@"unit"]];
-        self.footerHeight = dots * [footer[@"height"] floatValue];
+        self.footerHeight = [APPPrinterUnit convert:footer[@"height"]];
     }
 
     _settings = spec;
@@ -139,15 +135,14 @@
     if ([self strIsNullOrEmpty:label])
         return;
 
-    NSDictionary *position   = spec[@"position"];
-    NSDictionary *style      = spec[@"style"];
+    APPPrinterFont *font = [[APPPrinterFont alloc]
+                            initWithDictionary:spec[@"font"]];
 
-    NSDictionary *attributes = [[APPPrinterStyle alloc]
-                                initWithDictionary:style].attributes;
+    NSDictionary *attributes = font.attributes;
 
-    if (position)
+    if (spec[@"top"] || spec[@"left"] || spec[@"right"] || spec[@"bottom"])
     {
-        [label drawAtPoint:[self pointFromPositionAsDictionary:position
+        [label drawAtPoint:[self pointFromPositionAsDictionary:spec
                                                       forLabel:label
                                                 withAttributes:attributes
                                                         inRect:rect]
@@ -164,11 +159,10 @@
                            withAttributes:(NSDictionary *)attributes
                                    inRect:(CGRect)rect
 {
-    double dots     = [APPPrinterUnit convert:spec[@"unit"]];
-    id top          = spec[@"top"];
-    id left         = spec[@"left"];
-    id right        = spec[@"right"];
-    id bottom       = spec[@"bottom"];
+    id top    = spec[@"top"];
+    id left   = spec[@"left"];
+    id right  = spec[@"right"];
+    id bottom = spec[@"bottom"];
 
     double x = rect.origin.x, y = rect.origin.y;
     CGSize size;
@@ -180,20 +174,20 @@
 
     if (top)
     {
-        y = rect.origin.y + dots * [top doubleValue];
+        y = rect.origin.y + [APPPrinterUnit convert:top];
     }
     else if (bottom)
     {
-        y = rect.origin.y - size.height - dots * [bottom doubleValue];
+        y = rect.origin.y - size.height - [APPPrinterUnit convert:bottom];
     }
 
     if (left)
     {
-        x = rect.origin.x + dots * [left doubleValue];
+        x = rect.origin.x + [APPPrinterUnit convert:left];
     }
     else if (right)
     {
-        x = rect.size.width - size.width - dots * [right doubleValue];
+        x = rect.size.width - size.width - [APPPrinterUnit convert:right];
     }
 
     return CGPointMake(x, y);

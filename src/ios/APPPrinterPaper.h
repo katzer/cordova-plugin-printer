@@ -25,9 +25,8 @@
 
 - (UIPrintPaper*) bestPaperFromArray:(NSArray<UIPrintPaper *> *)list;
 
-// The length to use when cutting the page if using roll printers.
 @property(nonatomic) CGFloat length;
-// The size of the printed page.
+
 @property(nonatomic) CGSize size;
 
 @end

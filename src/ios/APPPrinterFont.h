@@ -20,7 +20,7 @@
  under the License.
  */
 
-@interface APPPrinterStyle : NSObject
+@interface APPPrinterFont : NSObject
 
 - (instancetype) initWithDictionary:(NSDictionary *)spec;
 
@@ -28,7 +28,7 @@
 
 - (UIColor *)color;
 
-- (NSTextAlignment) textAlignment;
+- (NSTextAlignment) alignment;
 
 - (NSDictionary<NSAttributedStringKey, id> *)attributes;
 

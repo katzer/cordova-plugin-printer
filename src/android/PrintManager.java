@@ -301,7 +301,7 @@ class PrintManager {
         boolean jsEnabled = settings.optBoolean("javascript", false);
         WebView      view = new WebView(context);
         WebSettings  spec = view.getSettings();
-        JSONObject  style = settings.optJSONObject("style");
+        JSONObject   font = settings.optJSONObject("font");
 
         spec.setDatabaseEnabled(true);
         spec.setGeolocationEnabled(true);
@@ -309,9 +309,9 @@ class PrintManager {
         spec.setUseWideViewPort(true);
         spec.setJavaScriptEnabled(jsEnabled);
 
-        if (style != null && style.has("size"))
+        if (font != null && font.has("size"))
         {
-            spec.setDefaultFixedFontSize(style.optInt("size", 16));
+            spec.setDefaultFixedFontSize(font.optInt("size", 16));
         }
 
         if (SDK_INT >= 21)

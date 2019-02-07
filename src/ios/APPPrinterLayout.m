@@ -20,7 +20,7 @@
  */
 
 #include "APPPrinterLayout.h"
-#include "APPPrinterStyle.h"
+#include "APPPrinterFont.h"
 #include "APPPrinterUnit.h"
 
 @implementation APPPrinterLayout
@@ -34,19 +34,16 @@
 
     if (!spec) return self;
 
-    NSDictionary* insests = spec[@"padding"];
-    double maxWidth       = [spec[@"maxWidth"] doubleValue];
-    double maxHeight      = [spec[@"maxHeight"] doubleValue];
-    double dots           = [APPPrinterUnit convert:spec[@"unit"]];
+    NSDictionary *margin = spec[@"margin"];
 
-    _contentInsets = UIEdgeInsetsMake(dots * [insests[@"top"] doubleValue],
-                                      dots * [insests[@"left"] doubleValue],
-                                      dots * [insests[@"bottom"] doubleValue],
-                                      dots * [insests[@"right"] doubleValue]);
+    _contentInsets = UIEdgeInsetsMake([APPPrinterUnit convert:margin[@"top"]],
+                                      [APPPrinterUnit convert:margin[@"left"]],
+                                      [APPPrinterUnit convert:margin[@"bottom"]],
+                                      [APPPrinterUnit convert:margin[@"right"]]);
 
-    _maximumContentWidth  = dots * maxWidth;
+    _maximumContentWidth  = [APPPrinterUnit convert:spec[@"maxWidth"]];
 
-    _maximumContentHeight = dots * maxHeight;
+    _maximumContentHeight = [APPPrinterUnit convert:spec[@"maxHeight"]];
 
     return self;
 }
@@ -55,17 +52,16 @@
 #pragma mark Public
 
 + (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter
-                 withLayoutFromDictionary:(NSDictionary *)layoutSpec
-                  withStyleFromDictionary:(nullable NSDictionary *)styleSpec
+                             withSettings:(NSDictionary *)settings
 {
-    id layout = [[self alloc] initWithDictionary:layoutSpec];
+    id layout = [[self alloc] initWithDictionary:settings];
 
     [layout configureFormatter:formatter];
 
-    if (styleSpec && ![formatter isKindOfClass:UIMarkupTextPrintFormatter.class])
+    if (settings && ![formatter isKindOfClass:UIMarkupTextPrintFormatter.class])
     {
         [layout configureTextFormatter:(UISimpleTextPrintFormatter *)formatter
-               withStyleFromDictionary:styleSpec];
+                          withSettings:settings];
     }
 
     return formatter;
@@ -87,14 +83,14 @@
 }
 
 - (void) configureTextFormatter:(UISimpleTextPrintFormatter *)formatter
-        withStyleFromDictionary:(NSDictionary *)spec
+                   withSettings:(NSDictionary *)settings
 {
-    APPPrinterStyle *style = [[APPPrinterStyle alloc]
-                              initWithDictionary:spec];
+    APPPrinterFont *font = [[APPPrinterFont alloc]
+                            initWithDictionary:settings[@"font"]];
 
-    formatter.font          = style.font;
-    formatter.color         = style.color;
-    formatter.textAlignment = style.textAlignment;
+    formatter.font          = font.font;
+    formatter.color         = font.color;
+    formatter.textAlignment = font.alignment;
 }
 
 @end

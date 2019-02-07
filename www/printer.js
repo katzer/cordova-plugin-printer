@@ -26,46 +26,59 @@ var exec  = require('cordova/exec'),
 // Defaults
 exports._defaults = {
     // name:       'unknown',
+
     // duplex:     'none',
     // landscape:  false,
     // monochrome: false,
-    // border:     true,
-    // copies:     1,
 
-    ui: {
-        hideNumberOfCopies: false,
-        hidePaperFormat:    false,
-        bounds: [40, 30, 0, 0]
-    },
+    // copies: 1,
+    // maxPages: 10,
 
-    // paper: {
-    //     unit: 'cm',
-    //     height: 0,
-    //     width: 0,
-    //     length: 0
+    // border: true,
+    // maxHeight: '10cm',
+    // maxWidth: '10cm',
+
+    // font: {
+    //     name: 'Helvetica',
+    //     align: 'left',
+    //     italic: false,
+    //     bold: false,
+    //     color: '#FF0000'
     // },
 
-    // layout: {
-    //     unit: 'cm',
-    //     maxHeight: 0,
-    //     maxWidth: 0,
-    //     padding: { top: 0, left: 0, right: 0, bottom: 0 }
+    // margin: {
+    //     top: 0,
+    //     left: 0,
+    //     bottom: 0,
+    //     right: 0
+    // },
+
+    // ui: {
+    //     hideNumberOfCopies: false,
+    //     hidePaperFormat:    false,
+    //     bounds: [40, 30, 0, 0]
+    // },
+
+    // paper: {
+    //     height: 0,
+    //     width: 0,
+    //     length: 0,
+    //     name: 'A4'
     // },
 
     // header: {
-    //     unit: 'cm',
-    //     height: 1,
+    //     height: '1cm',
 
     //     labels: [{
     //         text: 'Awesome Printer Plug-in',
-    //         style: {
+    //         font: {
     //             align: 'center',
     //             italic: true,
     //             color: '#FF0000'
     //         }
     //     },{
     //         showPageIndex: true,
-    //         style: {
+    //         font: {
     //             align: 'right',
     //             bold: true
     //         }
@@ -73,17 +86,13 @@ exports._defaults = {
     // },
 
     // footer: {
-    //     unit: 'mm',
-    //     height: 3,
+    //     height: '3mm',
 
     //     label: {
     //         text: 'Copyright (c) 2013-2019 Sebastián Katzer',
-    //         style: { size: 9 },
-    //         position: {
-    //             unit: 'mm',
-    //             top: 1.5,
-    //             right: 5
-    //        }
+    //         font: { size: 9 },
+    //         top: '1.5mm',
+    //         right: '5mm'
     //     }
     // }
 };

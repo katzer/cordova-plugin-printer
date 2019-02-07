@@ -76,8 +76,8 @@
         <header-file src="src/ios/APPPrinterRenderer.h" />
         <source-file src="src/ios/APPPrinterRenderer.m" />
 
-        <header-file src="src/ios/APPPrinterStyle.h" />
-        <source-file src="src/ios/APPPrinterStyle.m" />
+        <header-file src="src/ios/APPPrinterFont.h" />
+        <source-file src="src/ios/APPPrinterFont.m" />
 
         <header-file src="src/ios/APPPrinterUnit.h" />
         <source-file src="src/ios/APPPrinterUnit.m" />
