@@ -89,9 +89,9 @@ class PrintOptions {
                 break;
         }
 
-        if (spec.has("graystyle"))
+        if (spec.has("monochrome"))
         {
-            if (spec.optBoolean("graystyle"))
+            if (spec.optBoolean("monochrome"))
             {
                 builder.setColorMode(PrintAttributes.COLOR_MODE_MONOCHROME);
             }
