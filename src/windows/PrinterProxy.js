@@ -151,7 +151,7 @@ exports.onPrintTaskRequested = function (event) {
     } catch (e) {}
 
     task.oncompleted = function (e) {
-        exports._func(e.detail[0].completion == 3);
+        exports._func(e.detail[0].completion === 3);
     };
 };
 
