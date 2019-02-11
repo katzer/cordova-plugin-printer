@@ -32,7 +32,7 @@ exports._defaults = {
     // monochrome: false,
 
     // copies: 1,
-    // maxPages: 10,
+    // pageCount: 1,
 
     // border: true,
     // maxHeight: '10cm',

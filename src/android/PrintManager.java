@@ -245,7 +245,8 @@ class PrintManager {
 
         PrintOptions options  = new PrintOptions(settings);
         String jobName        = options.getJobName();
-        PrintAdapter adapter  = new PrintAdapter(jobName, stream, () -> callback.onFinish(isPrintJobCompleted(jobName)));
+        Integer pageCount     = options.getPageCount();
+        PrintAdapter adapter  = new PrintAdapter(jobName, pageCount, stream, () -> callback.onFinish(isPrintJobCompleted(jobName)));
 
         printAdapter(adapter, options);
     }

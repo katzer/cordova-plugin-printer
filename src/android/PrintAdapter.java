@@ -46,6 +46,9 @@ class PrintAdapter extends PrintDocumentAdapter {
     // The name of the print job
     private final @NonNull String jobName;
 
+    // Max page count
+    private final int pageCount;
+
     // The input stream to render
     private final @NonNull InputStream input;
 
@@ -55,16 +58,19 @@ class PrintAdapter extends PrintDocumentAdapter {
     /**
      * Constructor
      *
-     * @param jobName  The name of the print job.
-     * @param input    The input stream to render.
-     * @param callback The callback to inform once the job is done.
+     * @param jobName   The name of the print job.
+     * @param pageCount The max page count.
+     * @param input     The input stream to render.
+     * @param callback  The callback to inform once the job is done.
      */
-    PrintAdapter (@NonNull String jobName, @NonNull InputStream input,
+    PrintAdapter (@NonNull String jobName, int pageCount,
+                  @NonNull InputStream input,
                   @NonNull PrintHelper.OnPrintFinishCallback callback)
     {
-        this.jobName  = jobName;
-        this.input    = input;
-        this.callback = callback;
+        this.jobName   = jobName;
+        this.pageCount = pageCount;
+        this.input     = input;
+        this.callback  = callback;
     }
 
     @Override
@@ -81,6 +87,7 @@ class PrintAdapter extends PrintDocumentAdapter {
 
         pdi = new PrintDocumentInfo.Builder(jobName)
                 .setContentType(CONTENT_TYPE_DOCUMENT)
+                .setPageCount(pageCount)
                 .build();
 
         boolean changed = !newAttributes.equals(oldAttributes);

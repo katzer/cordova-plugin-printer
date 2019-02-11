@@ -34,6 +34,7 @@ import static android.print.PrintAttributes.DUPLEX_MODE_SHORT_EDGE;
 import static android.print.PrintAttributes.Margins.NO_MARGINS;
 import static android.print.PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE;
 import static android.print.PrintAttributes.MediaSize.UNKNOWN_PORTRAIT;
+import static android.print.PrintDocumentInfo.PAGE_COUNT_UNKNOWN;
 import static android.support.v4.print.PrintHelper.ORIENTATION_LANDSCAPE;
 import static android.support.v4.print.PrintHelper.ORIENTATION_PORTRAIT;
 import static android.support.v4.print.PrintHelper.SCALE_MODE_FILL;
@@ -70,6 +71,16 @@ class PrintOptions {
         }
 
         return jobName;
+    }
+
+    /**
+     * Returns the max page count.
+     */
+    int getPageCount()
+    {
+        int count = spec.optInt("pageCount", PAGE_COUNT_UNKNOWN);
+
+        return count <= 0 ? PAGE_COUNT_UNKNOWN : count;
     }
 
     /**

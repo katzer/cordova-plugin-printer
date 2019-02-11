@@ -65,7 +65,7 @@
 - (NSInteger) numberOfPages
 {
     NSInteger num = [super numberOfPages];
-    id maxPages   = _settings[@"maxPages"];
+    id maxPages   = _settings[@"pageCount"];
 
     if (maxPages < 0)
     {
