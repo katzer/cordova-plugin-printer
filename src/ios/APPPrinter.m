@@ -148,8 +148,7 @@
 
     dispatch_async(dispatch_get_main_queue(), ^{
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-            NSArray* bounds = settings[@"ui"][@"bounds"];
-            CGRect rect     = [self convertIntoRect:bounds];
+            CGRect rect = [self rectFromDictionary:settings[@"ui"]];
 
             [controller presentFromRect:rect
                                  inView:self.webView
@@ -281,8 +280,7 @@
               withSettings:(NSDictionary *)settings
 {
     NSString* callbackId = settings[@"callbackId"];
-    NSArray* bounds      = settings[@"ui"][@"bounds"];
-    CGRect rect          = [self convertIntoRect:bounds];
+    CGRect rect          = [self rectFromDictionary:settings[@"ui"]];
 
     UIPrintInteractionCompletionHandler handler =
     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
@@ -352,16 +350,19 @@
  *
  * @return A converted Rect object
  */
-- (CGRect) convertIntoRect:(NSArray*)bounds
+- (CGRect) rectFromDictionary:(NSDictionary *)pos
 {
-    if (!bounds) {
-        bounds = @[@40, @30, @0, @0];
+    CGFloat left = 40, top = 30, width = 0, height = 0;
+
+    if (pos)
+    {
+        top    = [pos[@"top"] floatValue];
+        left   = [pos[@"left"] floatValue];
+        width  = [pos[@"width"] floatValue];
+        height = [pos[@"height"] floatValue];
     }
 
-    return CGRectMake([bounds[0] floatValue],
-                      [bounds[1] floatValue],
-                      [bounds[2] floatValue],
-                      [bounds[3] floatValue]);
+    return CGRectMake(left, top, width, height);
 }
 
 /**
