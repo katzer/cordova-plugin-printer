@@ -197,7 +197,7 @@
     NSString* base64String = [url substringFromIndex:9];
 
     return [[NSData alloc] initWithBase64EncodedString:base64String
-                                               options:0];
+                                               options:NSDataBase64DecodingIgnoreUnknownCharacters];
 }
 
 @end
