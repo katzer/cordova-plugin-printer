@@ -36,10 +36,13 @@
 
     NSDictionary *margin = spec[@"margin"];
 
-    _contentInsets = UIEdgeInsetsMake([APPPrinterUnit convert:margin[@"top"]],
-                                      [APPPrinterUnit convert:margin[@"left"]],
-                                      [APPPrinterUnit convert:margin[@"bottom"]],
-                                      [APPPrinterUnit convert:margin[@"right"]]);
+    if ([margin isKindOfClass:NSDictionary.class])
+    {
+        _contentInsets = UIEdgeInsetsMake([APPPrinterUnit convert:margin[@"top"]],
+                                          [APPPrinterUnit convert:margin[@"left"]],
+                                          [APPPrinterUnit convert:margin[@"bottom"]],
+                                          [APPPrinterUnit convert:margin[@"right"]]);
+    }
 
     _maximumContentWidth  = [APPPrinterUnit convert:spec[@"maxWidth"]];
 

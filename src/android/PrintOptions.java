@@ -89,6 +89,7 @@ class PrintOptions {
     @NonNull PrintAttributes toPrintAttributes()
     {
         PrintAttributes.Builder builder = new PrintAttributes.Builder();
+        Object margin                   = spec.opt("margin");
 
         switch (spec.optString("orientation"))
         {
@@ -112,7 +113,7 @@ class PrintOptions {
             }
         }
 
-        if (!spec.optBoolean("border", true))
+        if (margin instanceof Boolean && !((Boolean) margin))
         {
             builder.setMinMargins(NO_MARGINS);
         }

@@ -138,7 +138,7 @@ exports.onPrintTaskRequested = function (event) {
         spec.mediaType    = Printing.PrintMediaType.photographic;
     }
 
-    if (config.border === false) {
+    if (config.margin === false) {
         spec.bordering = Printing.PrintBordering.borderless;
     }
 
