@@ -28,6 +28,7 @@ Plugin for [Cordova][cordova] to print documents or photos from iOS, Android and
 - Android 4.4+
 - iOS 10+
 - Windows 10 UWP
+- Browser
 
 
 ## Basics
@@ -40,7 +41,7 @@ document.addEventListener('deviceready', function () {
 }, false);
 ```
 
-Print a screenshot of the web view:
+Prints the contents of the web view:
 
 ```javascript
 cordova.plugins.printer.print();
@@ -69,6 +70,8 @@ Base64 encoded content:
 ```javascript
 cordova.plugins.printer.print('base64://...');
 ```
+
+__Note:__ On the browser platform the plugin only supports to print the contents of the web view.
 
 ## Formatting
 
