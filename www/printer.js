@@ -56,7 +56,10 @@ exports._defaults = {
     // ui: {
     //     hideNumberOfCopies: false,
     //     hidePaperFormat:    false,
-    //     bounds: [40, 30, 0, 0]
+    //     top: 30,
+    //     left: 40,
+    //     height: 0,
+    //     width: 0
     // },
 
     // paper: {
@@ -107,9 +110,10 @@ exports._defaults = {
  *
  * @return [ Void ]
  */
-exports.canPrintItem = function (uri, callback, scope) {
-
-    if (typeof uri == 'function') {
+exports.canPrintItem = function (uri, callback, scope)
+{
+    if (typeof uri == 'function')
+    {
         scope    = callback;
         callback = uri;
         uri      = null;
@@ -128,7 +132,8 @@ exports.canPrintItem = function (uri, callback, scope) {
  *
  * @return [ Void ]
  */
-exports.getPrintableTypes = function (callback, scope) {
+exports.getPrintableTypes = function (callback, scope)
+{
     var fn = this._createCallbackFn(callback, scope);
 
     exec(fn, null, 'Printer', 'types', []);
@@ -143,9 +148,10 @@ exports.getPrintableTypes = function (callback, scope) {
  *
  * @return [ Void ]
  */
-exports.pick = function (options, callback, scope) {
-
-    if (typeof options == 'function') {
+exports.pick = function (options, callback, scope)
+{
+    if (typeof options == 'function')
+    {
         scope    = callback;
         callback = options;
         options  = {};
@@ -154,9 +160,12 @@ exports.pick = function (options, callback, scope) {
     var fn     = this._createCallbackFn(callback, scope),
         params = this._mergeWithDefaults(options || {});
 
-    if (isIOS) {
+    if (isIOS)
+    {
         exec(fn, null, 'Printer', 'pick', [params]);
-    } else if (fn) {
+    }
+    else if (fn)
+    {
         fn(null);
     }
 };
@@ -169,16 +178,18 @@ exports.pick = function (options, callback, scope) {
  * @param [ Function ] callback The callback function.
  * @param [ Object ]   scope    The scope for the function.
  */
-exports.print = function (content, options, callback, scope) {
-
-    if (typeof content == 'function') {
+exports.print = function (content, options, callback, scope)
+{
+    if (typeof content == 'function')
+    {
         scope    = options;
         callback = content;
         options  = {};
         content  = null;
     }
 
-    if (typeof options == 'function') {
+    if (typeof options == 'function')
+    {
         scope    = callback;
         callback = options;
         options  = typeof content != 'string' ? content : {};
@@ -196,14 +207,18 @@ exports.print = function (content, options, callback, scope) {
  *
  * @return [ Object ]
  */
-exports.getDefaults = function () {
+exports.getDefaults = function ()
+{
     var map = Object.assign({}, this._defaults);
 
-    for (var key in map) {
-        if (Array.isArray(map[key])) {
+    for (var key in map)
+    {
+        if (Array.isArray(map[key]))
+        {
             map[key] = Array.from(map[key]);
-        } else
-        if (Object.prototype.isPrototypeOf(map[key])) {
+        }
+        else if (Object.prototype.isPrototypeOf(map[key]))
+        {
             map[key] = Object.assign({}, map[key]);
         }
     }
@@ -218,7 +233,8 @@ exports.getDefaults = function () {
  *
  * @return [ Void ]
  */
-exports.setDefaults = function (newDefaults) {
+exports.setDefaults = function (newDefaults)
+{
     Object.assign(this._defaults, newDefaults);
 };
 
@@ -229,35 +245,33 @@ exports.setDefaults = function (newDefaults) {
  *
  * @retrun [ Object ]
  */
-exports._mergeWithDefaults = function (options) {
+exports._mergeWithDefaults = function (options)
+{
     var defaults = this.getDefaults();
 
-    if (options.bounds && !Array.isArray(options.bounds)) {
-        options.bounds = [
-            options.bounds.left   || defaults.bounds[0],
-            options.bounds.top    || defaults.bounds[1],
-            options.bounds.width  || defaults.bounds[2],
-            options.bounds.height || defaults.bounds[3],
-        ];
-    }
-
-    if (options.duplex && typeof options.duplex == 'boolean') {
+    if (options.duplex && typeof options.duplex == 'boolean')
+    {
         options.duplex = options.duplex ? 'long' : 'none';
     }
 
     Object.assign(defaults, options);
 
-    for (var key in defaults) {
-        if (defaults[key] !== null) {
+    for (var key in defaults)
+    {
+        if (defaults[key] !== null)
+        {
             options[key] = defaults[key];
-        } else {
+        }
+        else
+        {
             delete options[key];
         }
     }
 
-    options.meta = {
+    options.meta =
+    {
         plugin:  'cordova-plugin-printer',
-        version: '0.8.0-alpha'
+        version: '0.8.0-beta'
     };
 
     return options;
@@ -274,8 +288,8 @@ exports._mergeWithDefaults = function (options) {
  *
  * @return [ Function ] The new callback function
  */
-exports._createCallbackFn = function (callback, scope) {
-
+exports._createCallbackFn = function (callback, scope)
+{
     if (typeof callback !== 'function')
         return;
 
