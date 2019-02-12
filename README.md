@@ -34,7 +34,7 @@ Plugin for [Cordova][cordova] to print documents or photos from iOS, Android and
 
 The plugin creates the object `cordova.plugins.printer` and is accessible after the *deviceready* event has been fired.
 
-To print plain text:
+To print a screenshot of the app:
 
 ```javascript
 cordova.plugins.printer.print();
