@@ -84,7 +84,6 @@
 
         <header-file src="src/ios/UIPrintInteractionController+APPPrinter.h" />
         <source-file src="src/ios/UIPrintInteractionController+APPPrinter.m" />
-
     </platform>
 
     <!-- android -->

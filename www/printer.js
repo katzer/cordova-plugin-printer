@@ -30,11 +30,11 @@ exports._defaults = {
     // duplex:     'none',
     // landscape:  false,
     // monochrome: false,
+    // photo: false,
 
     // copies: 1,
     // pageCount: 1,
 
-    // border: true,
     // maxHeight: '10cm',
     // maxWidth: '10cm',
 
