@@ -162,7 +162,7 @@ To check if printing is supported in general:
 cordova.plugins.printer.canPrintItem(callback);
 ```
 
-Or in articular:
+Or in particular:
 
 ```javascript
 cordova.plugins.printer.canPrintItem('file://css/index.css', callback);
