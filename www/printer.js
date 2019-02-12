@@ -142,7 +142,7 @@ exports.getPrintableTypes = function (callback, scope)
 /**
  * Displays system interface for selecting a printer.
  *
- * @param [ Object ]   options  Optional options.
+ * @param [ Object ]   options  Optional ui options.
  * @param [ Function ] callback The callback function.
  * @param [ Object ]   scope    The scope for the function.
  *
@@ -158,7 +158,7 @@ exports.pick = function (options, callback, scope)
     }
 
     var fn     = this._createCallbackFn(callback, scope),
-        params = this._mergeWithDefaults(options || {});
+        params = this._mergeWithDefaults({ ui: options });
 
     if (isIOS)
     {
