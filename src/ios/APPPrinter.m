@@ -192,7 +192,7 @@
                     initWithMarkupText:content];
         });
     }
-    else if ([NSURL URLWithString:content])
+    else if ([NSURL URLWithString:content].scheme)
     {
         item = [APPPrinterItem ItemFromURL:content];
     }
