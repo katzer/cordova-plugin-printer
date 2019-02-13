@@ -98,6 +98,7 @@ The list of possible options depend on the platform, the content type and the ca
 | landscape| The orientation of the printed content, portrait or landscape. | Boolean | all |
 | monochrome | If your application only prints black text, setting this property to _true_ can result in better performance in many cases. | Boolean | all |
 | photo | Set to _true_ to change the media type to photography for higher quality. | Boolean | iOS<br>Windows |
+| autoFit | Set to _false_ to disable downscaling the image to fit into the content aread. | Boolean | Android |
 | printer | The network URL to the printer. | String | iOS |
 | maxHeight<br>maxWidth | Defines the maximum size of the content area. | Unit | iOS |
 | margin.top<br>margin.left<br>margin.right<br>margin.bottom | The margins for each printed page. Each printer might have its own minimum margins depends on media type and paper format. | Unit | iOS |
