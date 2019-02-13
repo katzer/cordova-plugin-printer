@@ -27,8 +27,8 @@ var exec  = require('cordova/exec'),
 exports._defaults = {
     // name:       'unknown',
 
-    // duplex:     'none',
-    // landscape:  false,
+    // duplex: 'none',
+    // orientation: 'landscape',
     // monochrome: false,
     // photo: false,
 

@@ -95,7 +95,7 @@ The list of possible options depend on the platform, the content type and the ca
 | copies | The number of copies for the print task. | Number | iOS<br>Windows |
 | pageCount | Limits the pages to print even the document contains more.<br>To skip the last n pages you can assign a negative value on iOS. | Number | iOS<br>Android |
 | duplex | Either double-sided on short site (duplex:'short'), double-sided on long site (duplex:'long') or single-sided (duplex:'none'). | String | all |
-| landscape| The orientation of the printed content, portrait or landscape. | Boolean | all |
+| orientation | The orientation of the printed content, `portrait` or `landscape`. | String | all |
 | monochrome | If your application only prints black text, setting this property to _true_ can result in better performance in many cases. | Boolean | all |
 | photo | Set to _true_ to change the media type to photography for higher quality. | Boolean | iOS<br>Windows |
 | autoFit | Set to _false_ to disable downscaling the image to fit into the content aread. | Boolean | Android |

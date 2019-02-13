@@ -33,9 +33,13 @@
     NSString* jobName = spec[@"name"];
     long copies       = MAX([spec[@"copies"] longValue], 1);
 
-    if ([spec[@"landscape"] boolValue])
+    if ([spec[@"orientation"] isEqualToString:@"landscape"])
     {
         info.orientation = UIPrintInfoOrientationLandscape;
+    }
+    else if ([spec[@"orientation"] isEqualToString:@"portrait"])
+    {
+        info.orientation = UIPrintInfoOrientationPortrait;
     }
 
     if ([spec[@"monochrome"] boolValue])

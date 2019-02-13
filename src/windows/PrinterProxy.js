@@ -33,18 +33,23 @@ var Printing     = Windows.Graphics.Printing,
  *
  * @return [ Void ]
  */
-exports.check = function (success, fail, args) {
+exports.check = function (success, fail, args)
+{
     var item      = args[0],
         supported = PrintManager.isSupported();
 
-    if (!item || !supported) {
+    if (!item || !supported)
+    {
         success(supported);
         return;
     }
 
-    if (item[0] === '<') {
+    if (item[0] === '<')
+    {
         supported = true;
-    } else {
+    }
+    else
+    {
         supported = item.match(/[a-z0-9]:\/\//) === null;
     }
 
@@ -60,7 +65,8 @@ exports.check = function (success, fail, args) {
  *
  * @return [ Void ]
  */
-exports.types = function (success, fail, args) {
+exports.types = function (success, fail, args)
+{
     success([]);
 };
 
@@ -73,11 +79,13 @@ exports.types = function (success, fail, args) {
  *
  * @return [ Void ]
  */
-exports.print = function (success, fail, args) {
+exports.print = function (success, fail, args)
+{
     var content = args[0],
         page    = document, body;
 
-    if (content && content.length > 0) {
+    if (content && content.length > 0)
+    {
         page = document.createDocumentFragment();
         body = document.createElement('html');
 
@@ -102,7 +110,8 @@ exports.print = function (success, fail, args) {
  *
  * @return [ Void ]
  */
-exports.onPrintTaskRequested = function (event) {
+exports.onPrintTaskRequested = function (event)
+{
     var config = exports._args,
         task, spec;
 
@@ -112,37 +121,46 @@ exports.onPrintTaskRequested = function (event) {
 
     spec = task.options;
 
-    if (config.monochrome) {
+    if (config.monochrome)
+    {
         spec.colorMode = Printing.PrintColorMode.grayscale;
-    } else {
-        spec.colorMode = Printing.PrintColorMode.color;
     }
 
-    if (config.landscape) {
+    if (config.orientation == 'landscape')
+    {
         spec.orientation = Printing.PrintOrientation.landscape;
-    } else {
+    }
+    else if (config.orientation == 'portrait')
+    {
         spec.orientation = Printing.PrintOrientation.portrait;
     }
 
-    if (config.duplex == 'long') {
+    if (config.duplex == 'long')
+    {
         spec.duplex = Printing.PrintDuplex.twoSidedLongEdge;
-    } else
-    if (config.duplex == 'short') {
+    }
+    else if (config.duplex == 'short')
+    {
         spec.duplex = Printing.PrintDuplex.twoSidedShortEdge;
-    } else {
+    }
+    else
+    {
         spec.duplex = Printing.PrintDuplex.oneSided;
     }
 
-    if (config.photo) {
+    if (config.photo)
+    {
         spec.printQuality = Printing.PrintQuality.photographic;
         spec.mediaType    = Printing.PrintMediaType.photographic;
     }
 
-    if (config.margin === false) {
+    if (config.margin === false)
+    {
         spec.bordering = Printing.PrintBordering.borderless;
     }
 
-    if (config.paper && config.paper.name) {
+    if (config.paper && config.paper.name)
+    {
         spec.mediaSize = Printing.PrintMediaSize[config.paper.name] || Printing.PrintMediaSize.default;
     }
 
