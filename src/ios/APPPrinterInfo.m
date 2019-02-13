@@ -21,6 +21,8 @@
 
 #include "APPPrinterInfo.h"
 
+#import <objc/message.h>
+
 @implementation APPPrinterInfo
 
 #pragma mark -
@@ -71,7 +73,10 @@
         info.duplex = UIPrintInfoDuplexNone;
     }
 
-    [info setValue:[NSNumber numberWithLong:copies] forKey:@"_copies"];
+    if (class_getProperty(info.class, "copies"))
+    {
+        [info setValue:[NSNumber numberWithLong:copies] forKey:@"_copies"];
+    }
 
     if (jobName)
     {
