@@ -199,7 +199,7 @@ exports.print = function (content, options, callback, scope)
     var fn     = this._createCallbackFn(callback, scope),
         params = this._mergeWithDefaults(options || {});
 
-    exec(fn, null, 'Printer', 'print', [content, params]);
+    exec(fn, null, 'Printer', 'print', [content || '', params]);
 };
 
 /**
