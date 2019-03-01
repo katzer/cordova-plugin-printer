@@ -1,8 +1,9 @@
+
 # Cordova Print Plugin - Sample App
 
-Plugin for [Cordova][cordova] to print documents, photos, HTML and plain text from iOS, Android and Windows Universal apps.
+<img height="560px" align="right" src="images/overview.png">
 
-## Instructions
+Plugin for [Cordova][cordova] to print documents, photos, HTML and plain text from iOS, Android and Windows Universal apps.
 
 Clone the _example_ branch:
 
@@ -20,9 +21,8 @@ These will lunch the simulator or any plugged in device and start the example ap
 
 Please follow the plugin's [README][readme] for further requirements and informations.
 
-![Sample](images/sample.png)
+## Testing in the iOS Simulator
 
-### Testing in the iOS Simulator
 There's no need to waste lots of paper when testing - if you're using the iOS simulator, install the [Hardware IO Tools for Xcode][xcode_io_tools] and select _Xcode -> Open Developer Tool -> Printer Simulator_ to open some dummy printers.
 
 ## Contributing
