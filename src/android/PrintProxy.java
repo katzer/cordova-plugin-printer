@@ -33,8 +33,8 @@ import android.support.v4.print.PrintHelper;
 /**
  * Simple delegate class to have access to the onFinish method.
  */
-class PrintProxy extends PrintDocumentAdapter {
-
+class PrintProxy extends PrintDocumentAdapter
+{
     // Holds the delegate object
     private final @NonNull PrintDocumentAdapter delegate;
 

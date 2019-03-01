@@ -45,12 +45,11 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.print.PrintJobInfo.STATE_COMPLETED;
 import static de.appplant.cordova.plugin.printer.PrintContent.ContentType.UNSUPPORTED;
 
-class PrintManager {
-
-    interface OnPrintFinishCallback {
-        void onFinish (boolean completed);
-    }
-
+/**
+ * Provides high level methods for printing.
+ */
+class PrintManager
+{
     // The application context
     private final @NonNull Context context;
 
@@ -362,5 +361,10 @@ class PrintManager {
     private android.print.PrintManager getPrintService()
     {
         return (android.print.PrintManager) context.getSystemService(PRINT_SERVICE);
+    }
+
+    interface OnPrintFinishCallback
+    {
+        void onFinish (boolean completed);
     }
 }

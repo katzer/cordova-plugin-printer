@@ -43,8 +43,8 @@ import static android.support.v4.print.PrintHelper.SCALE_MODE_FIT;
 /**
  * Wrapper for the print job settings.
  */
-class PrintOptions {
-
+class PrintOptions
+{
     // The print job settings
     private final @NonNull JSONObject spec;
 

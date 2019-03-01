@@ -37,8 +37,8 @@ import org.json.JSONObject;
  * that loads the markup data. Once the page has been fully rendered it takes
  * the print adapter of that web view and initializes a print job.
  */
-public class Printer extends CordovaPlugin {
-
+public final class Printer extends CordovaPlugin
+{
     /**
      * Executes the request.
      *

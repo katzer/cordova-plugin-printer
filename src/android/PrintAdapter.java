@@ -41,8 +41,8 @@ import static android.print.PrintDocumentInfo.CONTENT_TYPE_DOCUMENT;
 /**
  * Document adapter to render and print PDF files.
  */
-class PrintAdapter extends PrintDocumentAdapter {
-
+class PrintAdapter extends PrintDocumentAdapter
+{
     // The name of the print job
     private final @NonNull String jobName;
 
@@ -107,7 +107,7 @@ class PrintAdapter extends PrintDocumentAdapter {
         OutputStream output = new FileOutputStream(dest.getFileDescriptor());
 
         try {
-            PrintContent.copy(input, output);
+            PrintIO.copy(input, output);
         } catch (IOException e) {
             callback.onWriteFailed(e.getMessage());
             return;
@@ -124,7 +124,7 @@ class PrintAdapter extends PrintDocumentAdapter {
     {
         super.onFinish();
 
-        PrintContent.close(input);
+        PrintIO.close(input);
 
         callback.onFinish();
     }
