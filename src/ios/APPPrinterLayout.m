@@ -57,11 +57,12 @@
 + (UIPrintFormatter *) configureFormatter:(UIPrintFormatter *)formatter
                              withSettings:(NSDictionary *)settings
 {
-    id layout = [[self alloc] initWithDictionary:settings];
+    id layout   = [[self alloc] initWithDictionary:settings];
+    SEL setFont = NSSelectorFromString(@"font");
 
     [layout configureFormatter:formatter];
 
-    if (settings && ![formatter isKindOfClass:UIMarkupTextPrintFormatter.class])
+    if (settings && [formatter respondsToSelector:setFont])
     {
         [layout configureTextFormatter:(UISimpleTextPrintFormatter *)formatter
                           withSettings:settings];
