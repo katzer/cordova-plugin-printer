@@ -1,15 +1,18 @@
 {
-    "prepare_queue": {
-        "installed": [],
-        "uninstalled": []
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-printer": {
+      "PACKAGE_NAME": "PrinterExample"
     },
-    "config_munge": {
-        "files": {}
-    },
-    "installed_plugins": {
-        "cordova-plugin-printer": {
-            "PACKAGE_NAME": "PrinterExample"
-        }
-    },
-    "dependent_plugins": {}
+    "cordova-plugin-x-toast": {
+      "PACKAGE_NAME": "PrinterExample"
+    }
+  },
+  "dependent_plugins": {}
 }

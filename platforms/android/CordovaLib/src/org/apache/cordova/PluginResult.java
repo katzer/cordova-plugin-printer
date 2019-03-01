@@ -18,12 +18,12 @@
 */
 package org.apache.cordova;
 
-import android.util.Base64;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.List;
+import android.util.Base64;
 
 public class PluginResult {
     private final int status;
@@ -82,7 +82,7 @@ public class PluginResult {
         this.messageType = binaryString ? MESSAGE_TYPE_BINARYSTRING : MESSAGE_TYPE_ARRAYBUFFER;
         this.encodedMessage = Base64.encodeToString(data, Base64.NO_WRAP);
     }
-
+    
     // The keepCallback and status of multipartMessages are ignored.
     public PluginResult(Status status, List<PluginResult> multipartMessages) {
         this.status = status.ordinal();

@@ -19,26 +19,47 @@
  *
 */
 
-// config.xml wrapper (non-node ConfigParser analogue)
-var config;
-function Config(xhr) {
-    function loadPreferences(xhr) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(xhr.responseText, "application/xml");
+// config.xml and AppxManifest.xml wrapper (non-node ConfigParser analogue)
+var configCache = {};
+var utils = require("cordova/utils");
 
-        var preferences = doc.getElementsByTagName("preference");
-        return Array.prototype.slice.call(preferences);
-    }
+var isPhone = (cordova.platformId == 'windows') && WinJS.Utilities.isPhone;
+var isWin10UWP = navigator.appVersion.indexOf('MSAppHost/3.0') !== -1;
+var splashScreenTagName = isWin10UWP ? "SplashScreen" : (isPhone ? "m3:SplashScreen" : "m2:SplashScreen");
 
-    this.xhr = xhr;
-    this.preferences = loadPreferences(this.xhr);
+function XmlFile(text) {
+    this.text = text;
 }
 
-function readConfig(success, error) {
+XmlFile.prototype.loadTags = function (tagName) {
+    var parser;
+    if (!this.doc) {
+        parser = new DOMParser();
+        this.doc = parser.parseFromString(this.text, "application/xml");
+    }
+
+    var tags = this.doc.getElementsByTagName(tagName);
+    return Array.prototype.slice.call(tags);
+}
+
+function Config(text) {
+    XmlFile.apply(this, arguments);
+    this.preferences = this.loadTags("preference");
+}
+
+function Manifest(text) {
+    XmlFile.apply(this, arguments);
+    this.splashScreen = this.loadTags(splashScreenTagName)[0];
+}
+
+utils.extend(Config, XmlFile);
+utils.extend(Manifest, XmlFile);
+
+function requestFile(filePath, success, error) {
     var xhr;
 
-    if (typeof config != 'undefined') {
-        success(config);
+    if (typeof configCache[filePath] != 'undefined') {
+        success(configCache[filePath]);
     }
 
     function fail(msg) {
@@ -52,11 +73,11 @@ function readConfig(success, error) {
     var xhrStatusChangeHandler = function () {
         if (xhr.readyState == 4) {
             if (xhr.status == 200 || xhr.status == 304 || xhr.status == 0 /* file:// */) {
-                config = new Config(xhr);
-                success(config);
+                configCache[filePath] = xhr.responseText;
+                success(xhr.responseText);
             }
             else {
-                fail('[Windows][cordova.js][xhrStatusChangeHandler] Could not XHR config.xml: ' + xhr.statusText);
+                fail('[Windows][cordova.js][xhrStatusChangeHandler] Could not XHR ' + filePath + ': ' + xhr.statusText);
             }
         }
     };
@@ -65,18 +86,30 @@ function readConfig(success, error) {
     xhr.addEventListener("load", xhrStatusChangeHandler);
 
     try {
-        xhr.open("get", "/config.xml", true);
+        xhr.open("get", filePath, true);
         xhr.send();
     } catch (e) {
-        fail('[Windows][cordova.js][readConfig] Could not XHR config.xml: ' + JSON.stringify(e));
+        fail('[Windows][cordova.js][xhrFile] Could not XHR ' + filePath + ': ' + JSON.stringify(e));
     }
+}
+
+function readConfig(success, error) {
+    requestFile("/config.xml", function (contents) {
+        success(new Config(contents));
+    }, error);
+}
+
+function readManifest(success, error) {
+    requestFile("/AppxManifest.xml", function (contents) {
+        success(new Manifest(contents));
+    }, error);
 }
 
 /**
  * Reads a preference value from config.xml.
  * Returns preference value or undefined if it does not exist.
  * @param {String} preferenceName Preference name to read */
-Config.prototype.getPreferenceValue = function getPreferenceValue(preferenceName) {
+Config.prototype.getPreferenceValue = function (preferenceName) {
     var preferenceItem = this.preferences && this.preferences.filter(function (item) {
         return item.attributes['name'].value === preferenceName;
     });
@@ -86,4 +119,12 @@ Config.prototype.getPreferenceValue = function getPreferenceValue(preferenceName
     }
 }
 
+/**
+ * Reads SplashScreen image path
+ */
+Manifest.prototype.getSplashScreenImagePath = function () {
+    return this.splashScreen.attributes['Image'].value;
+}
+
 exports.readConfig = readConfig;
+exports.readManifest = readManifest;

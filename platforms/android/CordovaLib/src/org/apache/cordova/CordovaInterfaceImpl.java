@@ -19,12 +19,13 @@
 
 package org.apache.cordova;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -82,6 +83,11 @@ public class CordovaInterfaceImpl implements CordovaInterface {
 
     @Override
     public Activity getActivity() {
+        return activity;
+    }
+
+    @Override
+    public Context getContext() {
         return activity;
     }
 
@@ -147,13 +153,13 @@ public class CordovaInterfaceImpl implements CordovaInterface {
         activityResultCallback = null;
 
         if (callback != null) {
-            Log.d(TAG, "Sending activity result to plugin");
+            LOG.d(TAG, "Sending activity result to plugin");
             initCallbackService = null;
             savedResult = null;
             callback.onActivityResult(requestCode, resultCode, intent);
             return true;
         }
-        Log.w(TAG, "Got an activity result, but no plugin was registered to receive it" + (savedResult != null ? " yet!" : "."));
+        LOG.w(TAG, "Got an activity result, but no plugin was registered to receive it" + (savedResult != null ? " yet!" : "."));
         return false;
     }
 
@@ -222,6 +228,7 @@ public class CordovaInterfaceImpl implements CordovaInterface {
         requestPermissions(plugin, requestCode, permissions);
     }
 
+        @SuppressLint("NewApi")
     public void requestPermissions(CordovaPlugin plugin, int requestCode, String [] permissions) {
         int mappedRequestCode = permissionResultCallbacks.registerCallback(plugin, requestCode);
         getActivity().requestPermissions(permissions, mappedRequestCode);

@@ -18,8 +18,6 @@
 */
 package org.apache.cordova;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -83,11 +81,11 @@ public class NativeToJsMessageQueue {
      */
     public void setBridgeMode(int value) {
         if (value < -1 || value >= bridgeModes.size()) {
-            Log.d(LOG_TAG, "Invalid NativeToJsBridgeMode: " + value);
+            LOG.d(LOG_TAG, "Invalid NativeToJsBridgeMode: " + value);
         } else {
             BridgeMode newMode = value < 0 ? null : bridgeModes.get(value);
             if (newMode != activeBridgeMode) {
-                Log.d(LOG_TAG, "Set native->JS mode to " + (newMode == null ? "null" : newMode.getClass().getSimpleName()));
+                LOG.d(LOG_TAG, "Set native->JS mode to " + (newMode == null ? "null" : newMode.getClass().getSimpleName()));
                 synchronized (this) {
                     activeBridgeMode = newMode;
                     if (newMode != null) {
@@ -220,7 +218,7 @@ public class NativeToJsMessageQueue {
      */
     public void addPluginResult(PluginResult result, String callbackId) {
         if (callbackId == null) {
-            Log.e(LOG_TAG, "Got plugin result with no callbackId", new Throwable());
+            LOG.e(LOG_TAG, "Got plugin result with no callbackId", new Throwable());
             return;
         }
         // Don't send anything if there is no result and there is no need to
@@ -243,7 +241,7 @@ public class NativeToJsMessageQueue {
     private void enqueueMessage(JsMessage message) {
         synchronized (this) {
             if (activeBridgeMode == null) {
-                Log.d(LOG_TAG, "Dropping Native->JS message due to disabled bridge");
+                LOG.d(LOG_TAG, "Dropping Native->JS message due to disabled bridge");
                 return;
             }
             queue.add(message);
@@ -257,7 +255,7 @@ public class NativeToJsMessageQueue {
         if (paused && value) {
             // This should never happen. If a use-case for it comes up, we should
             // change pause to be a counter.
-            Log.e(LOG_TAG, "nested call to setPaused detected.", new Throwable());
+            LOG.e(LOG_TAG, "nested call to setPaused detected.", new Throwable());
         }
         paused = value;
         if (!value) {
@@ -350,6 +348,31 @@ public class NativeToJsMessageQueue {
             }
         }
     }
+
+    /** Uses webView.evaluateJavascript to execute messages. */
+    public static class EvalBridgeMode extends BridgeMode {
+        private final CordovaWebViewEngine engine;
+        private final CordovaInterface cordova;
+
+        public EvalBridgeMode(CordovaWebViewEngine engine, CordovaInterface cordova) {
+            this.engine = engine;
+            this.cordova = cordova;
+        }
+
+        @Override
+        public void onNativeToJsMessageAvailable(final NativeToJsMessageQueue queue) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    String js = queue.popAndEncodeAsJs();
+                    if (js != null) {
+                        engine.evaluateJavascript(js, null);
+                    }
+                }
+            });
+        }
+    }
+
+
 
     private static class JsMessage {
         final String jsPayloadOrCallbackId;
@@ -465,6 +488,37 @@ public class NativeToJsMessageQueue {
             encodeAsMessageHelper(sb, pluginResult);
         }
 
+        void buildJsMessage(StringBuilder sb) {
+            switch (pluginResult.getMessageType()) {
+                case PluginResult.MESSAGE_TYPE_MULTIPART:
+                    int size = pluginResult.getMultipartMessagesSize();
+                    for (int i=0; i<size; i++) {
+                        PluginResult subresult = pluginResult.getMultipartMessage(i);
+                        JsMessage submessage = new JsMessage(subresult, jsPayloadOrCallbackId);
+                        submessage.buildJsMessage(sb);
+                        if (i < (size-1)) {
+                            sb.append(",");
+                        }
+                    }
+                    break;
+                case PluginResult.MESSAGE_TYPE_BINARYSTRING:
+                    sb.append("atob('")
+                            .append(pluginResult.getMessage())
+                            .append("')");
+                    break;
+                case PluginResult.MESSAGE_TYPE_ARRAYBUFFER:
+                    sb.append("cordova.require('cordova/base64').toArrayBuffer('")
+                            .append(pluginResult.getMessage())
+                            .append("')");
+                    break;
+                case PluginResult.MESSAGE_TYPE_NULL:
+                    sb.append("null");
+                    break;
+                default:
+                    sb.append(pluginResult.getMessage());
+            }
+        }
+
         void encodeAsJsMessage(StringBuilder sb) {
             if (pluginResult == null) {
                 sb.append(jsPayloadOrCallbackId);
@@ -472,29 +526,16 @@ public class NativeToJsMessageQueue {
                 int status = pluginResult.getStatus();
                 boolean success = (status == PluginResult.Status.OK.ordinal()) || (status == PluginResult.Status.NO_RESULT.ordinal());
                 sb.append("cordova.callbackFromNative('")
-                  .append(jsPayloadOrCallbackId)
-                  .append("',")
-                  .append(success)
-                  .append(",")
-                  .append(status)
-                  .append(",[");
-                switch (pluginResult.getMessageType()) {
-                    case PluginResult.MESSAGE_TYPE_BINARYSTRING:
-                        sb.append("atob('")
-                          .append(pluginResult.getMessage())
-                          .append("')");
-                        break;
-                    case PluginResult.MESSAGE_TYPE_ARRAYBUFFER:
-                        sb.append("cordova.require('cordova/base64').toArrayBuffer('")
-                          .append(pluginResult.getMessage())
-                          .append("')");
-                        break;
-                    default:
-                    sb.append(pluginResult.getMessage());
-                }
+                        .append(jsPayloadOrCallbackId)
+                        .append("',")
+                        .append(success)
+                        .append(",")
+                        .append(status)
+                        .append(",[");
+                buildJsMessage(sb);
                 sb.append("],")
-                  .append(pluginResult.getKeepCallback())
-                  .append(");");
+                        .append(pluginResult.getKeepCallback())
+                        .append(");");
             }
         }
     }

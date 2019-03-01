@@ -19,17 +19,16 @@
  under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <Cordova/CDVPlugin.h>
 
+@interface APPPrinter : CDVPlugin <UIPrintInteractionControllerDelegate>
 
-@interface APPPrinter : CDVPlugin <UIWebViewDelegate>
+- (void) check:(CDVInvokedUrlCommand *)command;
 
-// Find out whether printing is supported on this platform
-- (void) check:(CDVInvokedUrlCommand*)command;
-// Displays system interface for selecting a printer
-- (void) pick:(CDVInvokedUrlCommand*)command;
-// Prints the content
-- (void) print:(CDVInvokedUrlCommand*)command;
+- (void) types:(CDVInvokedUrlCommand *)command;
+
+- (void) pick:(CDVInvokedUrlCommand *)command;
+
+- (void) print:(CDVInvokedUrlCommand *)command;
 
 @end

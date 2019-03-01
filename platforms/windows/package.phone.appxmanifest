@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.7.1dev.0" />
-    <mp:PhoneIdentity PhoneProductId="18282bf0-55bb-11e6-909c-cb7a245247b6" PhonePublisherId="db093ed5-53b1-45f7-af72-751e8f36ab80" />
+    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.8.0.0" />
+    <mp:PhoneIdentity PhoneProductId="208f3cf0-3c4c-11e9-99b5-576b1f429d35" PhonePublisherId="db093ed5-53b1-45f7-af72-751e8f36ab80" />
     <Properties>
         <DisplayName>PrinterExample</DisplayName>
         <PublisherDisplayName>Apache Cordova Team</PublisherDisplayName>

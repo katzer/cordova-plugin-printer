@@ -27,7 +27,6 @@ module.exports = {
             channel = cordova.require('cordova/channel'),
             platform = require('cordova/platform'),
             modulemapper = require('cordova/modulemapper'),
-            configHelper = require('cordova/confighelper'),
             utils = require('cordova/utils');
 
         modulemapper.clobbers('cordova/exec/proxy', 'cordova.commandProxy');
@@ -41,7 +40,8 @@ module.exports = {
 
         var onWinJSReady = function () {
             var app = WinJS.Application,
-                splashscreen = require('cordova/splashscreen');
+                splashscreen = require('cordova/splashscreen'),
+                configHelper = require('cordova/confighelper');
 
             modulemapper.clobbers('cordova/splashscreen', 'navigator.splashscreen');
 
@@ -78,8 +78,14 @@ module.exports = {
                     return;
                 }
 
-                e.setPromise(makePromise(configHelper.readConfig).then(function (config) {
-                    splashscreen.firstShow(config, e);
+                var manifest;
+
+                e.setPromise(makePromise(configHelper.readManifest).then(function (manifestTmp) {
+                    manifest = manifestTmp;
+                    return makePromise(configHelper.readConfig);
+                })
+                .then(function (config) {
+                    splashscreen.firstShow(config, manifest, e);
                 }).then(function () {
                     // Avoids splashimage flicker on Windows Phone 8.1/10
                     return WinJS.Promise.timeout();
@@ -88,13 +94,22 @@ module.exports = {
                 }));
             };
 
-            app.addEventListener("checkpoint", checkpointHandler);
-            app.addEventListener("activated", activationHandler, false);
-            Windows.UI.WebUI.WebUIApplication.addEventListener("resuming", resumingHandler, false);
+            // CB-12193 CoreWindow and some WinRT APIs are not available in webview
+            var isCoreWindowAvailable = false;
+            try {
+                Windows.UI.ViewManagement.ApplicationView.getForCurrentView();
+                isCoreWindowAvailable = true;
+            } catch (e) { }
 
-            injectBackButtonHandler();
+            if (isCoreWindowAvailable) {
+                app.addEventListener("checkpoint", checkpointHandler);
+                app.addEventListener("activated", activationHandler, false);
+                Windows.UI.WebUI.WebUIApplication.addEventListener("resuming", resumingHandler, false);
 
-            app.start();
+                injectBackButtonHandler();
+
+                app.start();
+            }
         };
 
         function appendScript(scriptElem, loadedCb) {

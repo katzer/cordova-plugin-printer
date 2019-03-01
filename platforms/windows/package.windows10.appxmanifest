@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Package IgnorableNamespaces="uap mp" xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
-    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.7.1dev.0" />
-    <mp:PhoneIdentity PhoneProductId="18282bf0-55bb-11e6-909c-cb7a245247b6" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.8.0.0" />
+    <mp:PhoneIdentity PhoneProductId="208f3cf0-3c4c-11e9-99b5-576b1f429d35" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
     <Properties>
         <DisplayName>PrinterExample</DisplayName>
         <PublisherDisplayName>Apache Cordova Team</PublisherDisplayName>
@@ -18,8 +18,7 @@
         <Application Id="de.appplant.cordova.plugin.printer.example" StartPage="ms-appx-web://de.appplant.cordova.plugin.printer.example/www/index.html">
             <uap:VisualElements BackgroundColor="#464646" Description="A sample Apache Cordova application that responds to the deviceready event." DisplayName="PrinterExample" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png">
                 <uap:SplashScreen Image="images\splashscreen.png" />
-                <uap:DefaultTile ShortName="PrinterExample" Square310x310Logo="images\Square310x310Logo.png" Square71x71Logo="images\Square71x71Logo.png" Wide310x150Logo="images\Wide310x150Logo.png">
-                </uap:DefaultTile>
+                <uap:DefaultTile ShortName="PrinterExample" Square310x310Logo="images\Square310x310Logo.png" Square71x71Logo="images\Square71x71Logo.png" Wide310x150Logo="images\Wide310x150Logo.png" />
                 <uap:InitialRotationPreference>
                     <uap:Rotation Preference="portrait" />
                     <uap:Rotation Preference="landscape" />

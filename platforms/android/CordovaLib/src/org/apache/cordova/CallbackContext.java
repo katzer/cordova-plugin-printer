@@ -18,9 +18,10 @@
 */
 package org.apache.cordova;
 
-import android.util.Log;
-
 import org.json.JSONArray;
+
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONObject;
 
 public class CallbackContext {
@@ -51,7 +52,7 @@ public class CallbackContext {
     public void sendPluginResult(PluginResult pluginResult) {
         synchronized (this) {
             if (finished) {
-                Log.w(LOG_TAG, "Attempted to send a second callback for ID: " + callbackId + "\nResult was: " + pluginResult.getMessage());
+                LOG.w(LOG_TAG, "Attempted to send a second callback for ID: " + callbackId + "\nResult was: " + pluginResult.getMessage());
                 return;
             } else {
                 finished = !pluginResult.getKeepCallback();

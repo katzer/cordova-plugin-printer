@@ -1,0 +1,23 @@
+{
+  "name": "de.appplant.cordova.plugin.printer.example",
+  "version": "0.8.0",
+  "displayName": "PrinterExample",
+  "cordova": {
+    "platforms": [
+      "ios",
+      "android",
+      "browser",
+      "windows"
+    ],
+    "plugins": {
+      "cordova-plugin-x-toast": {}
+    }
+  },
+  "dependencies": {
+    "cordova-android": "latest",
+    "cordova-browser": "^6.0.0",
+    "cordova-ios": "latest",
+    "cordova-plugin-x-toast": "~2.7.2",
+    "cordova-windows": "^6.0.1"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {
+      "config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"Printer\"><param name=\"browser-package\" value=\"Printer\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "installed_plugins": {
+    "cordova-plugin-printer": {
+      "PACKAGE_NAME": "de.appplant.cordova.plugin.printer.example"
+    },
+    "cordova-plugin-x-toast": {
+      "PACKAGE_NAME": "de.appplant.cordova.plugin.printer.example"
+    }
+  },
+  "dependent_plugins": {},
+  "modules": [
+    {
+      "file": "plugins/cordova-plugin-printer/www/printer.js",
+      "id": "cordova-plugin-printer.Printer",
+      "pluginId": "cordova-plugin-printer",
+      "clobbers": [
+        "cordova.plugins.printer"
+      ]
+    },
+    {
+      "file": "plugins/cordova-plugin-printer/src/browser/PrinterProxy.js",
+      "id": "cordova-plugin-printer.Printer.Proxy",
+      "pluginId": "cordova-plugin-printer",
+      "runs": true
+    },
+    {
+      "file": "plugins/cordova-plugin-x-toast/www/Toast.js",
+      "id": "cordova-plugin-x-toast.Toast",
+      "pluginId": "cordova-plugin-x-toast",
+      "clobbers": [
+        "window.plugins.toast"
+      ]
+    }
+  ],
+  "plugin_metadata": {
+    "cordova-plugin-printer": "0.8.0.alpha",
+    "cordova-plugin-x-toast": "2.7.2"
+  }
+}

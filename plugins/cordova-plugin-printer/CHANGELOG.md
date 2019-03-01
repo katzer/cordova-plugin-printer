@@ -1,4 +1,10 @@
 ## ChangeLog
+#### Version 0.7.4 (not yet released)
+- Fix broken _check_ and _pick_ on Android N and above
+
+#### Version 0.7.3 (19.12.2016)
+- Fixed incompatibility with Android KitKat (4.4)
+
 #### Version 0.7.2 (03.08.2016)
 - [__change__:] Changed plugin ID to `cordova-plugin-printer`
 - [__change__:] Plugin requires Android KitKat or newer
@@ -10,7 +16,6 @@
 - [enhancement:] Added missing `duplex` support (Android)
 - [__change__:] `duplex` requires a string (`none`, `long` or `short`)
 - [enhancement:] Support for `border`, `hidePageRange`, `hideNumberOfCopies` and `hidePaperFormat` (iOS specific)
-
 
 #### Version 0.7.1 (23.04.2015)
 - [bugfix:] `isAvailable` does not block the main thread anymore.

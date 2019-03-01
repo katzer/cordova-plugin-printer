@@ -1,7 +1,15 @@
 {
   "name": "cordova-plugin-printer",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Prints HTML documents",
+  "cordova": {
+    "id": "cordova-plugin-printer",
+    "platforms": [
+      "ios",
+      "android",
+      "windows"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/katzer/cordova-plugin-printer.git"
@@ -10,17 +18,15 @@
     "appplant",
     "printer",
     "cordova",
-    "ecosystem:cordova"
-  ],
-  "platforms": [
-    "ios",
-    "android",
-    "windows"
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android",
+    "cordova-windows"
   ],
   "engines": [
     {
       "name": "cordova",
-      "version": ">=6.0.0"
+      "version": ">=3.0.0"
     },
     {
       "name": "android-sdk",
@@ -32,7 +38,7 @@
     }
   ],
   "author": "Sebastián Katzer",
-  "license": "Apache-2.0",
+  "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/katzer/cordova-plugin-printer/issues"
   },

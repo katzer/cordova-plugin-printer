@@ -17,10 +17,8 @@
        under the License.
 */
 
-
-import groovy.swing.SwingBuilder
-
 import java.util.regex.Pattern
+import groovy.swing.SwingBuilder
 
 String doEnsureValueExists(filePath, props, key) {
     if (props.get(key) == null) {
@@ -31,7 +29,11 @@ String doEnsureValueExists(filePath, props, key) {
 
 String doGetProjectTarget() {
     def props = new Properties()
-    file('project.properties').withReader { reader ->
+    def propertiesFile = 'project.properties';
+    if(!(file(propertiesFile).exists())) {
+      propertiesFile = '../project.properties';
+    }
+    file(propertiesFile).withReader { reader ->
         props.load(reader)
     }
     return doEnsureValueExists('project.properties', props, 'target')
@@ -127,7 +129,7 @@ def doExtractIntFromManifest(name) {
     def pattern = Pattern.compile(name + "=\"(\\d+)\"")
     def matcher = pattern.matcher(manifestFile.getText())
     matcher.find()
-    return Integer.parseInt(matcher.group(1))
+    return new BigInteger(matcher.group(1))
 }
 
 def doExtractStringFromManifest(name) {
@@ -163,7 +165,7 @@ def doPromptForPassword(msg) {
 }
 
 def doGetConfigXml() {
-    def xml = file("res/xml/config.xml").getText()
+    def xml = file("src/main/res/xml/config.xml").getText()
     // Disable namespace awareness since Cordova doesn't use them properly
     return new XmlParser(false, false).parseText(xml)
 }

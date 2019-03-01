@@ -1,5 +1,5 @@
 /*
- Copyright 2013-2016 appPlant GmbH
+ Copyright 2013 appPlant GmbH
 
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,16 +19,17 @@
  under the License.
  */
 
-#import "APPPrinter.h"
-#import <Cordova/CDVAvailability.h>
+#include "APPPrinter.h"
+#include "APPPrinterItem.h"
+#include "APPPrinterPaper.h"
+#include "APPPrinterRenderer.h"
+#include "UIPrintInteractionController+APPPrinter.h"
 
 @interface APPPrinter ()
 
-@property (retain) NSString* callbackId;
-@property (retain) NSMutableDictionary* settings;
+@property (nonatomic) UIPrinter *previousPrinter;
 
 @end
-
 
 @implementation APPPrinter
 
@@ -37,344 +38,388 @@
 
 /*
  * Checks if the printing service is available.
- *
- * @param {Function} callback
- *      A callback function to be called with the result
  */
-- (void) check:(CDVInvokedUrlCommand*)command
+- (void) check:(CDVInvokedUrlCommand *)command
 {
     [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult;
-        BOOL isAvailable   = [self isPrintingAvailable];
-        NSArray *multipart = @[[NSNumber numberWithBool:isAvailable],
-                               [NSNumber numberWithInt:-1]];
+        BOOL res = [APPPrinterItem canPrintURL:command.arguments[0]];
 
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                      messageAsMultipart:multipart];
+        [self sendResultWithMessageAsBool:res
+                               callbackId:command.callbackId];
+    }];
+}
 
-        [self.commandDelegate sendPluginResult:pluginResult
+/*
+ * List all printable document types (utis).
+ */
+- (void) types:(CDVInvokedUrlCommand *)command
+{
+    [self.commandDelegate runInBackground:^{
+        NSSet *utis = UIPrintInteractionController.printableUTIs;
+
+        CDVPluginResult* result =
+        [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                            messageAsArray:utis.allObjects];
+
+        [self.commandDelegate sendPluginResult:result
                                     callbackId:command.callbackId];
     }];
 }
 
 /**
- * Sends the printing content to the printer controller and opens them.
- *
- * @param {NSString} content
- *      The (HTML encoded) content
+ * Displays system interface for selecting a printer.
  */
-- (void) print:(CDVInvokedUrlCommand*)command
+- (void) pick:(CDVInvokedUrlCommand *)command
 {
-    if (!self.isPrintingAvailable) {
-        return;
-    }
+    [self.commandDelegate runInBackground:^{
+        NSMutableDictionary* settings = command.arguments[0];
+        settings[@"callbackId"]       = command.callbackId;
 
-    _callbackId = command.callbackId;
-
-    NSArray* arguments            = [command arguments];
-    NSString* content             = [arguments objectAtIndex:0];
-    self.settings                 = [arguments objectAtIndex:1];
-
-    UIPrintInteractionController* controller = [self printController];
-
-    [self adjustPrintController:controller withSettings:self.settings];
-    [self loadContent:content intoPrintController:controller];
-
+        [self presentPickerWithSettings:settings];
+    }];
 }
 
 /**
- * Displays system interface for selecting a printer
- *
- * @param command
- *      Contains the callback function and picker options if applicable
+ * Sends the printing content to the printer controller and opens them.
  */
-- (void) pick:(CDVInvokedUrlCommand*)command
+- (void) print:(CDVInvokedUrlCommand *)command
 {
-    if (!self.isPrintingAvailable) {
-        return;
-    }
-    _callbackId = command.callbackId;
+    [self.commandDelegate runInBackground:^{
+        NSString* content             = command.arguments[0];
+        NSMutableDictionary* settings = command.arguments[1];
+        settings[@"callbackId"]       = command.callbackId;
 
-    NSArray*  arguments           = [command arguments];
-    NSMutableDictionary* settings = [arguments objectAtIndex:0];
-
-    NSArray* bounds = [settings objectForKey:@"bounds"];
-    CGRect rect     = [self convertIntoRect:bounds];
-
-    [self presentPrinterPicker:rect];
+        [self printContent:content withSettings:settings];
+    }];
 }
 
 #pragma mark -
-#pragma mark UIWebViewDelegate
+#pragma mark UIPrintInteractionControllerDelegate
 
 /**
- * Sent after a web view finishes loading a frame.
- *
- * @param webView
- *      The web view has finished loading.
+ * Asks the delegate for an object encapsulating the paper size and printing
+ * area to use for the print job. If Paper-Size is given it selects the best
+ * fitting papersize
  */
-- (void) webViewDidFinishLoad:(UIWebView *)webView
+- (UIPrintPaper *) printInteractionController:(UIPrintInteractionController *)ctrl
+                                  choosePaper:(NSArray *)paperList
 {
-    UIPrintInteractionController* controller = [self printController];
-    NSString* printerId = [self.settings objectForKey:@"printerId"];
+    APPPrinterPaper* paperSpec = [[APPPrinterPaper alloc]
+                                  initWithDictionary:ctrl.settings[@"paper"]];
 
-    if (( ![printerId isEqual:[NSNull null]] ) && ( [printerId length] > 0 )) {
-        [self sendToPrinter:controller printer:printerId];
-        return;
-    }
+    return [paperSpec bestPaperFromArray:paperList];
+}
 
-    NSArray* bounds = [self.settings objectForKey:@"bounds"];
-    CGRect rect     = [self convertIntoRect:bounds];
+/**
+ * Asks the delegate for a length to use when cutting the page. If using roll
+ * printers like Label-Printer (brother QL-710W) you can cut paper after given
+ * length.
+ */
+- (CGFloat) printInteractionController:(UIPrintInteractionController *)ctrl
+                     cutLengthForPaper:(UIPrintPaper *)paper
+{
+    APPPrinterPaper* paperSpec = [[APPPrinterPaper alloc]
+                                  initWithDictionary:ctrl.settings[@"paper"]];
 
-    [self presentPrintController:controller fromRect:rect];
+    return paperSpec.length || paper.paperSize.height;
 }
 
 #pragma mark -
 #pragma mark Core
 
 /**
- * Checks either the printing service is avaible or not.
+ * Displays system interface for selecting a printer.
  *
- * @return {BOOL}
+ * @param settings Describes additional settings like from where to present the
+ *                 picker for iPad.
+ *
+ * @return [ Void ]
  */
-- (BOOL) isPrintingAvailable
+- (void) presentPickerWithSettings:(NSDictionary *)settings
 {
-    Class controllerCls = NSClassFromString(@"UIPrintInteractionController");
+    UIPrinterPickerController* controller =
+    [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:nil];
 
-    if (!controllerCls) {
-        return NO;
+    UIPrinterPickerCompletionHandler handler =
+    ^(UIPrinterPickerController *ctrl, BOOL selected, NSError *e) {
+        [self returnPickerResultForController:ctrl
+                                 callbackId:settings[@"callbackId"]];
+    };
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+            CGRect rect = [self rectFromDictionary:settings[@"ui"]];
+
+            [controller presentFromRect:rect
+                                 inView:self.webView
+                               animated:YES
+                      completionHandler:handler];
+        } else {
+            [controller presentAnimated:YES
+                      completionHandler:handler];
+        }
+    });
+}
+
+/**
+ * Loads the content into the print controller.
+ *
+ * @param content  The HTML content or remote web page URI to print.
+ * @param settings The print job specs.
+ *
+ * @return [ Void ]
+ */
+- (void) printContent:(NSString *)content
+         withSettings:(NSDictionary *)settings
+{
+    __block id item;
+
+    UIPrintInteractionController* ctrl =
+    [UIPrintInteractionController sharedPrintControllerWithSettings:settings];
+
+    ctrl.delegate = self;
+
+    if ([self strIsNullOrEmpty:content])
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            item = self.webView.viewPrintFormatter;
+        });
+    }
+    else if ([content characterAtIndex:0] == '<')
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            item = [[UIMarkupTextPrintFormatter alloc]
+                    initWithMarkupText:content];
+        });
+    }
+    else if ([NSURL URLWithString:content].scheme)
+    {
+        item = [APPPrinterItem ItemFromURL:content];
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            item = [[UISimpleTextPrintFormatter alloc]
+                    initWithText:content];
+        });
     }
 
-    return [self printController] && [UIPrintInteractionController
-                                      isPrintingAvailable];
+    [self useController:ctrl toPrintItem:item withSettings:settings];
+}
+
+/**
+ * Print the rendered content of the given view.
+ *
+ * @param ctrl     The interactive printer controller.
+ * @param item     Either the item to print or the formatted content.
+ * @param settings The print job specs.
+ *
+ * @return [ Void ]
+ */
+- (void) useController:(UIPrintInteractionController *)ctrl
+           toPrintItem:(id)item
+          withSettings:(NSDictionary *)settings
+{
+    NSString* printer = settings[@"printer"];
+
+    if ([item isKindOfClass:UIPrintFormatter.class])
+    {
+        ctrl.printPageRenderer =
+        [[APPPrinterRenderer alloc] initWithDictionary:settings formatter:item];
+    }
+    else
+    {
+        ctrl.printingItem = item;
+    }
+
+    if ([self strIsNullOrEmpty:printer])
+    {
+        [self presentController:ctrl withSettings:settings];
+    }
+    else
+    {
+        [self printToPrinter:ctrl withSettings:settings];
+    }
+}
+
+/**
+ * Sends the content directly to the specified or previously selected printer.
+ *
+ * @param ctrl       The interactive printer controller.
+ * @param printerURL The printer specified by its URL.
+ * @param settings   The print job specs.
+ *
+ * @return [ Void ]
+ */
+- (void) printToPrinter:(UIPrintInteractionController *)ctrl
+          withSettings:(NSDictionary *)settings
+{
+    NSString* callbackId = settings[@"callbackId"];
+    NSString* printerURL = settings[@"printer"];
+    UIPrinter* printer   = [self printerWithURL:printerURL];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [ctrl printToPrinter:printer completionHandler:
+         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+             [self rememberPrinter:(ok ? printer : NULL)];
+             [self sendResultWithMessageAsBool:ok callbackId:callbackId];
+         }];
+    });
 }
 
 /**
  * Opens the print controller so that the user can choose between
  * available iPrinters.
  *
- * @param {UIPrintInteractionController} controller
- *      The prepared print controller with a content
- */
-- (void) presentPrintController:(UIPrintInteractionController*)controller
-                       fromRect:(CGRect)rect
-{
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
-         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-             CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                 messageAsBool:ok];
-
-             [self.commandDelegate sendPluginResult:pluginResult
-                                         callbackId:_callbackId];
-         }];
-    }
-    else {
-        [controller presentAnimated:YES completionHandler:
-         ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-             CDVPluginResult* pluginResult =
-             [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                 messageAsBool:ok];
-
-             [self.commandDelegate sendPluginResult:pluginResult
-                                         callbackId:_callbackId];
-         }];
-    }
-}
-
-/**
- * Sends the content directly to the specified printer.
+ * @param ctrl     The interactive printer controller.
+ * @param settings The print job specs.
  *
- * @param controller
- *      The prepared print controller with the content
- * @param printer
- *      The printer specified by its URL
+ * @return [ Void ]
  */
-- (void) sendToPrinter:(UIPrintInteractionController*)controller
-               printer:(NSString*)printerId
+- (void) presentController:(UIPrintInteractionController *)ctrl
+              withSettings:(NSDictionary *)settings
 {
-    NSURL* url         = [NSURL URLWithString:printerId];
-    UIPrinter* printer = [UIPrinter printerWithURL:url];
+    NSString* callbackId = settings[@"callbackId"];
+    CGRect rect          = [self rectFromDictionary:settings[@"ui"]];
 
-    [controller printToPrinter:printer completionHandler:
-     ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
-         CDVPluginResult* pluginResult =
-         [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                             messageAsBool:ok];
+    UIPrintInteractionCompletionHandler handler =
+    ^(UIPrintInteractionController *ctrl, BOOL ok, NSError *e) {
+        [self sendResultWithMessageAsBool:ok callbackId:callbackId];
+    };
 
-         [self.commandDelegate sendPluginResult:pluginResult
-                                     callbackId:_callbackId];
-     }];
-}
-
-/**
- * Displays system interface for selecting a printer
- *
- * @param rect
- *      Rect object of where to display the interface
- */
-- (void) presentPrinterPicker:(CGRect)rect
-{
-    UIPrinterPickerController* controller =
-    [UIPrinterPickerController printerPickerControllerWithInitiallySelectedPrinter:nil];
-
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        [controller presentFromRect:rect inView:self.webView animated:YES completionHandler:
-         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
-             [self returnPrinterPickerResult:ctrl
-                           withUserDidSelect:&userDidSelect];
-         }];
-    }
-    else {
-        [controller presentAnimated:YES completionHandler:
-         ^(UIPrinterPickerController *ctrl, BOOL userDidSelect, NSError *e) {
-             [self returnPrinterPickerResult:ctrl
-                           withUserDidSelect:&userDidSelect];
-         }];
-    }
-}
-
-/**
- * Calls the callback funtion with the result of the selected printer
- *
- * @param ctrl
- *      The UIPrinterPickerController used to display the printer selector interface
- * @param userDidSelect
- *      True if the user selected a printer
- */
-- (void) returnPrinterPickerResult:(UIPrinterPickerController*)ctrl
-                 withUserDidSelect:(BOOL*)userDidSelect
-{
-    CDVPluginResult* pluginResult =
-    [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
-
-    if (userDidSelect) {
-        UIPrinter* printer = ctrl.selectedPrinter;
-
-        [UIPrinterPickerController
-         printerPickerControllerWithInitiallySelectedPrinter:printer];
-
-        pluginResult = [CDVPluginResult
-                        resultWithStatus:CDVCommandStatus_OK
-                        messageAsString:printer.URL.absoluteString];
-    }
-
-    [self.commandDelegate sendPluginResult:pluginResult
-                                callbackId:_callbackId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        {
+            [ctrl presentFromRect:rect
+                           inView:self.webView
+                         animated:YES
+                completionHandler:handler];
+        }
+        else
+        {
+            [ctrl presentAnimated:YES
+                completionHandler:handler];
+        }
+    });
 }
 
 #pragma mark -
 #pragma mark Helper
 
 /**
- * Retrieves an instance of shared print controller.
+ * Tells the system to pre-select the given printer next time.
  *
- * @return {UIPrintInteractionController*}
+ * @param printer The printer to remeber.
+ *
+ * @return [ Void ]
  */
-- (UIPrintInteractionController*) printController
+- (void) rememberPrinter:(UIPrinter*)printer
 {
-    return [UIPrintInteractionController sharedPrintController];
+    [UIPrinterPickerController
+     printerPickerControllerWithInitiallySelectedPrinter:(_previousPrinter = printer)];
 }
 
 /**
- * Adjusts the settings for the print controller.
+ * Returns an object that can be used to connect to the network printer.
  *
- * @param {UIPrintInteractionController} controller
- *      The print controller instance
+ * @param url The network URL as a string.
  *
- * @return {UIPrintInteractionController} controller
- *      The modified print controller instance
+ * @return A printer even if the URL is not a valid printer.
  */
-- (UIPrintInteractionController*) adjustPrintController:(UIPrintInteractionController*)controller
-                                           withSettings:(NSMutableDictionary*)settings
+- (UIPrinter *)printerWithURL:(NSString *)urlAsString
 {
-    UIPrintInfo* printInfo             = [UIPrintInfo printInfo];
-    UIPrintInfoOrientation orientation = UIPrintInfoOrientationPortrait;
-    UIPrintInfoOutputType outputType   = UIPrintInfoOutputGeneral;
-    UIPrintInfoDuplex duplexMode       = UIPrintInfoDuplexNone;
+    NSURL* url = [NSURL URLWithString:urlAsString];
+    UIPrinter* printer;
 
-    if ([[settings objectForKey:@"landscape"] boolValue]) {
-        orientation = UIPrintInfoOrientationLandscape;
+    if (_previousPrinter && [_previousPrinter.URL.absoluteString isEqualToString:urlAsString])
+    {
+        printer = _previousPrinter;
+    }
+    else
+    {
+        printer = [UIPrinter printerWithURL:url];
     }
 
-    if ([[settings objectForKey:@"graystyle"] boolValue]) {
-        outputType = UIPrintInfoOutputGrayscale;
-    }
-
-    outputType += [[settings objectForKey:@"border"] boolValue] ? 0 : 1;
-
-    if ([[settings objectForKey:@"duplex"] isEqualToString:@"long"]) {
-        duplexMode = UIPrintInfoDuplexLongEdge;
-    } else
-    if ([[settings objectForKey:@"duplex"] isEqualToString:@"short"]) {
-        duplexMode = UIPrintInfoDuplexShortEdge;
-    }
-
-    printInfo.outputType  = outputType;
-    printInfo.orientation = orientation;
-    printInfo.duplex      = duplexMode;
-    printInfo.jobName     = [settings objectForKey:@"name"];
-
-    controller.printInfo  = printInfo;
-
-    controller.showsPageRange = ![[settings objectForKey:@"hidePageRange"] boolValue];
-    controller.showsNumberOfCopies = ![[settings objectForKey:@"hideNumberOfCopies"] boolValue];
-    controller.showsPaperSelectionForLoadedPapers = ![[settings objectForKey:@"hidePaperFormat"] boolValue];
-
-    return controller;
-}
-
-/**
- * Loads the content into the print controller.
- *
- * @param {NSString} content
- *      The (HTML encoded) content
- * @param {UIPrintInteractionController} controller
- *      The print controller instance
- */
-- (void) loadContent:(NSString*)content intoPrintController:(UIPrintInteractionController*)controller
-{
-    UIWebView* page                 = [[UIWebView alloc] init];
-    UIPrintPageRenderer* renderer   = [[UIPrintPageRenderer alloc] init];
-    UIViewPrintFormatter* formatter = [page viewPrintFormatter];
-
-    [renderer addPrintFormatter:formatter startingAtPageAtIndex:0];
-
-    page.delegate = self;
-
-    if ([NSURL URLWithString:content]) {
-        NSURL *url = [NSURL URLWithString:content];
-
-        [page loadRequest:[NSURLRequest requestWithURL:url]];
-    }
-    else {
-        NSString* wwwFilePath = [[NSBundle mainBundle] pathForResource:@"www"
-                                                                ofType:nil];
-        NSURL* baseURL        = [NSURL fileURLWithPath:wwwFilePath];
-
-
-        [page loadHTMLString:content baseURL:baseURL];
-    }
-
-    controller.printPageRenderer = renderer;
+    return printer;
 }
 
 /**
  * Convert Array into Rect object.
  *
- * @param bounds
- *      The bounds
+ * @param bounds The bounds
  *
- * @return
- *      A converted Rect object
+ * @return A converted Rect object
  */
-- (CGRect) convertIntoRect:(NSArray*)bounds
+- (CGRect) rectFromDictionary:(NSDictionary *)pos
 {
-    return CGRectMake([[bounds objectAtIndex:0] floatValue],
-                      [[bounds objectAtIndex:1] floatValue],
-                      [[bounds objectAtIndex:2] floatValue],
-                      [[bounds objectAtIndex:3] floatValue]);
+    CGFloat left = 40, top = 30, width = 0, height = 0;
+
+    if (pos)
+    {
+        top    = [pos[@"top"] floatValue];
+        left   = [pos[@"left"] floatValue];
+        width  = [pos[@"width"] floatValue];
+        height = [pos[@"height"] floatValue];
+    }
+
+    return CGRectMake(left, top, width, height);
+}
+
+/**
+ * Test if the given string is null or empty.
+ *
+ * @param string The string to test.
+ *
+ * @return true or false
+ */
+- (BOOL) strIsNullOrEmpty:(NSString *)string
+{
+    return [string isEqual:[NSNull null]] || string.length == 0;
+}
+
+/**
+ * Calls the callback funtion with the result of the selected printer.
+ *
+ * @param ctrl The controller used to display the printer selector interface.
+ * @param callbackId The ID of the callback that shall receive the info.
+ *
+ * @return [ Void ]
+ */
+- (void) returnPickerResultForController:(UIPrinterPickerController *)ctrl
+                              callbackId:(NSString *)callbackId
+{
+    UIPrinter* printer = ctrl.selectedPrinter;
+    CDVPluginResult* result;
+
+    [self rememberPrinter:printer];
+
+    if (printer) {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                   messageAsString:printer.URL.absoluteString];
+    } else {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+    }
+
+    [self.commandDelegate sendPluginResult:result
+                                callbackId:callbackId];
+}
+
+/**
+ * Sends the plugin result by invoking the callback function with a boolean arg.
+ *
+ * @param msg The boolean message value.
+ *
+ * @return [ Void ]
+ */
+- (void) sendResultWithMessageAsBool:(BOOL)msg
+                          callbackId:(NSString *)callbackId
+{
+    CDVPluginResult* result =
+    [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                        messageAsBool:msg];
+
+    [self.commandDelegate sendPluginResult:result
+                                callbackId:callbackId];
 }
 
 @end

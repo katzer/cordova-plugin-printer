@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.7.1dev.0" />
+    <Identity Name="de.appplant.cordova.plugin.printer.example" Publisher="CN=$username$" Version="0.8.0.0" />
     <Properties>
         <DisplayName>PrinterExample</DisplayName>
         <PublisherDisplayName>Apache Cordova Team</PublisherDisplayName>
