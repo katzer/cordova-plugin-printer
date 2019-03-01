@@ -5,9 +5,13 @@
 
 # Cordova Print Plugin <br> [![npm version](https://badge.fury.io/js/cordova-plugin-printer.svg)](http://badge.fury.io/js/cordova-plugin-printer) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L3HKQCD9UA35A "Donate once-off to this project using Paypal")
 
-<img width="280px" align="right" hspace="20" vspace="10" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print-ios.png">
+Plugin for [Cordova][cordova] to print documents, photos, HTML and plain text from iOS, Android and Windows Universal apps.
 
-Plugin for [Cordova][cordova] to print documents or photos from iOS, Android and Windows Universal apps.
+```js
+cordova.plugins.printer.print('<b>Hello Cordova!</b>');
+```
+
+<img width="280px" align="right" src="https://github.com/katzer/cordova-plugin-printer/blob/example/images/print.png">
 
 ### Supported Printer Interfaces
 
@@ -29,7 +33,6 @@ Plugin for [Cordova][cordova] to print documents or photos from iOS, Android and
 - iOS 10+
 - Windows 10 UWP
 - Browser
-
 
 ## Basics
 
@@ -149,7 +152,6 @@ cordova.plugins.printer.pick({ top: 40, left: 30 }, callback);
 
 __Note:__ By passing an invalid URL, the application will throw an `Unable to connect to (null)` exception and possibly crash.
 
-
 ## Printable Document Types
 
 The list of supported document types differ between mobile platforms. As of writing, Windows UWP only supports HTML and plain text.
@@ -172,10 +174,43 @@ Or in particular:
 cordova.plugins.printer.canPrintItem('file://css/index.css', callback);
 ```
 
+## Sample
+
+```js
+var options = {
+    font: {
+        size: 22,
+        italic: true,
+        align: 'center'
+    },
+    header: {
+        height: '6cm',
+        label: {
+            text: "\n\nDie Freuden",
+            font: {
+                bold: true,
+                size: 37,
+                align: 'center'
+            }
+        }
+    },
+    footer: {
+        height: '4cm',
+        label: {
+            text: 'Johann Wolfgang von Goethe, 1749-1832, deutscher Dichter, Naturforscher',
+            font: { align: 'center' }
+        }
+    }
+};
+
+cordova.plugins.printer.print("Es flattert um die Quelle\nDie wechselnde Libelle,...", options);
+```
+
+The result will look like this for iOS:
+
+![ttt](https://github.com/katzer/cordova-plugin-printer/blob/example/images/sample.png)
 
 ## Installation
-
-The plugin can be installed via [CLI][CLI] and is publicly available on [NPM][npm].
 
 Execute from the projects root folder:
 
@@ -197,7 +232,6 @@ Then execute:
 
     cordova build
 
-
 ## Contributing
 
 1. Fork it
@@ -205,7 +239,6 @@ Then execute:
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
-
 
 ## License
 
@@ -217,7 +250,5 @@ Made with :yum: from Leipzig
 
 
 [cordova]: https://cordova.apache.org
-[CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
-[npm]: https://www.npmjs.com/package/cordova-plugin-printer
 [apache2_license]: http://opensource.org/licenses/Apache-2.0
 [appplant]: www.appplant.de
