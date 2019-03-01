@@ -162,8 +162,7 @@ class PrintIO
         InputStream stream  = openAsset(path);
         Bitmap bitmap;
 
-        if (stream == null)
-            return null;
+        if (stream == null) return null;
 
         bitmap = BitmapFactory.decodeStream(stream);
 
@@ -248,7 +247,8 @@ class PrintIO
         String dirName  = "drawable";
         String fileName = resPath;
 
-        if (resPath.contains("/")) {
+        if (resPath.contains("/"))
+        {
             dirName  = resPath.substring(0, resPath.lastIndexOf('/'));
             fileName = resPath.substring(resPath.lastIndexOf('/') + 1);
         }
@@ -256,11 +256,13 @@ class PrintIO
         String resName = fileName.substring(0, fileName.lastIndexOf('.'));
         int resId      = res.getIdentifier(resName, dirName, pkgName);
 
-        if (resId == 0) {
+        if (resId == 0)
+        {
             resId = res.getIdentifier(resName, "mipmap", pkgName);
         }
 
-        if (resId == 0) {
+        if (resId == 0)
+        {
             resId = res.getIdentifier(resName, "drawable", pkgName);
         }
 
@@ -270,14 +272,16 @@ class PrintIO
     /**
      * Returns the asset manager for the app.
      */
-    private AssetManager getAssets() {
+    private AssetManager getAssets()
+    {
         return context.getAssets();
     }
 
     /**
      * Returns the resource bundle for the app.
      */
-    private Resources getResources() {
+    private Resources getResources()
+    {
         return context.getResources();
     }
 }
