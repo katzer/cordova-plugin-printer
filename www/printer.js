@@ -268,12 +268,6 @@ exports._mergeWithDefaults = function (options)
         }
     }
 
-    options.meta =
-    {
-        plugin:  'cordova-plugin-printer',
-        version: '0.8.0-beta'
-    };
-
     return options;
 };
 
