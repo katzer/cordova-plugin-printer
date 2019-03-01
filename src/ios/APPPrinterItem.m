@@ -47,7 +47,7 @@
  */
 + (BOOL) canPrintURL:(nullable NSString *)url
 {
-    if (![NSURL URLWithString:url])
+    if (![NSURL URLWithString:url].scheme)
     {
         return UIPrintInteractionController.isPrintingAvailable;
     }
