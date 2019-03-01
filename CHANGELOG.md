@@ -1,6 +1,13 @@
 ## ChangeLog
-#### Version 0.7.4 (not yet released)
-- Fix broken _check_ and _pick_ on Android N and above
+
+#### Version 0.8.0 (01.03.2019)
+- Most parts of the code has been rewritten
+- Added support for Android 8+
+- Added support for iOS 10+
+- Added support for the browser platform
+- Added support for header and foooter
+- Added support to print PDF files, images, Base64 encoded images
+- And many more, see the new README
 
 #### Version 0.7.3 (19.12.2016)
 - Fixed incompatibility with Android KitKat (4.4)

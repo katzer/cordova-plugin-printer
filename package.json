@@ -1,13 +1,14 @@
 {
   "name": "cordova-plugin-printer",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Prints HTML documents",
   "cordova": {
     "id": "cordova-plugin-printer",
     "platforms": [
       "ios",
       "android",
-      "windows"
+      "windows",
+      "browser"
     ]
   },
   "repository": {
@@ -21,7 +22,8 @@
     "ecosystem:cordova",
     "cordova-ios",
     "cordova-android",
-    "cordova-windows"
+    "cordova-windows",
+    "cordova-browser"
   ],
   "engines": [
     {
@@ -42,5 +44,6 @@
   "bugs": {
     "url": "https://github.com/katzer/cordova-plugin-printer/issues"
   },
-  "homepage": "https://github.com/katzer/cordova-plugin-printer#readme"
+  "homepage": "https://github.com/katzer/cordova-plugin-printer#readme",
+  "dependencies": {}
 }
