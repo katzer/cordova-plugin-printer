@@ -1,9 +1,6 @@
-
 # Cordova Print Plugin - Sample App
 
 Plugin for [Cordova][cordova] to print documents, photos, HTML and plain text from iOS, Android and Windows Universal apps.
-
-![Sample](images/sample.png)
 
 ## Instructions
 
@@ -23,10 +20,10 @@ These will lunch the simulator or any plugged in device and start the example ap
 
 Please follow the plugin's [README][readme] for further requirements and informations.
 
+![Sample](images/sample.png)
 
 ### Testing in the iOS Simulator
 There's no need to waste lots of paper when testing - if you're using the iOS simulator, install the [Hardware IO Tools for Xcode][xcode_io_tools] and select _Xcode -> Open Developer Tool -> Printer Simulator_ to open some dummy printers.
-
 
 ## Contributing
 
@@ -36,7 +33,6 @@ There's no need to waste lots of paper when testing - if you're using the iOS si
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-
 ## License
 
 This software is released under the [Apache 2.0 License][apache2_license].
@@ -44,7 +40,6 @@ This software is released under the [Apache 2.0 License][apache2_license].
 Made with :yum: from Leipzig
 
 © 2013 [appPlant GmbH][appplant]
-
 
 [cordova]: https://cordova.apache.org
 [readme]: https://github.com/katzer/cordova-plugin-printer/blob/master/README.md
