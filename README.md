@@ -104,6 +104,7 @@ The list of possible options depend on the platform, the content type and the ca
 | autoFit | Set to _false_ to disable downscaling the image to fit into the content aread. | Boolean | Android |
 | printer | The network URL to the printer. | String | iOS |
 | maxHeight<br>maxWidth | Defines the maximum size of the content area. | Unit | iOS |
+| margin | Set to _false_ to avoid margins. | Boolean | all |
 | margin.top<br>margin.left<br>margin.right<br>margin.bottom | The margins for each printed page. Each printer might have its own minimum margins depends on media type and paper format. | Unit | iOS |
 | ui.hideNumberOfCopies | Set to _true_ to hide the control for the number of copies. | Boolean | iOS |
 | ui.hidePaperFormat | Set to _true_ to hide the control for the paper format. | Boolean | iOS |
