@@ -121,7 +121,7 @@
     APPPrinterPaper* paperSpec = [[APPPrinterPaper alloc]
                                   initWithDictionary:ctrl.settings[@"paper"]];
 
-    return paperSpec.length || paper.paperSize.height;
+    return (paperSpec.length)?paperSpec.length:paper.paperSize.height;
 }
 
 #pragma mark -
