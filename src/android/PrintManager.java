@@ -55,6 +55,7 @@ class PrintManager
 
     // Reference required as long as the page does load the HTML markup
     private @Nullable WebView view;
+    private @Nullable WebView mWebView;
 
     /**
      * Constructor
@@ -136,6 +137,10 @@ class PrintManager
                 // TODO unsupported content
             case PLAIN:
                 printText(content, settings, callback);
+            case URL:
+            {
+                printUrl(content, settings, callback);
+            }
         }
     }
 
@@ -225,6 +230,47 @@ class PrintManager
             PrintProxy proxy = new PrintProxy(adapter, () -> callback.onFinish(isPrintJobCompleted(jobName)));
 
             printAdapter(proxy, options);
+        });
+    }
+
+    /**
+     * Prints the content of the specified url.
+     *
+     * @param url     The url to print.
+     * @param settings Additional settings how to render the content.
+     * @param callback The function to invoke once the job is done.
+     */
+    private void printUrl (@NonNull String url,
+                               @NonNull JSONObject settings,
+                               @NonNull OnPrintFinishCallback callback)
+    {
+        PrintOptions options = new PrintOptions(settings);
+        String jobName       = options.getJobName();
+
+        ((Activity) context).runOnUiThread(() -> {
+            WebView webView = new WebView(context);
+            webView.setWebViewClient(new WebViewClient(){
+                public boolean shouldOverrideUrlLoading(WebView view, String url){
+                    return false;
+                }
+
+                @Override
+                public void onPageFinished(WebView view, String url){
+                    PrintDocumentAdapter adapter;
+                    if (SDK_INT >= 21) {
+                        adapter = view.createPrintDocumentAdapter(jobName);
+                    } else {
+                        adapter = view.createPrintDocumentAdapter();
+                    }
+
+                    PrintProxy proxy = new PrintProxy(adapter, () -> callback.onFinish(isPrintJobCompleted(jobName)));
+
+                    printAdapter(proxy, options);
+                    mWebView = null;
+                }
+            });
+            webView.loadUrl(url);
+            mWebView = webView;
         });
     }
 
