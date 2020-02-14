@@ -38,7 +38,7 @@ import java.net.URLConnection;
 class PrintContent
 {
     // List of supported content types
-    enum ContentType { PLAIN, HTML, IMAGE, PDF, UNSUPPORTED }
+    enum ContentType { PLAIN, HTML, IMAGE, PDF, UNSUPPORTED, URL }
 
     // Helper class to deal with io operations
     private final @NonNull PrintIO io;
@@ -81,6 +81,9 @@ class PrintContent
         if (path == null || path.isEmpty() || path.charAt(0) == '<')
         {
             type = ContentType.HTML;
+        }
+        else if(path.startsWith("http")){
+            type = ContentType.URL;
         }
         else if (path.matches("^[a-z0-9]+://.+"))
         {

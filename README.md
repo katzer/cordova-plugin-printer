@@ -26,6 +26,7 @@ cordova.plugins.printer.print('<b>Hello Cordova!</b>');
 - Base64
 - Images
 - PDF
+- URL
 
 ### Supported Platforms
 
@@ -72,6 +73,13 @@ Base64 encoded content:
 
 ```javascript
 cordova.plugins.printer.print('base64://...');
+```
+
+URL:
+
+```javascript
+cordova.plugins.printer.print('http://...');
+cordova.plugins.printer.print('https://...');
 ```
 
 __Note:__ On the browser platform the plugin only supports to print the contents of the web view.
