@@ -28,8 +28,8 @@ import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
-import android.support.annotation.NonNull;
-import android.support.v4.print.PrintHelper;
+import androidx.annotation.NonNull;
+import androidx.print.PrintHelper;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,8 +41,7 @@ import static android.print.PrintDocumentInfo.CONTENT_TYPE_DOCUMENT;
 /**
  * Document adapter to render and print PDF files.
  */
-class PrintAdapter extends PrintDocumentAdapter
-{
+class PrintAdapter extends PrintDocumentAdapter {
     // The name of the print job
     private final @NonNull String jobName;
 
@@ -63,31 +62,23 @@ class PrintAdapter extends PrintDocumentAdapter
      * @param input     The input stream to render.
      * @param callback  The callback to inform once the job is done.
      */
-    PrintAdapter (@NonNull String jobName, int pageCount,
-                  @NonNull InputStream input,
-                  @NonNull PrintHelper.OnPrintFinishCallback callback)
-    {
-        this.jobName   = jobName;
+    PrintAdapter(@NonNull String jobName, int pageCount, @NonNull InputStream input,
+            @NonNull PrintHelper.OnPrintFinishCallback callback) {
+        this.jobName = jobName;
         this.pageCount = pageCount;
-        this.input     = input;
-        this.callback  = callback;
+        this.input = input;
+        this.callback = callback;
     }
 
     @Override
-    public void onLayout (PrintAttributes oldAttributes,
-                          PrintAttributes newAttributes,
-                          CancellationSignal cancellationSignal,
-                          LayoutResultCallback callback,
-                          Bundle bundle)
-    {
+    public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
+            CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle bundle) {
         PrintDocumentInfo pdi;
 
         if (cancellationSignal.isCanceled())
             return;
 
-        pdi = new PrintDocumentInfo.Builder(jobName)
-                .setContentType(CONTENT_TYPE_DOCUMENT)
-                .setPageCount(pageCount)
+        pdi = new PrintDocumentInfo.Builder(jobName).setContentType(CONTENT_TYPE_DOCUMENT).setPageCount(pageCount)
                 .build();
 
         boolean changed = !newAttributes.equals(oldAttributes);
@@ -96,11 +87,8 @@ class PrintAdapter extends PrintDocumentAdapter
     }
 
     @Override
-    public void onWrite (PageRange[] range,
-                         ParcelFileDescriptor dest,
-                         CancellationSignal cancellationSignal,
-                         WriteResultCallback callback)
-    {
+    public void onWrite(PageRange[] range, ParcelFileDescriptor dest, CancellationSignal cancellationSignal,
+            WriteResultCallback callback) {
         if (cancellationSignal.isCanceled())
             return;
 
@@ -113,15 +101,14 @@ class PrintAdapter extends PrintDocumentAdapter
             return;
         }
 
-        callback.onWriteFinished(new PageRange[]{ PageRange.ALL_PAGES });
+        callback.onWriteFinished(new PageRange[] { PageRange.ALL_PAGES });
     }
 
     /**
      * Closes the input stream and invokes the callback.
      */
     @Override
-    public void onFinish ()
-    {
+    public void onFinish() {
         super.onFinish();
 
         PrintIO.close(input);

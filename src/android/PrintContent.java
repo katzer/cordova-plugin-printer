@@ -24,8 +24,8 @@ package de.appplant.cordova.plugin.printer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -35,10 +35,11 @@ import java.net.URLConnection;
 /**
  * Knows how to convert a resource URL into an io stream.
  */
-class PrintContent
-{
+class PrintContent {
     // List of supported content types
-    enum ContentType { PLAIN, HTML, IMAGE, PDF, UNSUPPORTED }
+    enum ContentType {
+        PLAIN, HTML, IMAGE, PDF, UNSUPPORTED
+    }
 
     // Helper class to deal with io operations
     private final @NonNull PrintIO io;
@@ -48,7 +49,7 @@ class PrintContent
      *
      * @param ctx The application context.
      */
-    private PrintContent (@NonNull Context ctx) {
+    private PrintContent(@NonNull Context ctx) {
         io = new PrintIO(ctx);
     }
 
@@ -60,9 +61,7 @@ class PrintContent
      * @return The content type even the file does not exist.
      */
     @NonNull
-    static ContentType getContentType (@Nullable String path,
-                                       @NonNull Context context)
-    {
+    static ContentType getContentType(@Nullable String path, @NonNull Context context) {
         return new PrintContent(context).getContentType(path);
     }
 
@@ -74,36 +73,25 @@ class PrintContent
      * @return The content type even the file does not exist.
      */
     @NonNull
-    private ContentType getContentType (@Nullable String path)
-    {
+    private ContentType getContentType(@Nullable String path) {
         ContentType type = ContentType.PLAIN;
 
-        if (path == null || path.isEmpty() || path.charAt(0) == '<')
-        {
+        if (path == null || path.isEmpty() || path.charAt(0) == '<') {
             type = ContentType.HTML;
-        }
-        else if (path.matches("^[a-z0-9]+://.+"))
-        {
+        } else if (path.matches("^[a-z0-9]+://.+")) {
             String mime;
 
-            if (path.startsWith("base64:"))
-            {
-                try
-                {
+            if (path.startsWith("base64:")) {
+                try {
                     mime = URLConnection.guessContentTypeFromStream(io.openBase64(path));
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     return ContentType.UNSUPPORTED;
                 }
-            }
-            else
-            {
+            } else {
                 mime = URLConnection.guessContentTypeFromName(path);
             }
 
-            switch (mime)
-            {
+            switch (mime) {
                 case "image/bmp":
                 case "image/png":
                 case "image/jpeg":
@@ -127,15 +115,13 @@ class PrintContent
     /**
      * Opens a file://, res:// or base64:// Uri as a stream.
      *
-     * @param path The file path to decode.
+     * @param path    The file path to decode.
      * @param context The application context.
      *
      * @return An open IO stream or null if the file does not exist.
      */
     @Nullable
-    static BufferedInputStream open (@NonNull String path,
-                                     @NonNull Context context)
-    {
+    static BufferedInputStream open(@NonNull String path, @NonNull Context context) {
         return new PrintContent(context).open(path);
     }
 
@@ -147,24 +133,16 @@ class PrintContent
      * @return An open IO stream or null if the file does not exist.
      */
     @Nullable
-    private BufferedInputStream open (@NonNull String path)
-    {
+    private BufferedInputStream open(@NonNull String path) {
         InputStream stream = null;
 
-        if (path.startsWith("res:"))
-        {
+        if (path.startsWith("res:")) {
             stream = io.openResource(path);
-        }
-        else if (path.startsWith("file:///"))
-        {
+        } else if (path.startsWith("file:///")) {
             stream = io.openFile(path);
-        }
-        else if (path.startsWith("file://"))
-        {
+        } else if (path.startsWith("file://")) {
             stream = io.openAsset(path);
-        }
-        else if (path.startsWith("base64:"))
-        {
+        } else if (path.startsWith("base64:")) {
             stream = io.openBase64(path);
         }
 
@@ -180,8 +158,7 @@ class PrintContent
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    static Bitmap decode (@NonNull String path, @NonNull Context context)
-    {
+    static Bitmap decode(@NonNull String path, @NonNull Context context) {
         return new PrintContent(context).decode(path);
     }
 
@@ -193,27 +170,18 @@ class PrintContent
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    private Bitmap decode (@NonNull String path)
-    {
+    private Bitmap decode(@NonNull String path) {
         Bitmap bitmap;
 
-        if (path.startsWith("res:"))
-        {
+        if (path.startsWith("res:")) {
             bitmap = io.decodeResource(path);
-        }
-        else if (path.startsWith("file:///"))
-        {
+        } else if (path.startsWith("file:///")) {
             bitmap = io.decodeFile(path);
-        }
-        else if (path.startsWith("file://"))
-        {
+        } else if (path.startsWith("file://")) {
             bitmap = io.decodeAsset(path);
-        }
-        else if (path.startsWith("base64:"))
-        {
+        } else if (path.startsWith("base64:")) {
             bitmap = io.decodeBase64(path);
-        }
-        else {
+        } else {
             bitmap = BitmapFactory.decodeFile(path);
         }
 
