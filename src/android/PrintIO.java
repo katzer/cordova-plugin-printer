@@ -26,8 +26,8 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
@@ -41,8 +41,7 @@ import java.io.OutputStream;
 /**
  * Provides IO utility functions to deal with the resources.
  */
-class PrintIO
-{
+class PrintIO {
     // Application context
     private final @NonNull Context context;
 
@@ -51,8 +50,7 @@ class PrintIO
      *
      * @param ctx The application context.
      */
-    PrintIO (@NonNull Context ctx)
-    {
+    PrintIO(@NonNull Context ctx) {
         context = ctx;
     }
 
@@ -62,19 +60,16 @@ class PrintIO
      * @param input  The readable input stream.
      * @param output The writable output stream.
      *
-     * @throws IOException If the input stream is not readable,
-     *                     or the output stream is not writable.
+     * @throws IOException If the input stream is not readable, or the output stream
+     *                     is not writable.
      */
-    static void copy (@NonNull InputStream input,
-                      @NonNull OutputStream output) throws IOException
-    {
+    static void copy(@NonNull InputStream input, @NonNull OutputStream output) throws IOException {
         byte[] buf = new byte[input.available()];
         int bytesRead;
 
         input.mark(Integer.MAX_VALUE);
 
-        while ((bytesRead = input.read(buf)) > 0)
-        {
+        while ((bytesRead = input.read(buf)) > 0) {
             output.write(buf, 0, bytesRead);
         }
 
@@ -87,8 +82,7 @@ class PrintIO
      *
      * @param stream The stream to close.
      */
-    static void close (@NonNull Closeable stream)
-    {
+    static void close(@NonNull Closeable stream) {
         try {
             stream.close();
         } catch (IOException e) {
@@ -104,8 +98,7 @@ class PrintIO
      * @return An open IO stream or null if the file does not exist.
      */
     @Nullable
-    InputStream openFile (@NonNull String path)
-    {
+    InputStream openFile(@NonNull String path) {
         String absPath = path.substring(7);
 
         try {
@@ -123,8 +116,7 @@ class PrintIO
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    Bitmap decodeFile (@NonNull String path)
-    {
+    Bitmap decodeFile(@NonNull String path) {
         String absPath = path.substring(7);
 
         return BitmapFactory.decodeFile(absPath);
@@ -138,8 +130,7 @@ class PrintIO
      * @return An open IO stream or null if the file does not exist.
      */
     @Nullable
-    InputStream openAsset (@NonNull String path)
-    {
+    InputStream openAsset(@NonNull String path) {
         String resPath = path.replaceFirst("file:/", "www");
 
         try {
@@ -157,12 +148,12 @@ class PrintIO
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    Bitmap decodeAsset (@NonNull String path)
-    {
-        InputStream stream  = openAsset(path);
+    Bitmap decodeAsset(@NonNull String path) {
+        InputStream stream = openAsset(path);
         Bitmap bitmap;
 
-        if (stream == null) return null;
+        if (stream == null)
+            return null;
 
         bitmap = BitmapFactory.decodeStream(stream);
 
@@ -179,10 +170,9 @@ class PrintIO
      * @return An open IO stream or null if the file does not exist.
      */
     @NonNull
-    InputStream openResource (@NonNull String path)
-    {
+    InputStream openResource(@NonNull String path) {
         String resPath = path.substring(6);
-        int resId      = getResId(resPath);
+        int resId = getResId(resPath);
 
         return getResources().openRawResource(resId);
     }
@@ -195,9 +185,8 @@ class PrintIO
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    Bitmap decodeResource (@NonNull String path)
-    {
-        String data  = path.substring(9);
+    Bitmap decodeResource(@NonNull String path) {
+        String data = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
 
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -211,9 +200,8 @@ class PrintIO
      * @return An open IO stream or null if the file does not exist.
      */
     @NonNull
-    InputStream openBase64 (@NonNull String path)
-    {
-        String data  = path.substring(9);
+    InputStream openBase64(@NonNull String path) {
+        String data = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
 
         return new ByteArrayInputStream(bytes);
@@ -227,9 +215,8 @@ class PrintIO
      * @return A bitmap or null if the path is not valid
      */
     @Nullable
-    Bitmap decodeBase64 (@NonNull String path)
-    {
-        String data  = path.substring(9);
+    Bitmap decodeBase64(@NonNull String path) {
+        String data = path.substring(9);
         byte[] bytes = Base64.decode(data, 0);
 
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -240,29 +227,25 @@ class PrintIO
      *
      * @return The resource ID for the given resource.
      */
-    private int getResId (@NonNull String resPath)
-    {
-        Resources res   = getResources();
-        String pkgName  = context.getPackageName();
-        String dirName  = "drawable";
+    private int getResId(@NonNull String resPath) {
+        Resources res = getResources();
+        String pkgName = context.getPackageName();
+        String dirName = "drawable";
         String fileName = resPath;
 
-        if (resPath.contains("/"))
-        {
-            dirName  = resPath.substring(0, resPath.lastIndexOf('/'));
+        if (resPath.contains("/")) {
+            dirName = resPath.substring(0, resPath.lastIndexOf('/'));
             fileName = resPath.substring(resPath.lastIndexOf('/') + 1);
         }
 
         String resName = fileName.substring(0, fileName.lastIndexOf('.'));
-        int resId      = res.getIdentifier(resName, dirName, pkgName);
+        int resId = res.getIdentifier(resName, dirName, pkgName);
 
-        if (resId == 0)
-        {
+        if (resId == 0) {
             resId = res.getIdentifier(resName, "mipmap", pkgName);
         }
 
-        if (resId == 0)
-        {
+        if (resId == 0) {
             resId = res.getIdentifier(resName, "drawable", pkgName);
         }
 
@@ -272,16 +255,14 @@ class PrintIO
     /**
      * Returns the asset manager for the app.
      */
-    private AssetManager getAssets()
-    {
+    private AssetManager getAssets() {
         return context.getAssets();
     }
 
     /**
      * Returns the resource bundle for the app.
      */
-    private Resources getResources()
-    {
+    private Resources getResources() {
         return context.getResources();
     }
 }
