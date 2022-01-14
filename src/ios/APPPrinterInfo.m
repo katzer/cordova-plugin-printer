@@ -52,7 +52,9 @@
         }
         else
         {
-            info.outputType = UIPrintInfoOutputGrayscale;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                info.outputType = UIPrintInfoOutputGrayscale;
+            });
         }
     }
     else if ([spec[@"photo"] boolValue])
