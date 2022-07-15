@@ -173,9 +173,12 @@
          withSettings:(NSDictionary *)settings
 {
     __block id item;
+    __block UIPrintInteractionController* ctrl;
 
-    UIPrintInteractionController* ctrl =
-    [UIPrintInteractionController sharedPrintControllerWithSettings:settings];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        ctrl =
+        [UIPrintInteractionController sharedPrintControllerWithSettings:settings];
+    });
 
     ctrl.delegate = self;
 
