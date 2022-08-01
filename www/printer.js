@@ -21,7 +21,7 @@
 
 var exec  = require('cordova/exec'),
     ua    = navigator.userAgent.toLowerCase(),
-    isIOS = ua.indexOf('ipad') > -1 || ua.indexOf('iphone') > -1;
+    isIOS = ua.indexOf('ipad') > -1 || ua.indexOf('iphone') > -1 || window.cordova.platformId === "ios";
 
 // Defaults
 exports._defaults = {
