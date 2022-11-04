@@ -27,13 +27,13 @@ import android.graphics.Bitmap;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.print.PrintHelper;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.print.PrintHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

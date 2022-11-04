@@ -24,8 +24,8 @@ package de.appplant.cordova.plugin.printer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -97,6 +97,9 @@ class PrintContent
                     return ContentType.UNSUPPORTED;
                 }
             }
+            else if (path.startsWith("pdfbase64:")) {
+                mime = "application/pdf";
+            }
             else
             {
                 mime = URLConnection.guessContentTypeFromName(path);
@@ -166,6 +169,10 @@ class PrintContent
         else if (path.startsWith("base64:"))
         {
             stream = io.openBase64(path);
+        }
+        else if (path.startsWith("pdfbase64:"))
+        {
+            stream = io.openBase64(path.substring(3));
         }
 
         return stream != null ? new BufferedInputStream(stream) : null;
