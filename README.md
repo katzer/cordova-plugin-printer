@@ -215,19 +215,19 @@ The result will look like this for iOS:
 
 Execute from the projects root folder:
 
-    $ cordova plugin add cordova-plugin-printer
+    cordova plugin add cordova-plugin-printer
 
 Or install a specific version:
 
-    $ cordova plugin add cordova-plugin-printer@VERSION
+    cordova plugin add cordova-plugin-printer@VERSION
 
 Or install the latest head version:
 
-    $ cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
+    cordova plugin add https://github.com/katzer/cordova-plugin-printer.git
 
 Or install from local source:
 
-    $ cordova plugin add <path> --nofetch --nosave
+    cordova plugin add <path> --nofetch --nosave
 
 Then execute:
 
